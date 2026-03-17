@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --ink:       #1a1612;
+  --ink-mid:   #3d3830;
+  --ink-light: #7a7268;
+  --paper:     #f5f0e8;
+  --paper-2:   #ede8df;
+  --paper-3:   #e4ddd2;
+  --saffron:   #c4620a;
+  --saffron-2: #e07520;
+  --saffron-light: #fdf0e4;
+  --rule:      #c8bfb0;
+  --mono:      'DM Mono', monospace;
+  --serif:     'Fraunces', serif;
+  --display:   'Instrument Serif', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000; opacity: 0.4;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 48px;
+  background: rgba(245,240,232,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav-logo span { color: var(--saffron); }
+
+.nav-links {
+  display: flex; gap: 36px; list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--saffron); }
+
+.nav-github {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid var(--ink);
+  padding: 7px 16px;
+  transition: all 0.2s;
+}
+
+.nav-github:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 0 48px;
+  padding-top: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -52%);
+  font-family: var(--display);
+  font-size: clamp(160px, 22vw, 340px);
+  font-weight: 400;
+  font-style: italic;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--paper-3);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.02em;
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: end;
+  padding-bottom: 80px;
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--saffron);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--saffron);
+}
+
+h1 {
+  font-family: var(--display);
+  font-size: clamp(48px, 6vw, 88px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+h1 em {
+  font-style: italic;
+  color: var(--saffron);
+}
+
+.hero-sub {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--ink-mid);
+  margin-top: 28px;
+  max-width: 460px;
+}
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 4px;
+}
+
+.hero-stat {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: baseline;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hero-stat:first-child { border-top: 1px solid var(--rule); }
+
+.hero-stat-num {
+  font-family: var(--mono);
+  font-size: 36px;
+  font-weight: 300;
+  color: var(--saffron);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.hero-stat-label {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+
+.hero-stat-label strong {
+  display: block;
+  font-weight: 400;
+  color: var(--ink);
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.hero-scroll {
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 32px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+  border: 1px solid var(--rule);
+  padding: 5px 12px;
+  background: var(--paper-2);
+}
+
+/* ── SECTION BASE ── */
+section {
+  padding: 120px 48px;
+  position: relative;
+}
+
+section + section {
+  border-top: 1px solid var(--rule);
+}
+
+.section-number {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--ink-light);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+.section-title em { font-style: italic; color: var(--saffron); }
+
+.section-lead {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  max-width: 640px;
+}
+
+/* ── WHY NOW ── */
+#why-now .inner {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 100px;
+  align-items: start;
+}
+
+.forces-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-top: 0;
+}
+
+.force-card {
+  background: var(--paper-2);
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.force-card:hover { background: var(--paper-3); }
+
+.force-card::before {
+  content: attr(data-n);
+  position: absolute;
+  top: -10px; right: 16px;
+  font-family: var(--mono);
+  font-size: 72px;
+  font-weight: 300;
+  color: var(--paper-3);
+  line-height: 1;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.force-card:hover::before { color: var(--saffron-light); }
+
+.force-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--saffron);
+  margin-bottom: 12px;
+}
+
+.force-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.force-body {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-mid);
+  line-height: 1.65;
+}
+
+/* ── PHILOSOPHY ── */
+#philosophy { background: var(--ink); }
+
+#philosophy .section-number { color: rgba(255,255,255,0.3); }
+#philosophy .section-title { color: var(--paper); }
+#philosophy .section-title em { color: var(--saffron-2); }
+#philosophy .section-lead { color: rgba(245,240,232,0.6); }
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 72px;
+  background: rgba(255,255,255,0.08);
+}
+
+.principle {
+  background: var(--ink);
+  padding: 48px 40px;
+  position: relative;
+  transition: background 0.25s;
+}
+
+.principle:hover { background: #252018; }
+
+.principle-roman {
+  font-family: var(--display);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--saffron);
+  opacity: 0.7;
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+
+.principle-title {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 400;
+  color: var(--paper);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.principle-body {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(245,240,232,0.55);
+  line-height: 1.7;
+}
+
+.principle-practice {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--saffron-2);
+  line-height: 1.6;
+}
+
+/* ── ARCHITECTURE ── */
+#architecture .inner {
+  display: grid;
+  grid-template-columns: 1fr 520px;
+  gap: 80px;
+  align-items: start;
+  margin-top: 64px;
+}
+
+.arch-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.arch-layer {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0;
+  background: var(--paper-2);
+  overflow: hidden;
+  cursor: default;
+  transition: all 0.2s;
+}
+
+.arch-layer:hover { background: var(--paper-3); }
+
+.arch-layer-label {
+  background: var(--ink);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.arch-layer-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(245,240,232,0.35);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.arch-layer-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--paper);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.arch-layer-content {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.arch-layer-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.arch-layer-items {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--ink-light);
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+.arch-layer-items span {
+  display: inline-block;
+  margin-right: 6px;
+  color: var(--saffron);
+}
+
+.arch-side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.arch-principle-box {
+  background: var(--saffron);
+  padding: 36px 36px;
+  color: var(--paper);
+}
+
+.arch-principle-box .label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.arch-principle-box .title {
+  font-family: var(--display);
+  font-size: 26px;
+  font-style: italic;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+
+.arch-principle-box .body {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 300;
+  opacity: 0.85;
+  line-height: 1.65;
+}
+
+.decision-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.decision-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 2px solid var(--ink);
+  background: var(--paper-2);
+}
+
+.decision-table td {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-mid);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.decision-table tr:hover td { background: var(--paper-2); }
+
+.decision-table td:first-child {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.badge-keep {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  background: #e8f4ec;
+  color: #2d6b42;
+  border: 1px solid #b8dfc4;
+}
+
+.badge-oss {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  background: var(--saffron-light);
+  color: var(--saffron);
+  border: 1px solid #f0c090;
+}
+
+/* ── WORKFLOW ── */
+#workflow { background: var(--paper-2); }
+
+#workflow .inner {
+  margin-top: 64px;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  position: relative;
+}
+
+.workflow-step {
+  background: var(--paper);
+  padding: 40px 32px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.workflow-step:hover { background: var(--saffron-light); }
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--saffron);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.step-num::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+.step-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.step-body {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-mid);
+  line-height: 1.65;
+}
+
+.step-sla {
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--saffron);
+}
+
+.workflow-second-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.hitl-banner {
+  grid-column: 1 / -1;
+  background: var(--ink);
+  padding: 36px 40px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 40px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.hitl-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--saffron-2);
+  white-space: nowrap;
+}
+
+.hitl-body {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(245,240,232,0.65);
+  line-height: 1.6;
+}
+
+.hitl-body strong { color: var(--paper); font-weight: 400; }
+
+.hitl-threshold {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--saffron-2);
+  white-space: nowrap;
+  text-align: right;
+  line-height: 1.8;
+}
+
+/* ── COST ── */
+#cost .inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  margin-top: 64px;
+}
+
+.cost-table-wrap {
+  overflow: hidden;
+}
+
+.cost-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cost-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper);
+  text-align: left;
+  padding: 12px 18px;
+  background: var(--ink);
+}
+
+.cost-table th:last-child { text-align: right; }
+
+.cost-table td {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-mid);
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+.cost-table tr:nth-child(even) td { background: var(--paper-2); }
+
+.cost-table td:first-child { color: var(--ink); font-weight: 400; }
+.cost-table td:last-child {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--saffron);
+  white-space: nowrap;
+}
+
+.cost-table .total-row td {
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 400;
+  border-bottom: none;
+  padding: 16px 18px;
+}
+
+.cost-table .total-row td:last-child {
+  color: var(--saffron-2);
+  font-size: 15px;
+}
+
+.cost-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cost-big-num {
+  padding: 48px 40px;
+  background: var(--saffron);
+  color: var(--paper);
+}
+
+.cost-big-num .eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.cost-big-num .num {
+  font-family: var(--mono);
+  font-size: 64px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.cost-big-num .denom {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 300;
+  opacity: 0.8;
+  margin-top: 8px;
+}
+
+.comparator {
+  background: var(--paper-2);
+  padding: 32px;
+}
+
+.comparator-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+}
+
+.compare-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.compare-row:last-child { border-bottom: none; }
+
+.compare-name {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-mid);
+}
+
+.compare-name.this {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.compare-cost {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-light);
+}
+
+.compare-cost.this {
+  color: var(--saffron);
+  font-weight: 500;
+}
+
+/* ── ROADMAP ── */
+#roadmap .inner {
+  margin-top: 64px;
+}
+
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+}
+
+.roadmap-phase {
+  background: var(--paper-2);
+  padding: 40px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.roadmap-phase:hover { background: var(--paper-3); }
+
+.roadmap-phase.active {
+  background: var(--ink);
+}
+
+.phase-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--saffron);
+  margin-bottom: 12px;
+}
+
+.roadmap-phase.active .phase-num { color: var(--saffron-2); }
+
+.phase-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 16px;
+  line-height: 1.35;
+}
+
+.roadmap-phase.active .phase-title { color: var(--paper); }
+
+.phase-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.phase-items li {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-mid);
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+
+.roadmap-phase.active .phase-items li { color: rgba(245,240,232,0.55); }
+
+.phase-items li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--saffron);
+  font-size: 11px;
+}
+
+.phase-quarter {
+  margin-top: 24px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-light);
+  letter-spacing: 0.06em;
+}
+
+.roadmap-phase.active .phase-quarter { color: rgba(245,240,232,0.3); }
+
+.roadmap-phase-bg {
+  position: absolute;
+  bottom: -16px; right: -8px;
+  font-family: var(--mono);
+  font-size: 88px;
+  font-weight: 300;
+  color: rgba(0,0,0,0.04);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.roadmap-phase.active .roadmap-phase-bg { color: rgba(255,255,255,0.04); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 64px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+  background: var(--paper);
+}
+
+.footer-brand {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.footer-brand span { color: var(--saffron); }
+
+.footer-sub {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-light);
+  line-height: 1.6;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--saffron); }
+
+.footer-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--ink-light);
+  line-height: 1.9;
+  letter-spacing: 0.03em;
+}
+
+/* ── SCROLL ANIMATIONS ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .hero-content { grid-template-columns: 1fr; gap: 48px; }
+  #why-now .inner { grid-template-columns: 1fr; }
+  .principles-grid { grid-template-columns: 1fr 1fr; }
+  #architecture .inner { grid-template-columns: 1fr; }
+  .workflow-grid { grid-template-columns: 1fr 1fr; }
+  .workflow-second-row { grid-template-columns: 1fr 1fr; }
+  #cost .inner { grid-template-columns: 1fr; }
+  .roadmap-grid { grid-template-columns: 1fr 1fr; }
+  footer { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  section { padding: 80px 24px; }
+  .hero { padding: 80px 24px 0; }
+  .principles-grid { grid-template-columns: 1fr; }
+  .workflow-grid { grid-template-columns: 1fr; }
+  .workflow-second-row { grid-template-columns: 1fr; }
+  .roadmap-grid { grid-template-columns: 1fr; }
+  .hitl-banner { grid-template-columns: 1fr; gap: 16px; }
+  footer { grid-template-columns: 1fr; padding: 48px 24px; }
+  .forces-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="#why-now">Why Now</a></li>
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#cost">Cost</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">HR</div>
+
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Architecture Portfolio · 2026</div>
+      <h1>The HR system that <em>works</em> the way your workforce does.</h1>
+      <p class="hero-sub">Two billion deskless workers have no HR system. Not because the technology doesn't exist — because every HR system was built for the person sitting at a desk, not the one standing at a loom.<br><br>The Autonomous HR runs on WhatsApp and a phone call. No app. No portal. No HR department required.</p>
+
+      <div class="hero-tags" style="margin-top:36px;">
+        <span class="tag">WhatsApp-native</span>
+        <span class="tag">Voice · IVR</span>
+        <span class="tag">Policy-governed RAG</span>
+        <span class="tag">TOGAF ADM</span>
+        <span class="tag">GCP + OSS hybrid</span>
+        <span class="tag">HITL-gated</span>
+        <span class="tag">Multi-language STT</span>
+        <span class="tag">Deskless workforce</span>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-stat">
+        <div class="hero-stat-num">2.7B</div>
+        <div class="hero-stat-label">
+          <strong>Deskless workers globally</strong>
+          Without access to a single HR system designed for them
+        </div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">&lt; 60s</div>
+        <div class="hero-stat-label">
+          <strong>Leave approved, confirmed, recorded</strong>
+          From voice note to WhatsApp confirmation
+        </div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">$0.15</div>
+        <div class="hero-stat-label">
+          <strong>Per employee per month</strong>
+          Full HR automation at near-zero infrastructure cost
+        </div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">0</div>
+        <div class="hero-stat-label">
+          <strong>New apps to install</strong>
+          Works on any Android with WhatsApp already installed
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY NOW -->
+<section id="why-now">
+  <div class="inner">
+    <div>
+      <div class="section-number reveal">01 — Why Now</div>
+      <h2 class="section-title reveal reveal-delay-1">Four conditions <em>finally</em> aligned.</h2>
+      <p class="section-lead reveal reveal-delay-2">The deskless workforce has existed for all of human history. The gap in HR tooling has existed for decades. What changed is not the problem — it's the infrastructure available to solve it.</p>
+    </div>
+
+    <div class="forces-grid">
+      <div class="force-card reveal" data-n="1">
+        <div class="force-label">Force — 01</div>
+        <div class="force-title">WhatsApp reached ubiquity in the global workforce</div>
+        <div class="force-body">A factory worker in Lagos, a construction crew in Jakarta, a garment worker in Dhaka — they all share one thing: WhatsApp. Not an enterprise app. Not a portal. WhatsApp. 2.5 billion active users, the majority of them not sitting at a desk.</div>
+      </div>
+
+      <div class="force-card reveal reveal-delay-1" data-n="2">
+        <div class="force-label">Force — 02</div>
+        <div class="force-title">Multilingual speech recognition crossed the accuracy threshold</div>
+        <div class="force-body">Whisper large-v3 achieves word error rates below 8% across 99 languages — including regional dialects, accented speech, and code-switching. For the first time, a system can hear a worker speak naturally and understand them reliably.</div>
+      </div>
+
+      <div class="force-card reveal reveal-delay-2" data-n="3">
+        <div class="force-label">Force — 03</div>
+        <div class="force-title">LLMs can reason against a policy document in real time</div>
+        <div class="force-body">A business owner uploads a PDF. The system indexes it. Every HR decision — leave approval, grievance routing, entitlement calculation — is now governed by that document in real time. Policy changes take effect immediately, without a code deploy.</div>
+      </div>
+
+      <div class="force-card reveal reveal-delay-3" data-n="4">
+        <div class="force-label">Force — 04</div>
+        <div class="force-title">Serverless infrastructure collapsed the cost floor</div>
+        <div class="force-body">Cloud Run, Firestore, and Pub/Sub scale to zero when idle. A 50-person business running 500 HR interactions a month pays for 500 interactions — not for a server running 24/7. The economics of enterprise HR infrastructure are now available at street-stall scale.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy">
+  <div class="section-number reveal">02 — Philosophy</div>
+  <h2 class="section-title reveal reveal-delay-1">Three principles.<br><em>Non-negotiable.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">These aren't design preferences. They are architectural constraints derived from the reality of the workforce this system serves. Every component satisfies all three.</p>
+
+  <div class="principles-grid">
+    <div class="principle reveal">
+      <div class="principle-roman">I</div>
+      <div class="principle-title">The channel meets the worker. Not the other way around.</div>
+      <div class="principle-body">No new app. No new login. No instruction manual. Every employee interaction happens on WhatsApp or a voice call — the channels already embedded in their daily lives before they ever heard of this system. An HR system that requires onboarding has already failed the workforce it claims to serve.</div>
+      <div class="principle-practice">In practice: A worker sends a WhatsApp voice note in their language. Within 60 seconds they receive a written confirmation. They never interacted with software.</div>
+    </div>
+
+    <div class="principle reveal reveal-delay-1">
+      <div class="principle-roman">II</div>
+      <div class="principle-title">The policy document is the system. Code is just the executor.</div>
+      <div class="principle-body">All decision logic derives from a single HR Policy PDF uploaded by the employer. No business rules are hardcoded in the application layer. When the policy changes — a new leave quota, a revised notice period — the employer uploads a new PDF. The system's behaviour changes immediately, without a developer, without a ticket, without a deployment.</div>
+      <div class="principle-practice">In practice: The RAG store indexes every clause. Every decision traces to a source page and paragraph. The audit log cites the policy, not the code.</div>
+    </div>
+
+    <div class="principle reveal reveal-delay-2">
+      <div class="principle-roman">III</div>
+      <div class="principle-title">Human oversight is a designed mechanism, not a fallback.</div>
+      <div class="principle-body">The system does not attempt to automate everything. When policy is ambiguous, when a legal threshold is approached, when confidence falls below 0.8 — the system pauses, composes a complete brief, and routes to the employer via WhatsApp. The employer taps Approve or Deny. This is not a failure mode. It is a first-class architectural state.</div>
+      <div class="principle-practice">In practice: HITL triggers on &lt;3% of interactions. Each escalation arrives as a WhatsApp message with full context, AI recommendation, and one-tap resolution.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="section-number reveal">03 — Architecture</div>
+  <h2 class="section-title reveal reveal-delay-1">GCP as the backbone.<br><em>OSS at the inference edges.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">The customer already has GCP. The architecture keeps GCP for everything it does best — managed identity, eventing, serverless compute, and LLM inference — and surgically replaces the expensive AI inference layers with open-source equivalents where latency and accuracy guarantees hold.</p>
+
+  <div class="inner">
+    <div>
+      <div class="arch-stack">
+
+        <div class="arch-layer reveal">
+          <div class="arch-layer-label">
+            <div class="arch-layer-num">L1</div>
+            <div class="arch-layer-name">Employee Channels</div>
+          </div>
+          <div class="arch-layer-content">
+            <div class="arch-layer-title">WhatsApp Business API · IVR Voice Gateway</div>
+            <div class="arch-layer-items">
+              <span>↳</span> Meta WhatsApp Business API (Cloud) · 1,000 conversations/month free tier<br>
+              <span>↳</span> Exotel / Plivo SIP · local PSTN · ~$0.005/min · India / SEA / Africa DCs
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-layer reveal reveal-delay-1">
+          <div class="arch-layer-label">
+            <div class="arch-layer-num">L2</div>
+            <div class="arch-layer-name">Speech & Language</div>
+          </div>
+          <div class="arch-layer-content">
+            <div class="arch-layer-title">Whisper large-v3 · IndicTrans2 / NLLB-200</div>
+            <div class="arch-layer-items">
+              <span>↳</span> Whisper on Cloud Run GPU spot · 83% cheaper than managed STT · equal accuracy<br>
+              <span>↳</span> NLLB-200 (Meta OSS) · 200 languages · purpose-built for low-resource languages
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-layer reveal reveal-delay-2">
+          <div class="arch-layer-label">
+            <div class="arch-layer-num">L3</div>
+            <div class="arch-layer-name">AI Orchestration</div>
+          </div>
+          <div class="arch-layer-content">
+            <div class="arch-layer-title">Gemini 1.5 Flash · LangGraph · pgvector RAG</div>
+            <div class="arch-layer-items">
+              <span>↳</span> Gemini Flash on Vertex AI · intent routing + agent reasoning · $0.075/1M tokens<br>
+              <span>↳</span> LangGraph state machines · Leave · Payroll · Onboarding · Grievance agents<br>
+              <span>↳</span> pgvector on Supabase · HR Policy PDF indexed · free tier covers any SMB
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-layer reveal reveal-delay-3">
+          <div class="arch-layer-label">
+            <div class="arch-layer-num">L4</div>
+            <div class="arch-layer-name">Data & Audit</div>
+          </div>
+          <div class="arch-layer-content">
+            <div class="arch-layer-title">Firestore · Pub/Sub · Cloud Functions</div>
+            <div class="arch-layer-items">
+              <span>↳</span> Firestore · employee records · leave ledger · HITL queue · session state<br>
+              <span>↳</span> Append-only audit log · every decision cites policy clause · 7-year retention<br>
+              <span>↳</span> Pub/Sub event fabric · decoupled · guaranteed delivery · $0 at SMB scale
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top: 32px;">
+        <table class="decision-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Decision</th>
+              <th>Cost saving</th>
+              <th>SLA risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>STT</td>
+              <td>Whisper OSS on Cloud Run <span class="badge-oss">OSS</span></td>
+              <td>83%</td>
+              <td>Low — fallback to managed</td>
+            </tr>
+            <tr>
+              <td>Translation</td>
+              <td>NLLB-200 / IndicTrans2 <span class="badge-oss">OSS</span></td>
+              <td>~100%</td>
+              <td>Low — better low-resource</td>
+            </tr>
+            <tr>
+              <td>LLM reasoning</td>
+              <td>Gemini 1.5 Flash <span class="badge-keep">GCP</span></td>
+              <td>Baseline</td>
+              <td>None — managed SLA</td>
+            </tr>
+            <tr>
+              <td>Vector store</td>
+              <td>pgvector on Supabase <span class="badge-oss">OSS</span></td>
+              <td>~60%</td>
+              <td>Low — free tier adequate</td>
+            </tr>
+            <tr>
+              <td>Compute</td>
+              <td>Cloud Run scale-to-zero <span class="badge-keep">GCP</span></td>
+              <td>90% vs GKE idle</td>
+              <td>None — 99.95% SLA</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="arch-side">
+      <div class="arch-principle-box reveal">
+        <div class="label">Design constraint</div>
+        <div class="title">Zero idle cost. Always.</div>
+        <div class="body">A 50-person cleaning company does not generate HR interactions at 3am. Every service scales to zero. Cloud Run, Cloud Functions, Pub/Sub — all pay-per-request. The cost model is aligned with actual usage, not theoretical peak capacity.</div>
+      </div>
+
+      <div style="background: var(--paper-2); padding: 36px;">
+        <div style="font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 20px;">Security model</div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <div style="font-family: var(--serif); font-size: 14px; font-weight: 400; color: var(--ink); margin-bottom: 4px;">Mobile number as identity</div>
+            <div style="font-family: var(--serif); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.5;">WhatsApp sender number verified by Meta. IVR caller ID verified by gateway. No password, no token, no friction.</div>
+          </div>
+          <div style="border-top: 1px solid var(--rule); padding-top: 14px;">
+            <div style="font-family: var(--serif); font-size: 14px; font-weight: 400; color: var(--ink); margin-bottom: 4px;">Append-only audit log</div>
+            <div style="font-family: var(--serif); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.5;">Firestore security rules deny update and delete on the audit collection. No service account holds write-over permissions.</div>
+          </div>
+          <div style="border-top: 1px solid var(--rule); padding-top: 14px;">
+            <div style="font-family: var(--serif); font-size: 14px; font-weight: 400; color: var(--ink); margin-bottom: 4px;">Per-service IAM identity</div>
+            <div style="font-family: var(--serif); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.5;">Each Cloud Run service has a dedicated Service Account with minimum permissions. Zero credentials in code or environment variables.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="section-number reveal">04 — The Workflow</div>
+  <h2 class="section-title reveal reveal-delay-1">Leave applied. Approved.<br><em>Confirmed. In 60 seconds.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">A worker sends a voice note. The system transcribes it, detects the language, classifies the intent, checks the policy, validates the balance, makes the decision, writes the record, and sends the confirmation — without a single human in the loop.</p>
+
+  <div class="inner">
+    <div class="workflow-grid">
+      <div class="workflow-step reveal">
+        <div class="step-num">01</div>
+        <div class="step-title">Worker sends WhatsApp voice note or calls IVR</div>
+        <div class="step-body">Speaks naturally in any language. No script, no menu, no keywords. "I need tomorrow off" in any of 200 languages.</div>
+        <div class="step-sla">Channel: WhatsApp or IVR</div>
+      </div>
+      <div class="workflow-step reveal reveal-delay-1">
+        <div class="step-num">02</div>
+        <div class="step-title">Whisper transcribes. NLLB-200 normalises intent.</div>
+        <div class="step-body">Audio → transcript → structured intent. Language detected. Code-switching handled. Confidence scored.</div>
+        <div class="step-sla">&lt; 4 seconds</div>
+      </div>
+      <div class="workflow-step reveal reveal-delay-2">
+        <div class="step-num">03</div>
+        <div class="step-title">Gemini Flash routes to the Leave Agent</div>
+        <div class="step-body">Intent classified. Employee record retrieved from Firestore. Leave balance checked. Team headcount for requested date verified.</div>
+        <div class="step-sla">&lt; 2 seconds</div>
+      </div>
+      <div class="workflow-step reveal reveal-delay-3">
+        <div class="step-num">04</div>
+        <div class="step-title">Policy RAG consulted</div>
+        <div class="step-body">Leave Agent queries the HR Policy PDF. Governing clause retrieved with confidence score. All conditions evaluated against policy.</div>
+        <div class="step-sla">&lt; 2 seconds</div>
+      </div>
+    </div>
+
+    <div class="workflow-second-row">
+      <div class="workflow-step reveal">
+        <div class="step-num">05</div>
+        <div class="step-title">Decision made autonomously</div>
+        <div class="step-body">If confidence &gt; 0.8 and policy satisfied: auto-approve or auto-deny with reason. Firestore record created atomically.</div>
+        <div class="step-sla">&lt; 1 second</div>
+      </div>
+      <div class="workflow-step reveal reveal-delay-1">
+        <div class="step-num">06</div>
+        <div class="step-title">Audit log written before notification</div>
+        <div class="step-body">Immutable record: timestamp, decision, policy clause cited, confidence score, employee ID. Written before any outbound message is sent.</div>
+        <div class="step-sla">Synchronous write</div>
+      </div>
+      <div class="workflow-step reveal reveal-delay-2">
+        <div class="step-num">07</div>
+        <div class="step-title">Confirmation sent in worker's language</div>
+        <div class="step-body">WhatsApp message in the detected language. Approval or denial with reason. Remaining balance included.</div>
+        <div class="step-sla">&lt; 2 seconds</div>
+      </div>
+      <div class="workflow-step reveal reveal-delay-3">
+        <div class="step-num">08</div>
+        <div class="step-title">Total end-to-end</div>
+        <div class="step-body">From voice note received to WhatsApp confirmation delivered. No human involved. No HR office needed.</div>
+        <div class="step-sla" style="font-size:15px; font-weight:500;">&lt; 60 seconds</div>
+      </div>
+    </div>
+
+    <div class="hitl-banner reveal">
+      <div class="hitl-label">HITL Path — &lt;3% of interactions</div>
+      <div class="hitl-body">When confidence falls below 0.8, a legal threshold is approached, or leave balance is exhausted — the system <strong>pauses</strong>. It composes a complete brief: the request, the employee record, the policy clause, the AI recommendation. The employer receives a <strong>WhatsApp message with one-tap Approve/Deny</strong>. This is not a failure mode. It is a first-class architectural state with its own audit record.</div>
+      <div class="hitl-threshold">Triggers on:<br>Confidence &lt; 0.8<br>Balance = 0<br>Legal threshold<br>Scheduling conflict</div>
+    </div>
+  </div>
+</section>
+
+<!-- COST -->
+<section id="cost">
+  <div class="section-number reveal">05 — Cost Model</div>
+  <h2 class="section-title reveal reveal-delay-1">Enterprise HR automation.<br><em>At street-stall economics.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">50 employees. 500 interactions per month. Full leave management, policy governance, multilingual voice, audit trail, HITL escalation. Running on GCP + strategic OSS. The total monthly infrastructure cost is less than a single hour of a contract HR assistant.</p>
+
+  <div class="inner">
+    <div class="cost-table-wrap reveal">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Volume</th>
+            <th style="text-align:right">Monthly cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Gemini 1.5 Flash</td>
+            <td>~500K tokens/month</td>
+            <td>$0.04</td>
+          </tr>
+          <tr>
+            <td>Whisper STT (Cloud Run GPU spot)</td>
+            <td>50 calls × 45s avg</td>
+            <td>$0.02</td>
+          </tr>
+          <tr>
+            <td>Cloud Run compute</td>
+            <td>~200 invocations, warm instance</td>
+            <td>$5.20</td>
+          </tr>
+          <tr>
+            <td>Firestore</td>
+            <td>~20K reads / 5K writes</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>Cloud Pub/Sub</td>
+            <td>~5,000 messages</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>Cloud Functions</td>
+            <td>~1,000 invocations</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>Voice gateway (SIP)</td>
+            <td>50 calls × 45s avg</td>
+            <td>$1.30</td>
+          </tr>
+          <tr>
+            <td>WhatsApp Business API</td>
+            <td>500 conversations</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>Supabase pgvector (RAG store)</td>
+            <td>~500 policy chunks</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td>NLLB-200 translation (bundled)</td>
+            <td>~300 translations</td>
+            <td>$0.00</td>
+          </tr>
+          <tr class="total-row">
+            <td><strong>Total monthly — 50 employees</strong></td>
+            <td></td>
+            <td><strong>~$6.56</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cost-right">
+      <div class="cost-big-num reveal">
+        <div class="eyebrow">Per employee · per month</div>
+        <div class="num">$0.13</div>
+        <div class="denom">Full HR automation. Every interaction. Every language.</div>
+      </div>
+
+      <div class="comparator reveal reveal-delay-1">
+        <div class="comparator-title">vs. market alternatives (50 employees)</div>
+        <div class="compare-row">
+          <span class="compare-name this">The Autonomous HR</span>
+          <span class="compare-cost this">$6.56 / month</span>
+        </div>
+        <div class="compare-row">
+          <span class="compare-name">Typical SMB HR SaaS</span>
+          <span class="compare-cost">$250–500 / month</span>
+        </div>
+        <div class="compare-row">
+          <span class="compare-name">Mid-market HR platform</span>
+          <span class="compare-cost">$800–1,200 / month</span>
+        </div>
+        <div class="compare-row">
+          <span class="compare-name">Part-time HR assistant</span>
+          <span class="compare-cost">$400–800 / month</span>
+        </div>
+        <div class="compare-row">
+          <span class="compare-name">Enterprise HR suite</span>
+          <span class="compare-cost">$2,000+ / month</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="section-number reveal">06 — Roadmap</div>
+  <h2 class="section-title reveal reveal-delay-1">Five phases.<br><em>One coherent system.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">Leave management is the highest-frequency HR interaction and the sharpest test of the voice + policy + autonomous decision stack. It ships first. Every subsequent phase inherits the same channel, the same policy engine, and the same audit architecture.</p>
+
+  <div class="inner">
+    <div class="roadmap-grid">
+      <div class="roadmap-phase active reveal">
+        <div class="phase-num">Phase 01 — Now</div>
+        <div class="phase-title">Leave Management</div>
+        <ul class="phase-items">
+          <li>Voice + WhatsApp channel</li>
+          <li>Multilingual STT · 200 languages</li>
+          <li>Policy RAG engine</li>
+          <li>Autonomous approve / deny</li>
+          <li>HITL escalation path</li>
+          <li>Immutable audit log</li>
+        </ul>
+        <div class="phase-quarter">Q2 2026</div>
+        <div class="roadmap-phase-bg">01</div>
+      </div>
+
+      <div class="roadmap-phase reveal reveal-delay-1">
+        <div class="phase-num">Phase 02</div>
+        <div class="phase-title">Employee Onboarding</div>
+        <ul class="phase-items">
+          <li>Document collection via WhatsApp</li>
+          <li>ID verification workflow</li>
+          <li>Bank detail capture</li>
+          <li>Digital offer letter delivery</li>
+          <li>Statutory registration trigger</li>
+        </ul>
+        <div class="phase-quarter">Q3 2026</div>
+        <div class="roadmap-phase-bg">02</div>
+      </div>
+
+      <div class="roadmap-phase reveal reveal-delay-2">
+        <div class="phase-num">Phase 03</div>
+        <div class="phase-title">Attendance & Payroll</div>
+        <ul class="phase-items">
+          <li>WhatsApp check-in / check-out</li>
+          <li>Attendance ledger automation</li>
+          <li>Payroll calculation engine</li>
+          <li>Payslip as WhatsApp PDF</li>
+          <li>Payment disbursement trigger</li>
+        </ul>
+        <div class="phase-quarter">Q3 2026</div>
+        <div class="roadmap-phase-bg">03</div>
+      </div>
+
+      <div class="roadmap-phase reveal reveal-delay-3">
+        <div class="phase-num">Phase 04</div>
+        <div class="phase-title">Grievance Management</div>
+        <ul class="phase-items">
+          <li>Voice / text grievance logging</li>
+          <li>Statutory register maintained</li>
+          <li>Escalation workflow</li>
+          <li>Resolution tracking</li>
+          <li>Compliance export package</li>
+        </ul>
+        <div class="phase-quarter">Q4 2026</div>
+        <div class="roadmap-phase-bg">04</div>
+      </div>
+
+      <div class="roadmap-phase reveal reveal-delay-4">
+        <div class="phase-num">Phase 05</div>
+        <div class="phase-title">Predictive Intelligence</div>
+        <ul class="phase-items">
+          <li>Attrition risk scoring</li>
+          <li>Leave pattern anomaly detection</li>
+          <li>Workforce demand forecasting</li>
+          <li>Employer insight dashboard</li>
+          <li>Explainable ML · SHAP</li>
+        </ul>
+        <div class="phase-quarter">Q1 2027</div>
+        <div class="roadmap-phase-bg">05</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">The <span>Autonomous</span> HR</div>
+    <p class="footer-sub">A production-grade architecture for autonomous HR — built for the deskless workforce. WhatsApp-native. Policy-governed. Near-zero cost.</p>
+    <p class="footer-sub" style="margin-top:12px;">A portfolio project by Siddharth Rao · Part of the Autonomous Systems series.</p>
+  </div>
+
+  <ul class="footer-links">
+    <li><a href="#why-now">Why Now</a></li>
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#cost">Cost Model</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="https://raosiddharthp.github.io/The-Autonomous-Enterprise/" target="_blank">The Autonomous Enterprise →</a></li>
+  </ul>
+
+  <div class="footer-meta">
+    Architecture Portfolio · 2026<br>
+    TOGAF ADM · GCP + OSS Hybrid<br>
+    Gemini Flash · Whisper · LangGraph<br>
+    Cloud Run · Firestore · Pub/Sub<br>
+    <br>
+    © 2026 Siddharth Rao
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
