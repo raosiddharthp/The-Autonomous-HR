@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TOGAF ADM — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:#1a1612;--ink-mid:#3d3830;--ink-light:#7a7268;
+  --paper:#f5f0e8;--paper-2:#ede8df;--paper-3:#e4ddd2;
+  --saffron:#c4620a;--saffron-2:#e07520;--saffron-light:#fdf0e4;
+  --rule:#c8bfb0;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--display:'Instrument Serif',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+/* HERO */
+.hero{padding:112px 48px 72px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:20px;right:32px;font-family:var(--display);font-size:240px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,76px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:20px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:600px;margin-bottom:40px;}
+.hero-adm-strip{display:flex;gap:2px;flex-wrap:wrap;}
+.adm-pill{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.06em;padding:8px 18px;background:var(--paper-2);color:var(--ink-light);border:1px solid var(--rule);text-decoration:none;transition:all 0.2s;}
+.adm-pill:hover,.adm-pill.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* PHASE CONTAINERS */
+.phase{padding:88px 48px;border-top:1px solid var(--rule);position:relative;}
+.phase.dark{background:var(--ink);}
+.phase.tinted{background:var(--paper-2);}
+.phase-badge{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:16px;}
+.phase.dark .phase-badge{color:var(--saffron-2);}
+.phase-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--saffron);}
+.phase.dark .phase-badge-dot{background:var(--saffron-2);}
+.phase-title{font-family:var(--display);font-size:clamp(30px,4vw,56px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:var(--ink);margin-bottom:16px;}
+.phase-title em{font-style:italic;color:var(--saffron);}
+.phase.dark .phase-title{color:var(--paper);}
+.phase.dark .phase-title em{color:var(--saffron-2);}
+.phase-lead{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.7;color:var(--ink-mid);max-width:680px;margin-bottom:56px;}
+.phase.dark .phase-lead{color:rgba(245,240,232,0.55);}
+
+/* VISION STATEMENT BOX */
+.vision-box{padding:40px 44px;border-left:4px solid var(--saffron);background:var(--saffron-light);margin-bottom:48px;}
+.vision-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:12px;}
+.vision-text{font-family:var(--display);font-size:clamp(18px,2.2vw,26px);font-style:italic;font-weight:400;line-height:1.5;color:var(--ink);}
+
+/* PRINCIPLES */
+.principles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:56px;}
+.principle{background:rgba(255,255,255,0.04);padding:36px 32px;border:1px solid rgba(255,255,255,0.06);}
+.principle-roman{font-family:var(--display);font-size:13px;font-style:italic;color:var(--saffron-2);opacity:0.7;margin-bottom:14px;letter-spacing:0.05em;}
+.principle-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--paper);line-height:1.4;margin-bottom:10px;}
+.principle-body{font-family:var(--serif);font-size:13px;font-weight:300;color:rgba(245,240,232,0.5);line-height:1.7;}
+.principle-implication{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.07);font-family:var(--mono);font-size:11px;color:var(--saffron-2);line-height:1.6;}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+
+/* CAPABILITY MAP */
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.cap-card{padding:32px 28px;background:var(--paper-2);position:relative;overflow:hidden;}
+.cap-card.highlight{background:var(--ink);}
+.cap-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;}
+.cap-card.highlight .cap-label{color:var(--saffron-2);}
+.cap-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.cap-card.highlight .cap-title{color:var(--paper);}
+.cap-asis{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-light);margin-bottom:6px;letter-spacing:0.03em;}
+.cap-card.highlight .cap-asis{color:rgba(255,255,255,0.3);}
+.cap-tobe{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.6;}
+.cap-card.highlight .cap-tobe{color:rgba(245,240,232,0.6);}
+.cap-level{margin-top:12px;font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 8px;display:inline-block;}
+.cap-full{background:#e8f4ec;color:#2d6b42;border:1px solid #b8dfc4;}
+.cap-partial{background:var(--saffron-light);color:var(--saffron);border:1px solid #f0c090;}
+
+/* DATA ENTITIES */
+.entity-table{width:100%;border-collapse:collapse;}
+.entity-table th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--paper);text-align:left;padding:12px 18px;background:var(--ink);}
+.entity-table td{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);padding:14px 18px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.5;}
+.entity-table tr:nth-child(even) td{background:var(--paper-2);}
+.entity-table td:first-child{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);white-space:nowrap;}
+.entity-table td:last-child{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+/* APP ARCHITECTURE */
+.app-stack{display:flex;flex-direction:column;gap:2px;}
+.app-layer{display:grid;grid-template-columns:180px 1fr;gap:0;background:var(--paper-2);overflow:hidden;transition:background 0.2s;}
+.app-layer:hover{background:var(--paper-3);}
+.app-layer-label{background:var(--ink);padding:24px 20px;display:flex;flex-direction:column;justify-content:center;}
+.app-layer-num{font-family:var(--mono);font-size:10px;font-weight:400;color:rgba(255,255,255,0.25);letter-spacing:0.1em;margin-bottom:5px;}
+.app-layer-name{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--paper);letter-spacing:0.04em;text-transform:uppercase;line-height:1.4;}
+.app-layer-content{padding:20px 28px;}
+.app-layer-title{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--ink);margin-bottom:6px;}
+.app-layer-detail{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--ink-light);line-height:1.7;letter-spacing:0.02em;}
+.app-layer-detail span{color:var(--saffron);}
+
+/* TECH LAYER CARDS */
+.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.tech-card{background:var(--paper-2);padding:36px 28px;}
+.tech-card.dark{background:var(--ink);}
+.tech-service{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--saffron);margin-bottom:8px;}
+.tech-card.dark .tech-service{color:var(--saffron-2);}
+.tech-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.tech-card.dark .tech-name{color:var(--paper);}
+.tech-rationale{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.65;}
+.tech-card.dark .tech-rationale{color:rgba(245,240,232,0.5);}
+.tech-tag{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;}
+.tech-t{font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 8px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08);letter-spacing:0.04em;}
+.tech-card:not(.dark) .tech-t{background:var(--paper-3);color:var(--ink-light);border-color:var(--rule);}
+
+/* MIGRATION */
+.migration-row{display:grid;grid-template-columns:120px 1fr 200px;gap:24px;align-items:center;padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.migration-row:first-child{border-top:1px solid rgba(255,255,255,0.06);}
+.migration-phase{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--saffron-2);letter-spacing:0.06em;}
+.migration-items{font-family:var(--serif);font-size:14px;font-weight:300;color:rgba(245,240,232,0.6);line-height:1.65;}
+.migration-items strong{color:var(--paper);font-weight:400;}
+.migration-date{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.25);text-align:right;letter-spacing:0.04em;}
+
+/* INLINE TABLE */
+.inline-table{width:100%;border-collapse:collapse;margin:0;}
+.inline-table th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:10px 16px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);}
+.inline-table td{font-family:var(--serif);font-size:13px;font-weight:300;color:rgba(245,240,232,0.55);padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:top;line-height:1.5;}
+.inline-table td:first-child{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.7);font-weight:400;}
+.inline-table td strong{color:var(--paper);font-weight:400;}
+
+/* PAGE NAV */
+.page-nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.page-nav-item{padding:48px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:8px;}
+.page-nav-item:hover{background:var(--paper-2);}
+.page-nav-item+.page-nav-item{border-left:1px solid var(--rule);}
+.pn-dir{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pn-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--saffron);}
+
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+.reveal-delay-3{transition-delay:0.3s;}
+
+@media(max-width:1100px){
+  .principles-grid,.cap-grid,.tech-grid,.three-col{grid-template-columns:1fr 1fr;}
+  .two-col{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  nav{padding:16px 24px;}.nav-links{display:none;}
+  .phase,.hero{padding-left:24px;padding-right:24px;}
+  .principles-grid,.cap-grid,.tech-grid,.three-col{grid-template-columns:1fr;}
+  .app-layer{grid-template-columns:1fr;}
+  .migration-row{grid-template-columns:1fr;gap:8px;}
+  .migration-date{text-align:left;}
+  .page-nav{grid-template-columns:1fr;}
+  .page-nav-item+.page-nav-item{border-left:none;border-top:1px solid var(--rule);}
+  footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-05.html">Client Brief</a></li>
+    <li><a href="page-04.html">Workflow</a></li>
+    <li><a href="page-03.html">Cost Model</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg">ADM</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Page 06<span>/</span>TOGAF ADM
+  </div>
+  <h1>TOGAF ADM.<br><em>Phases A through D.</em></h1>
+  <p class="hero-sub">The architecture of The Autonomous HR is not improvised from a technology wish-list. It is derived from business requirements, expressed through the TOGAF Architecture Development Method, and constrained at every layer by the specific realities of the Rathi Textiles deployment context.</p>
+  <div class="hero-adm-strip">
+    <a href="#phase-a" class="adm-pill active">Phase A · Vision</a>
+    <a href="#phase-b" class="adm-pill">Phase B · Business</a>
+    <a href="#phase-c" class="adm-pill">Phase C · IS Architecture</a>
+    <a href="#phase-d" class="adm-pill">Phase D · Technology</a>
+    <a href="#phase-e" class="adm-pill">Phase E · Migration</a>
+  </div>
+</div>
+
+<!-- PHASE A: ARCHITECTURE VISION -->
+<div class="phase dark" id="phase-a">
+  <div class="phase-badge reveal"><div class="phase-badge-dot"></div>TOGAF ADM — Phase A</div>
+  <div class="phase-title reveal reveal-delay-1">Architecture <em>Vision.</em></div>
+  <div class="phase-lead reveal reveal-delay-2">Phase A defines the scope, constraints, and measurable target state before any design work begins. It answers one question: what does success look like, and how will we know when we've achieved it?</div>
+
+  <div class="vision-box reveal">
+    <div class="vision-label">Architecture Vision Statement</div>
+    <div class="vision-text">"By Q4 2026, 90% of all HR interactions at Rathi Textiles — leave applications, balance queries, policy questions, and payslip delivery — will be handled autonomously without human intervention, in under 60 seconds per interaction, across all six languages spoken by the workforce, at a total infrastructure cost below ₹2,000 per month."</div>
+  </div>
+
+  <div class="principles-grid reveal">
+    <div class="principle">
+      <div class="principle-roman">I</div>
+      <div class="principle-title">The channel meets the worker, not the other way around</div>
+      <div class="principle-body">No new app. No new login. No training required. Every employee interaction happens on WhatsApp or a voice call — channels already embedded in daily life. Any solution that requires onboarding has already failed.</div>
+      <div class="principle-implication">↳ Architecture constraint: Zero new client-side software</div>
+    </div>
+    <div class="principle">
+      <div class="principle-roman">II</div>
+      <div class="principle-title">Policy governs. Code executes. Humans override.</div>
+      <div class="principle-body">All HR decision logic derives from the HR Policy PDF. No business rules are hardcoded. When the policy changes, the behaviour changes — without a developer, without a deployment, without a ticket.</div>
+      <div class="principle-implication">↳ Architecture constraint: RAG-governed decision engine</div>
+    </div>
+    <div class="principle">
+      <div class="principle-roman">III</div>
+      <div class="principle-title">Human oversight is designed in, not bolted on</div>
+      <div class="principle-body">HITL is not a fallback. It is a first-class architectural state with defined entry conditions, a presentation contract, a timeout behaviour, and an immutable audit record. Every escalation is a designed mechanism.</div>
+      <div class="principle-implication">↳ Architecture constraint: HITL on confidence &lt; 0.8</div>
+    </div>
+    <div class="principle">
+      <div class="principle-roman">IV</div>
+      <div class="principle-title">Immutable audit trail before any state mutation</div>
+      <div class="principle-body">Every agent action writes to an append-only audit log before any downstream effect. The audit trail is a by-product of normal operations — not a separate compliance process. It is the defence in a labour dispute.</div>
+      <div class="principle-implication">↳ Architecture constraint: Firestore append-only rules</div>
+    </div>
+    <div class="principle">
+      <div class="principle-roman">V</div>
+      <div class="principle-title">Serverless by default — zero idle cost</div>
+      <div class="principle-body">A 52-person textile business does not generate HR interactions at 3am. Every service scales to zero when idle. Cost aligns with actual usage. An always-on server is an architectural failure for this customer segment.</div>
+      <div class="principle-implication">↳ Architecture constraint: Cloud Run scale-to-zero</div>
+    </div>
+    <div class="principle">
+      <div class="principle-roman">VI</div>
+      <div class="principle-title">OSS at the inference edge — GCP at the control plane</div>
+      <div class="principle-body">The customer already has GCP. The architecture keeps GCP for what it does best: managed identity, eventing, and LLM inference. OSS (Whisper, IndicTrans2, pgvector) replaces managed AI services only where accuracy and latency guarantees hold.</div>
+      <div class="principle-implication">↳ Architecture constraint: Strategic hybrid — not wholesale replacement</div>
+    </div>
+  </div>
+
+  <!-- Stakeholder concerns mapped to architecture -->
+  <div class="reveal">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:20px;">Stakeholder concern → Architecture response mapping</div>
+    <table class="inline-table">
+      <thead><tr><th>Stakeholder</th><th>Primary concern</th><th>Architecture response</th></tr></thead>
+      <tbody>
+        <tr><td>Priya Rathi</td><td>Cost below ₹2,000/month, Sunday payroll reclaimed</td><td><strong>Serverless scale-to-zero. Payroll automation in Phase 3. Total infra: ~₹550/month.</strong></td></tr>
+        <tr><td>Floor workers</td><td>Confirmation in their language in &lt; 60 seconds</td><td><strong>Whisper STT + NLLB-200 translation. Multi-language response generation via Gemini Flash.</strong></td></tr>
+        <tr><td>CA / Accountant</td><td>Accurate payroll data, ESIC/EPF compliance</td><td><strong>Immutable Firestore ledger. Monthly export in Tally-compatible format. Statutory register auto-maintained.</strong></td></tr>
+        <tr><td>Labour Inspector</td><td>Leave register per Shops Act, evidence of fair treatment</td><td><strong>Append-only audit log with policy clause citation on every decision. 7-year retention.</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PHASE B: BUSINESS ARCHITECTURE -->
+<div class="phase" id="phase-b">
+  <div class="phase-badge reveal"><div class="phase-badge-dot"></div>TOGAF ADM — Phase B</div>
+  <div class="phase-title reveal reveal-delay-1">Business <em>Architecture.</em></div>
+  <div class="phase-lead reveal reveal-delay-2">Phase B defines the target business capability model — what the organisation must be able to do, and how the architecture closes the gap between current state and target state. Every capability maps directly to a pain point identified in the client brief.</div>
+
+  <div class="cap-grid reveal">
+    <div class="cap-card highlight">
+      <div class="cap-label">Capability 01 · Phase 1</div>
+      <div class="cap-title">Leave Application & Approval</div>
+      <div class="cap-asis">AS-IS: WhatsApp to supervisor, unrecorded</div>
+      <div class="cap-tobe">Worker sends voice note or message. System transcribes, checks policy and balance, approves or denies in &lt; 60 seconds. HITL fires on ambiguity. Every decision is recorded with policy clause and confidence score.</div>
+      <div class="cap-level cap-full">Full automation — 90%</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-label">Capability 02 · Phase 1</div>
+      <div class="cap-title">Leave Balance Query</div>
+      <div class="cap-asis">AS-IS: Ask supervisor verbally, often wrong</div>
+      <div class="cap-tobe">Worker asks via WhatsApp text or voice. System queries Firestore and responds in real time with casual, sick, and earned leave balances in the worker's language.</div>
+      <div class="cap-level cap-full">Full automation — 100%</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-label">Capability 03 · Phase 1</div>
+      <div class="cap-title">Policy Q&A</div>
+      <div class="cap-asis">AS-IS: Ask supervisor, answer unreliable</div>
+      <div class="cap-tobe">Worker asks any policy question in any language. Policy RAG retrieves the governing clause and responds accurately, citing the source paragraph. Every answer is consistent and auditable.</div>
+      <div class="cap-level cap-full">Full automation — 95%</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-label">Capability 04 · Phase 2</div>
+      <div class="cap-title">Employee Onboarding</div>
+      <div class="cap-asis">AS-IS: Paper forms, incomplete, ESIC delayed</div>
+      <div class="cap-tobe">Onboarding agent collects Aadhaar, PAN, bank details, emergency contact via WhatsApp conversation. Triggers ESIC/EPF registration. Delivers digital offer letter. Compliance from day one.</div>
+      <div class="cap-level cap-partial">Assisted automation — 80%</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-label">Capability 05 · Phase 3</div>
+      <div class="cap-title">Attendance & Payroll</div>
+      <div class="cap-asis">AS-IS: 4-hour Sunday manual process</div>
+      <div class="cap-tobe">WhatsApp check-in/out. Automated attendance ledger. Payroll calculation engine. Payslip delivered as WhatsApp PDF. Payment disbursement trigger to Priya's accounting workflow.</div>
+      <div class="cap-level cap-partial">Full automation — 85%</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-label">Capability 06 · Phase 4</div>
+      <div class="cap-title">Grievance Management</div>
+      <div class="cap-asis">AS-IS: Verbal, unrecorded, unresolved</div>
+      <div class="cap-tobe">Worker logs grievance via voice or text. Statutory register maintained. Escalation workflow routes to Priya. Resolution tracked. Labour inspection export generated on demand.</div>
+      <div class="cap-level cap-partial">Assisted automation — 70%</div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:48px;">
+    <div class="reveal">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:20px;">Business process — leave management (target state)</div>
+      <div class="app-stack">
+        <div class="app-layer">
+          <div class="app-layer-label"><div class="app-layer-num">Step 1</div><div class="app-layer-name">Worker initiates</div></div>
+          <div class="app-layer-content"><div class="app-layer-title">Voice note or text on WhatsApp</div><div class="app-layer-detail"><span>↳</span> Worker speaks naturally in any language · No script or menu · Voice or text</div></div>
+        </div>
+        <div class="app-layer">
+          <div class="app-layer-label"><div class="app-layer-num">Step 2</div><div class="app-layer-name">System transcribes</div></div>
+          <div class="app-layer-content"><div class="app-layer-title">Whisper STT + language normalisation</div><div class="app-layer-detail"><span>↳</span> Audio → transcript → structured intent · Language detected · &lt; 4 seconds</div></div>
+        </div>
+        <div class="app-layer">
+          <div class="app-layer-label"><div class="app-layer-num">Step 3</div><div class="app-layer-name">Policy checked</div></div>
+          <div class="app-layer-content"><div class="app-layer-title">RAG lookup + balance verification</div><div class="app-layer-detail"><span>↳</span> HR Policy PDF queried · Leave balance retrieved · Confidence scored</div></div>
+        </div>
+        <div class="app-layer">
+          <div class="app-layer-label"><div class="app-layer-num">Step 4</div><div class="app-layer-name">Decision made</div></div>
+          <div class="app-layer-content"><div class="app-layer-title">Auto-approve / deny — or HITL</div><div class="app-layer-detail"><span>↳</span> Confidence ≥ 0.8: autonomous decision · &lt; 0.8: owner notified via WhatsApp</div></div>
+        </div>
+        <div class="app-layer">
+          <div class="app-layer-label"><div class="app-layer-num">Step 5</div><div class="app-layer-name">Audit + confirm</div></div>
+          <div class="app-layer-content"><div class="app-layer-title">Immutable log → WhatsApp confirmation</div><div class="app-layer-detail"><span>↳</span> Audit log written · Worker notified in detected language · Total: &lt; 60 seconds</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:20px;">Key performance indicators — Phase 1 target</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:grid;grid-template-columns:1fr auto;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">End-to-end leave decision SLA</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--saffron);">&lt; 60s</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Autonomous decision rate (no HITL)</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--saffron);">≥ 90%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Languages supported (auto-detected)</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--saffron);">200+</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Monthly infrastructure cost</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--saffron);">≤ ₹550</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">New apps required for employees</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--saffron);">0</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">STT confidence threshold (auto-HITL)</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--saffron);">0.85</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;padding:18px 0;align-items:baseline;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Policy RAG confidence threshold (HITL)</span>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:300;color:var(--saffron);">0.80</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE C: INFORMATION SYSTEMS -->
+<div class="phase tinted" id="phase-c">
+  <div class="phase-badge reveal"><div class="phase-badge-dot"></div>TOGAF ADM — Phase C</div>
+  <div class="phase-title reveal reveal-delay-1">Information Systems <em>Architecture.</em></div>
+  <div class="phase-lead reveal reveal-delay-2">Phase C defines the application architecture and data architecture — what systems exist, what they do, and what data they manage. This is split into two sub-phases: Application Architecture (what runs) and Data Architecture (what is stored).</div>
+
+  <!-- Application Architecture -->
+  <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:20px;" class="reveal">Phase C1 · Application Architecture</div>
+  <div class="app-stack reveal">
+    <div class="app-layer">
+      <div class="app-layer-label"><div class="app-layer-num">L1</div><div class="app-layer-name">Channel Layer</div></div>
+      <div class="app-layer-content">
+        <div class="app-layer-title">WhatsApp Business API · IVR Voice Gateway</div>
+        <div class="app-layer-detail"><span>↳</span> Meta WhatsApp Cloud API — receives inbound audio/text, sends outbound confirmations and HITL alerts<br><span>↳</span> Exotel / Plivo SIP — handles inbound IVR calls, streams audio to STT service via WebSocket<br><span>↳</span> Both channels are abstracted behind a gateway interface — channel layer is provider-agnostic</div>
+      </div>
+    </div>
+    <div class="app-layer">
+      <div class="app-layer-label"><div class="app-layer-num">L2</div><div class="app-layer-name">Speech Layer</div></div>
+      <div class="app-layer-content">
+        <div class="app-layer-title">Whisper large-v3 · NLLB-200 (Meta OSS)</div>
+        <div class="app-layer-detail"><span>↳</span> Whisper: audio → transcript, language detection, confidence score — containerised on Cloud Run GPU spot<br><span>↳</span> NLLB-200: normalises code-switched speech (Hinglish, Tenglish) to structured English intent<br><span>↳</span> Fallback: Google STT v2 on Whisper service error — SLA maintained at managed-service level</div>
+      </div>
+    </div>
+    <div class="app-layer">
+      <div class="app-layer-label"><div class="app-layer-num">L3</div><div class="app-layer-name">Orchestration</div></div>
+      <div class="app-layer-content">
+        <div class="app-layer-title">Gemini 1.5 Flash · LangGraph · Leave Agent</div>
+        <div class="app-layer-detail"><span>↳</span> Intent Router (Gemini Flash): classifies intent, extracts entities, routes to specialist agent<br><span>↳</span> Leave Agent (LangGraph state machine): queries balance, calls Policy RAG, decides, triggers audit write<br><span>↳</span> HITL Manager: composes owner brief, sends WhatsApp escalation, waits for resolution webhook</div>
+      </div>
+    </div>
+    <div class="app-layer">
+      <div class="app-layer-label"><div class="app-layer-num">L4</div><div class="app-layer-name">Policy Layer</div></div>
+      <div class="app-layer-content">
+        <div class="app-layer-title">pgvector (Supabase) · Gemini Flash Embeddings</div>
+        <div class="app-layer-detail"><span>↳</span> HR Policy PDF ingested: chunked (256 tokens), embedded via Gemini Flash, stored in Supabase pgvector<br><span>↳</span> On policy update: owner uploads new PDF → re-indexing triggered automatically → behaviour updates immediately<br><span>↳</span> Every query returns: answer, source clause, page reference, confidence score</div>
+      </div>
+    </div>
+    <div class="app-layer">
+      <div class="app-layer-label"><div class="app-layer-num">L5</div><div class="app-layer-name">Data Layer</div></div>
+      <div class="app-layer-content">
+        <div class="app-layer-title">Firestore · Cloud Functions · Pub/Sub</div>
+        <div class="app-layer-detail"><span>↳</span> Firestore: employee records, leave ledger, HITL queue, session state, append-only audit log<br><span>↳</span> Cloud Functions: notification dispatcher, audit log writer, owner HITL webhook handler<br><span>↳</span> Pub/Sub: event bus decoupling all services — inbound messages, STT results, agent decisions, audit triggers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Architecture -->
+  <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin:56px 0 20px;" class="reveal">Phase C2 · Data Architecture</div>
+  <div class="reveal">
+    <table class="entity-table">
+      <thead><tr><th>Entity</th><th>Store</th><th>Key fields</th><th>Retention</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Employee</td>
+          <td>Firestore /employees/{id}</td>
+          <td>name, mobile, language_pref, dept, joining_date, leave_balance {casual, sick, earned}, esic_number</td>
+          <td>Duration + 3 years</td>
+        </tr>
+        <tr>
+          <td>Leave Request</td>
+          <td>Firestore /leave_requests/{id}</td>
+          <td>employee_id, type, dates[], status, policy_clause, rag_confidence, decision_by (AI|HUMAN), timestamp</td>
+          <td>5 years (labour law)</td>
+        </tr>
+        <tr>
+          <td>Policy Document</td>
+          <td>Supabase pgvector</td>
+          <td>chunk_text, embedding[1536], source_doc_version, clause_id, page_number</td>
+          <td>All versions retained</td>
+        </tr>
+        <tr>
+          <td>Audit Log</td>
+          <td>Firestore /audit_log/{id}</td>
+          <td>timestamp, actor, action, entity_id, policy_clause_ids[], rag_confidence, outcome, escalated(bool)</td>
+          <td>7 years (tax compliance)</td>
+        </tr>
+        <tr>
+          <td>HITL Queue</td>
+          <td>Firestore /hitl_queue/{id}</td>
+          <td>request_id, context_json, ai_recommendation, owner_notified_at, resolved_at, resolution, timeout_at</td>
+          <td>1 year post-resolution</td>
+        </tr>
+        <tr>
+          <td>Conversation Session</td>
+          <td>Firestore /sessions/{id}</td>
+          <td>channel, employee_id, state_machine_node, context, created_at, ttl: 24h</td>
+          <td>24 hours (TTL auto-delete)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PHASE D: TECHNOLOGY -->
+<div class="phase dark" id="phase-d">
+  <div class="phase-badge reveal"><div class="phase-badge-dot"></div>TOGAF ADM — Phase D</div>
+  <div class="phase-title reveal reveal-delay-1">Technology <em>Architecture.</em></div>
+  <div class="phase-lead reveal reveal-delay-2">Phase D maps every application component to a named infrastructure service or OSS technology. Every component has a justification, an alternative that was considered, and a reason it was rejected. This is the layer that makes the architecture buildable.</div>
+
+  <div class="tech-grid reveal">
+    <div class="tech-card dark">
+      <div class="tech-service">Compute · GCP</div>
+      <div class="tech-name">Cloud Run (asia-south1)</div>
+      <div class="tech-rationale">Scale-to-zero serverless. All agents, STT container, translation container, notification service. Free tier: 180K vCPU-seconds/month absorbs the majority of SMB workload. P99 response time for warm instances: &lt; 3 seconds.</div>
+      <div class="tech-tag"><span class="tech-t">Scale-to-zero</span><span class="tech-t">99.95% SLA</span><span class="tech-t">GCP managed</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">LLM · GCP Vertex AI</div>
+      <div class="tech-name">Gemini 1.5 Flash</div>
+      <div class="tech-rationale">Intent routing and agent reasoning. Retained as managed GCP service for predictable latency SLA. At $0.075/1M input tokens — cheapest capable hosted LLM. OSS alternative (Llama 3.1 8B) rejected: P99 CPU latency exceeds 8s for complex policy queries.</div>
+      <div class="tech-tag"><span class="tech-t">$0.075/1M tokens</span><span class="tech-t">Vertex SLA</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">STT · OSS on Cloud Run</div>
+      <div class="tech-name">Whisper large-v3</div>
+      <div class="tech-rationale">OpenAI OSS model containerised on Cloud Run GPU spot. WER &lt; 8% across 99 languages including Hindi, Telugu, Marathi. 83% cheaper than Google STT v2 at this interaction volume. Fallback to Google STT on error. Min-instance warm: eliminates cold start.</div>
+      <div class="tech-tag"><span class="tech-t">OSS</span><span class="tech-t">GPU spot</span><span class="tech-t">83% cost saving</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">Translation · OSS</div>
+      <div class="tech-name">NLLB-200 (Meta AI)</div>
+      <div class="tech-rationale">200-language translation model purpose-built for low-resource languages. Superior to Google Translate for Indic language code-switching (Hinglish, Tenglish). Bundled in Cloud Run container — zero marginal cost. Replaces Cloud Translation API entirely.</div>
+      <div class="tech-tag"><span class="tech-t">OSS</span><span class="tech-t">200 languages</span><span class="tech-t">~100% saving</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">Vector Store · OSS</div>
+      <div class="tech-name">pgvector on Supabase</div>
+      <div class="tech-rationale">Postgres + pgvector extension for HR Policy PDF RAG. Supabase free tier: 500MB database, adequate for any SMB policy document (~2MB). Equivalent retrieval quality to Vertex AI RAG Engine at SMB scale. ~60% cost reduction vs managed alternative.</div>
+      <div class="tech-tag"><span class="tech-t">OSS</span><span class="tech-t">Free tier</span><span class="tech-t">Supabase managed</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">Database · GCP</div>
+      <div class="tech-name">Firestore</div>
+      <div class="tech-service" style="margin-top:12px;">Messaging · GCP</div>
+      <div class="tech-name">Pub/Sub</div>
+      <div class="tech-rationale">Firestore: serverless NoSQL. Free tier covers 50K reads/day — 83× our estimated daily volume. Append-only security rules on audit log. Pub/Sub: native GCP event fabric. Guaranteed delivery. First 10GB/month free — covers SMB entirely.</div>
+      <div class="tech-tag"><span class="tech-t">Free tier</span><span class="tech-t">GCP native</span><span class="tech-t">Serverless</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">Voice Gateway · Regional</div>
+      <div class="tech-name">Exotel (India) / Plivo</div>
+      <div class="tech-rationale">India-local SIP with Mumbai and Chennai data centres. ~₹0.35/min vs Twilio's ~₹1.10/min — 68% cheaper. Lower latency via local PSTN. Provider-agnostic IVR layer: substituting with regional operator requires only gateway config change, no application code change.</div>
+      <div class="tech-tag"><span class="tech-t">India-local</span><span class="tech-t">68% saving vs Twilio</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">Channel · Meta</div>
+      <div class="tech-name">WhatsApp Business API</div>
+      <div class="tech-rationale">Meta Cloud API — user-initiated service messages carry zero Meta fee from Nov 2024. Utility templates within 24h service window: free from Jul 2025. Business-initiated HITL alerts: ~$0.011/message in India. At &lt; 50 escalations/month, WhatsApp cost rounds to negligible.</div>
+      <div class="tech-tag"><span class="tech-t">Free for service msgs</span><span class="tech-t">Meta managed</span></div>
+    </div>
+    <div class="tech-card dark">
+      <div class="tech-service">Security · GCP</div>
+      <div class="tech-name">Secret Manager · IAM · Firestore Rules</div>
+      <div class="tech-rationale">Zero credentials in source code or environment variables. Per-service IAM identities (minimum permissions). Firestore security rules deny update/delete on audit collection. WhatsApp sender number as employee identity — verified by Meta. No passwords, no tokens for workers.</div>
+      <div class="tech-tag"><span class="tech-t">Zero-credential code</span><span class="tech-t">Append-only audit</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE E: MIGRATION -->
+<div class="phase" id="phase-e">
+  <div class="phase-badge reveal"><div class="phase-badge-dot"></div>TOGAF ADM — Phase E · Migration Planning</div>
+  <div class="phase-title reveal reveal-delay-1">From paper register<br><em>to autonomous system.</em></div>
+  <div class="phase-lead reveal reveal-delay-2">Migration is not a technical challenge. It is a change management challenge. The workforce has never interacted with a formal HR system. The transition must be invisible — the system must feel like an improvement on WhatsApp, not a replacement of it.</div>
+
+  <div class="reveal" style="background:var(--ink);padding:40px;">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:24px;">Migration sequence — Rathi Textiles deployment</div>
+    <div class="migration-row">
+      <div class="migration-phase">Week 1–2</div>
+      <div class="migration-items"><strong>Owner onboarding.</strong> Priya creates the HR Policy PDF using the provided template. System indexes the document. WhatsApp Business number activated. Owner reviews HITL interface on mobile browser.</div>
+      <div class="migration-date">Pre-go-live</div>
+    </div>
+    <div class="migration-row">
+      <div class="migration-phase">Week 3</div>
+      <div class="migration-items"><strong>Employee registration.</strong> Each worker sends one WhatsApp message to the system number. Their mobile number is registered as their identity. Mohammed Irfan (supervisor) acts as floor champion — introduces the system to weaving unit staff.</div>
+      <div class="migration-date">Go-live prep</div>
+    </div>
+    <div class="migration-row">
+      <div class="migration-phase">Week 4</div>
+      <div class="migration-items"><strong>Soft launch — leave queries only.</strong> Workers use the system to check leave balances only. No leave applications processed yet. Builds familiarity with the interaction pattern. Priya monitors HITL queue — should be empty at this stage.</div>
+      <div class="migration-date">Phase 1A</div>
+    </div>
+    <div class="migration-row">
+      <div class="migration-phase">Week 5–8</div>
+      <div class="migration-items"><strong>Full Phase 1 live.</strong> Leave applications open. All decisions processed by the system. HITL fires on &lt; 3% of interactions. Priya receives weekly summary on WhatsApp. Old paper register retired. Labour notice risk eliminated.</div>
+      <div class="migration-date">Phase 1 live</div>
+    </div>
+    <div class="migration-row">
+      <div class="migration-phase">Q3 2026</div>
+      <div class="migration-items"><strong>Phase 2 — Onboarding agent.</strong> Document collection via WhatsApp replaces paper forms. ESIC/EPF registration trigger automated. New joinee experience: entire onboarding completed on their phone before day one.</div>
+      <div class="migration-date">Phase 2</div>
+    </div>
+    <div class="migration-row">
+      <div class="migration-phase">Q3–Q4 2026</div>
+      <div class="migration-items"><strong>Phase 3 — Payroll automation.</strong> WhatsApp check-in/out replaces attendance register. Payroll calculation automated. Priya's Sunday evening is freed. Payslips delivered to all 52 workers on WhatsApp — first time any of them have received a payslip.</div>
+      <div class="migration-date">Phase 3</div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;padding:32px 36px;background:var(--saffron-light);border-left:4px solid var(--saffron);" class="reveal">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;">Migration risk — and why it is low</div>
+    <div style="font-family:var(--serif);font-size:15px;font-weight:300;color:var(--ink-mid);line-height:1.7;">The primary migration risk is worker non-adoption. This risk is structurally mitigated by the channel choice: workers are not adopting a new platform. They are using WhatsApp — which they already open 24 times a day — to interact with a new number. The behavioural change is minimal. The system does not ask workers to change how they communicate; it inserts itself into communication they were already having.</div>
+  </div>
+</div>
+
+<div class="page-nav">
+  <a href="page-05.html" class="page-nav-item">
+    <span class="pn-dir">← Previous</span>
+    <span class="pn-title">Client Brief</span>
+  </a>
+  <a href="page-07.html" class="page-nav-item" style="text-align:right;">
+    <span class="pn-dir">Next →</span>
+    <span class="pn-title">Agent Architecture</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 06 · TOGAF ADM · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06, rootMargin: '0px 0px -28px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ADM nav scroll spy
+const phases = ['phase-a','phase-b','phase-c','phase-d','phase-e'];
+const pills = document.querySelectorAll('.adm-pill');
+window.addEventListener('scroll', () => {
+  let current = 'phase-a';
+  phases.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - 120) current = id;
+  });
+  pills.forEach(p => {
+    p.classList.toggle('active', p.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>

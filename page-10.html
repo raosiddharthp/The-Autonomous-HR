@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Architecture Decision Records — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:#1a1612;--ink-mid:#3d3830;--ink-light:#7a7268;
+  --paper:#f5f0e8;--paper-2:#ede8df;--paper-3:#e4ddd2;
+  --saffron:#c4620a;--saffron-2:#e07520;--saffron-light:#fdf0e4;
+  --rule:#c8bfb0;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--display:'Instrument Serif',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+.hero{padding:112px 48px 72px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:10px;right:24px;font-family:var(--display);font-size:200px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,76px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:20px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:600px;margin-bottom:40px;}
+
+/* ADR INDEX */
+.adr-index{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:0;}
+.adr-index-item{background:var(--paper-2);padding:20px 22px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:6px;}
+.adr-index-item:hover{background:var(--paper-3);}
+.adr-index-num{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--saffron);letter-spacing:0.08em;}
+.adr-index-title{font-family:var(--serif);font-size:14px;font-weight:400;color:var(--ink);line-height:1.35;}
+.adr-index-status{font-family:var(--mono);font-size:9px;font-weight:500;padding:2px 7px;letter-spacing:0.06em;text-transform:uppercase;width:fit-content;}
+.status-accepted{background:#e8f4ec;color:#2d6b42;border:1px solid #b8dfc4;}
+.status-superseded{background:var(--paper-3);color:var(--ink-light);border:1px solid var(--rule);}
+
+/* ADR FULL RECORD */
+.adr{border-top:1px solid var(--rule);}
+.adr-header{padding:56px 48px 0;}
+.adr-meta{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.adr-id{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--saffron);letter-spacing:0.06em;}
+.adr-status-badge{font-family:var(--mono);font-size:10px;font-weight:500;padding:4px 10px;letter-spacing:0.08em;text-transform:uppercase;}
+.adr-category{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--ink-light);letter-spacing:0.06em;padding:4px 10px;border:1px solid var(--rule);}
+.adr-title{font-family:var(--display);font-size:clamp(28px,3.5vw,48px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:var(--ink);margin-bottom:12px;}
+.adr-title em{font-style:italic;color:var(--saffron);}
+.adr-context{font-family:var(--serif);font-size:16px;font-weight:300;line-height:1.7;color:var(--ink-mid);max-width:720px;margin-bottom:0;padding-bottom:40px;}
+
+.adr-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.adr-col{padding:40px 48px;}
+.adr-col.dark{background:var(--ink);}
+.adr-col.tinted{background:var(--paper-2);}
+.adr-col-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;}
+.adr-col .adr-col-label{color:var(--ink-light);}
+.adr-col.dark .adr-col-label{color:rgba(255,255,255,0.3);}
+.adr-col-body{font-family:var(--serif);font-size:14px;font-weight:300;line-height:1.75;}
+.adr-col .adr-col-body{color:var(--ink-mid);}
+.adr-col.dark .adr-col-body{color:rgba(245,240,232,0.55);}
+.adr-col-body strong{font-weight:400;}
+.adr-col .adr-col-body strong{color:var(--ink);}
+.adr-col.dark .adr-col-body strong{color:var(--paper);}
+.adr-col-body code{font-family:var(--mono);font-size:12px;padding:1px 5px;}
+.adr-col .adr-col-body code{background:var(--paper-3);color:var(--saffron);}
+.adr-col.dark .adr-col-body code{background:rgba(255,255,255,0.07);color:var(--saffron-2);}
+
+/* CONSEQUENCES */
+.consequences{padding:32px 48px;background:var(--paper-2);border-top:1px solid var(--rule);display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+.consequence-group{}
+.consequence-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+.consequence-label.positive{color:#2d6b42;}
+.consequence-label.negative{color:#a32d2d;}
+.consequence-label.neutral{color:var(--ink-light);}
+.consequence-list{display:flex;flex-direction:column;gap:7px;}
+.consequence-item{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.55;padding-left:16px;position:relative;}
+.consequence-item::before{position:absolute;left:0;font-size:11px;}
+.consequence-item.pos::before{content:'✓';color:#2d6b42;}
+.consequence-item.neg::before{content:'✗';color:#a32d2d;}
+.consequence-item.neu::before{content:'→';color:var(--ink-light);}
+
+/* REBUTTAL */
+.rebuttals{padding:32px 48px;background:var(--ink);border-top:1px solid rgba(255,255,255,0.06);}
+.rebuttals-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:20px;}
+.rebuttal-list{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.rebuttal{padding:20px 24px;background:rgba(255,255,255,0.03);border-left:2px solid rgba(196,98,10,0.4);}
+.rebuttal-q{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--saffron-2);margin-bottom:8px;letter-spacing:0.03em;line-height:1.5;}
+.rebuttal-a{font-family:var(--serif);font-size:13px;font-weight:300;color:rgba(245,240,232,0.55);line-height:1.7;}
+.rebuttal-a strong{color:rgba(245,240,232,0.85);font-weight:400;}
+
+/* PAGE NAV */
+.page-nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.page-nav-item{padding:48px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:8px;}
+.page-nav-item:hover{background:var(--paper-2);}
+.page-nav-item+.page-nav-item{border-left:1px solid var(--rule);}
+.pn-dir{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pn-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--saffron);}
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+
+@media(max-width:1100px){
+  .adr-index{grid-template-columns:1fr 1fr;}
+  .adr-body{grid-template-columns:1fr;}
+  .consequences{grid-template-columns:1fr;}
+  .rebuttal-list{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  nav{padding:16px 24px;}.nav-links{display:none;}
+  .hero,.adr-header,.adr-col,.consequences,.rebuttals{padding-left:24px;padding-right:24px;}
+  .adr-index{grid-template-columns:1fr;}
+  .page-nav{grid-template-columns:1fr;}
+  .page-nav-item+.page-nav-item{border-left:none;border-top:1px solid var(--rule);}
+  footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-09.html">Infrastructure</a></li>
+    <li><a href="page-08.html">MLOps</a></li>
+    <li><a href="page-07.html">Agent Architecture</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg">ADR</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Page 10<span>/</span>Architecture Decision Records
+  </div>
+  <h1>The decisions that<br><em>shaped the architecture.</em></h1>
+  <p class="hero-sub">Every significant architecture decision in this system is documented here in full ADR format: context, decision, alternatives considered, consequences (positive and negative), and the hardest rebuttals a design review would surface. The reasoning is the design.</p>
+
+  <div class="adr-index reveal">
+    <a href="#adr-001" class="adr-index-item">
+      <span class="adr-index-num">ADR-001</span>
+      <span class="adr-index-title">WhatsApp + IVR as sole employee channels</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+    <a href="#adr-002" class="adr-index-item">
+      <span class="adr-index-num">ADR-002</span>
+      <span class="adr-index-title">Firestore over relational DB for primary storage</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+    <a href="#adr-003" class="adr-index-item">
+      <span class="adr-index-num">ADR-003</span>
+      <span class="adr-index-title">LangGraph over Vertex AI Agent Builder</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+    <a href="#adr-004" class="adr-index-item">
+      <span class="adr-index-num">ADR-004</span>
+      <span class="adr-index-title">Pub/Sub event fabric over direct service calls</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+    <a href="#adr-005" class="adr-index-item">
+      <span class="adr-index-num">ADR-005</span>
+      <span class="adr-index-title">Cloud Run over GKE for all compute</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+    <a href="#adr-006" class="adr-index-item">
+      <span class="adr-index-num">ADR-006</span>
+      <span class="adr-index-title">Exotel over Twilio for voice gateway</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+    <a href="#adr-007" class="adr-index-item">
+      <span class="adr-index-num">ADR-007</span>
+      <span class="adr-index-title">HITL timeout policy: 24h auto-deny</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+    <a href="#adr-008" class="adr-index-item">
+      <span class="adr-index-num">ADR-008</span>
+      <span class="adr-index-title">Mobile number as sole employee identity</span>
+      <span class="adr-index-status status-accepted">Accepted</span>
+    </a>
+  </div>
+</div>
+
+<!-- ADR-001 -->
+<div class="adr" id="adr-001">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-001</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">Channel architecture</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">WhatsApp + IVR as <em>sole</em> employee channels</div>
+    <div class="adr-context">The choice of channel is not a UX decision — it is the most important architectural decision in the system. The wrong channel choice makes every subsequent component irrelevant: a system that workers will not use is not a system. This ADR establishes that no new channel, app, or login will ever be introduced for employee-facing interactions.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">All employee-facing interactions will be delivered exclusively via <strong>WhatsApp Business API</strong> (text and voice notes) and <strong>IVR voice calls</strong> (for workers who prefer calling over messaging). No mobile app will be built. No web portal will be offered. No SMS channel will be maintained.<br><br>This is not a cost decision. It is a <strong>user adoption decision</strong>. WhatsApp penetration among the target workforce — manufacturing, retail, construction workers across South and Southeast Asia, Africa, and Latin America — exceeds 90% in most markets. Workers already use WhatsApp for family communication, digital payments, and business messaging. The behavioural change required is zero.</div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>React Native mobile app.</strong> Rejected. Keka — an established Indian HR platform — achieved 11/52 employee adoption at Rathi Textiles before being abandoned in six weeks. An app requires installation, onboarding, and sustained engagement. For workers who have never used a business app, the activation energy is prohibitive.<br><br><strong>USSD.</strong> Rejected. Developer access to USSD in most target markets (India, Southeast Asia) has been deprecated or restricted by carriers. No conversational state. Cannot handle document delivery.<br><br><strong>SMS.</strong> Rejected. One-way broadcast only. Cannot handle voice. Cannot deliver documents or payslips. No conversational state for multi-turn interactions like onboarding.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">Zero onboarding friction — workers need no training to use the system</div>
+        <div class="consequence-item pos">98% message open rate vs 21% for email</div>
+        <div class="consequence-item pos">Voice note support handles low-literacy workforce natively</div>
+        <div class="consequence-item pos">Meta free tier covers entire SMB interaction volume</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">System is dependent on Meta's WhatsApp Business API policies — changes can affect cost or capability</div>
+        <div class="consequence-item neg">No web fallback if worker loses phone or changes number</div>
+        <div class="consequence-item neg">WhatsApp not available in China — system cannot serve Chinese-market deployments without channel adaptation</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Mitigations</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">Channel layer is abstracted behind a gateway interface — substituting a regional messaging platform (WeChat, Telegram) requires only a gateway swap</div>
+        <div class="consequence-item neu">IVR voice channel provides a non-WhatsApp fallback for any worker</div>
+        <div class="consequence-item neu">Number change handled via onboarding re-registration flow</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"WhatsApp has had multiple policy changes that broke business automation — what's your continuity plan?"</div>
+        <div class="rebuttal-a">The channel gateway is provider-agnostic by design. The interface the rest of the system sees is <code>send_message(worker_id, text, language)</code> and <code>receive_message(sender_id, content)</code>. <strong>Swapping the underlying provider is a gateway module replacement</strong> — no agent code, no state machine, no Firestore schema changes. The IVR channel provides full feature parity as a fallback. Migration timeline to an alternative channel: estimated 2 weeks of engineering.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"What happens when Meta's pricing changes make WhatsApp uneconomical?"</div>
+        <div class="rebuttal-a">Meta's July 2025 pricing shift from conversation-based to per-message billing was the most significant change in the platform's business history — and it <strong>reduced cost for this use case</strong>. Worker-initiated service messages carry zero Meta fee. The economics of this architecture are structurally aligned with Meta's incentive to drive business adoption, not against it.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADR-002 -->
+<div class="adr" id="adr-002">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-002</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">Data architecture</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">Firestore over <em>relational database</em></div>
+    <div class="adr-context">The data model for an HR system is not inherently relational. The primary entities — employees, leave requests, audit log entries — have variable schema (different leave types carry different fields), are accessed predominantly by document ID, and are written significantly more than they are queried in aggregate. These characteristics favour a document store.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">Use <strong>Firestore in Native mode</strong> as the primary operational database for all transactional data: employee records, leave requests, HITL queue, conversation sessions, and audit log.<br><br>Key reasons: (1) <strong>Serverless with zero idle cost</strong> — no instance to keep warm, no connection pool to manage. (2) <strong>Free tier covers SMB scale entirely</strong> — 50K reads/day and 20K writes/day free; our estimated daily volume is 600 reads and 170 writes. (3) <strong>Native security rules</strong> allow the append-only audit log constraint to be enforced at the database layer, not the application layer. (4) <strong>Real-time listeners</strong> support the HITL queue without polling.</div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>Cloud SQL (Postgres).</strong> Rejected at SMB scale. Cloud SQL minimum instance: ~$7/month always-on even with smallest tier. Schema migrations require downtime. Connection pooling adds operational complexity. For aggregate reporting (payroll calculations, leave summaries), the relational model is beneficial — but these queries are infrequent and can be satisfied by Firestore's query capabilities at SMB scale.<br><br><strong>AlloyDB / Cloud Spanner.</strong> Rejected. Engineered for enterprise-scale transactional workloads. Minimum cost far exceeds the total infrastructure budget for this system.<br><br><strong>Supabase Postgres (primary DB).</strong> Considered but rejected for transactional data. Supabase is used for pgvector (appropriate) but introducing a second Postgres instance as the primary DB adds an external dependency for the most critical data path.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">Zero idle cost — serverless billing aligns with SMB interaction patterns</div>
+        <div class="consequence-item pos">Append-only audit log enforced at DB layer via security rules</div>
+        <div class="consequence-item pos">Free tier covers entire Phase 1 workload</div>
+        <div class="consequence-item pos">Real-time HITL queue updates without polling</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">No SQL joins — payroll aggregation in Phase 3 requires application-level data assembly</div>
+        <div class="consequence-item neg">Firestore query limitations (no inequality filters on multiple fields) require composite index planning</div>
+        <div class="consequence-item neg">At 500+ employees, complex reporting may warrant a BigQuery export pipeline</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Migration path</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">Phase 3 payroll: Firestore → Cloud Functions → BigQuery export for aggregate calculations</div>
+        <div class="consequence-item neu">At 500+ employees: evaluate Cloud SQL addition for reporting layer only (CQRS pattern)</div>
+        <div class="consequence-item neu">Audit log stays in Firestore permanently — the append-only guarantee is non-negotiable</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Payroll requires complex aggregations — Firestore is not built for that. You'll have to rewrite the data layer in Phase 3."</div>
+        <div class="rebuttal-a">Correct — and accounted for. <strong>Payroll calculations are not done in Firestore.</strong> Attendance records are read from Firestore, piped through a Cloud Function that performs the calculations in memory, and the result is written back as a payslip document. For a 52-person business, this is a single Cloud Function execution that completes in under 5 seconds. At 500+ employees, a BigQuery export layer is added for aggregate queries — the Firestore schema does not change.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Labour law requires data to be queryable for audits — can Firestore satisfy a labour inspector's data request?"</div>
+        <div class="rebuttal-a">Yes. The audit log and leave register are fully queryable by employee ID, date range, and decision outcome. <strong>A labour inspection export is a Cloud Function that queries Firestore and generates a formatted PDF or Excel file.</strong> This is documented in the use case catalogue as a Phase 4 capability. The data model is specifically designed with statutory reporting fields (clause citations, decision timestamps, employee IDs) to support this export.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADR-003 -->
+<div class="adr" id="adr-003">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-003</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">Agent orchestration</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">LangGraph over <em>Vertex AI Agent Builder</em></div>
+    <div class="adr-context">Agent orchestration is where the most complex logic in the system lives — state machines, tool calling, HITL routing, multi-turn conversation state. The choice of orchestration framework determines how much control the architecture has over every agent decision, and how auditable those decisions are.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">Use <strong>LangGraph</strong> (Python, OSS, by LangChain) for all agent state machine orchestration. LangGraph provides explicit graph-based state machines where every node, edge, and transition condition is defined in code — not inferred by a managed service.<br><br>This gives the architecture <strong>complete control over the autonomy boundary</strong>: the HITL trigger on confidence &lt; 0.80 is a graph edge condition evaluated in Python, not a prompt instruction to the LLM. The distinction matters enormously: a prompt instruction can be argued around by the model; a graph edge condition cannot.</div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>Vertex AI Agent Builder.</strong> Google's managed agent platform. Provides built-in tool integration, managed state, and native GCP service bindings. Simpler to set up than LangGraph for standard use cases.<br><br>Rejected because: (1) <strong>The autonomy boundary cannot be hard-coded</strong> in Vertex AI Agent Builder — it is a prompt-level instruction, not a state machine constraint. For a system making employment decisions, this is unacceptable. (2) Vertex AI Agent Builder costs money per conversation — at SMB scale, comparable to Cloud Run costs but with less control. (3) State machine visibility for audit purposes is limited — LangGraph's explicit graph definition means every state transition is inspectable and loggable.<br><br><strong>Google ADK (Agent Development Kit).</strong> Considered. ADK is more structured than Vertex AI Agent Builder but still abstracts the state machine. LangGraph gives lower-level control for the same Python effort.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">HITL trigger is a graph edge condition — cannot be overridden by LLM reasoning</div>
+        <div class="consequence-item pos">Every state transition is logged — full agent reasoning audit trail</div>
+        <div class="consequence-item pos">Zero managed agent cost — runs in existing Cloud Run containers</div>
+        <div class="consequence-item pos">State machine definition is version-controlled alongside application code</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">More code to maintain than a managed agent platform</div>
+        <div class="consequence-item neg">LangGraph is an OSS project — breaking changes require active version management</div>
+        <div class="consequence-item neg">No built-in GCP service bindings — each tool integration is manually implemented</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Mitigations</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">LangGraph version pinned in requirements.txt — upgrades are deliberate, tested events</div>
+        <div class="consequence-item neu">Tool implementations are thin wrappers around GCP SDK calls — minimal custom code per tool</div>
+        <div class="consequence-item neu">Migration to ADK or Vertex AI Agent Builder possible if LangGraph is abandoned — state machine logic maps directly</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Google ADK is the canonical GCP agent framework — why not use it? You're already committed to GCP."</div>
+        <div class="rebuttal-a">ADK is an excellent framework for agent tool orchestration. <strong>It does not provide the explicit state machine semantics that this architecture requires.</strong> The HITL trigger — confidence &lt; 0.80 fires an unconditional transition to HITL_PENDING — is a hard architectural constraint, not a soft agent behaviour. LangGraph's graph model makes this constraint explicit in code. ADK would implement it as a tool call condition or a prompt instruction. For an employment decision system, the difference matters legally.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"LangGraph is a startup-era OSS project. What happens if LangChain Inc. pivots or discontinues it?"</div>
+        <div class="rebuttal-a"><strong>LangGraph is MIT-licensed.</strong> The codebase is forkable and the state machine primitives (nodes, edges, conditional routing, persistent state via checkpointers) are stable, well-documented abstractions. If LangChain discontinued LangGraph tomorrow, the existing code continues to work unchanged. The migration surface to an alternative (ADK, custom state machine) is the ~200 lines of graph definition code per agent — not the tool implementations, not the Firestore schema, not the Pub/Sub events.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADR-004 -->
+<div class="adr" id="adr-004">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-004</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">Integration architecture</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">Pub/Sub event fabric over <em>direct service calls</em></div>
+    <div class="adr-context">In a multi-agent system, services need to communicate. The communication pattern determines whether the system is brittle (synchronous, tightly coupled) or resilient (asynchronous, independently deployable). For a system processing voice calls and WhatsApp messages, where individual steps have variable latency, asynchronous decoupling is not optional.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">Use <strong>Cloud Pub/Sub as the event fabric</strong> connecting all services. Every pipeline stage communicates by publishing to a topic and subscribing to topics — never by direct HTTP call between services.<br><br>Five topics: <code>INBOUND_MSG</code> → <code>STT_RESULT</code> → <code>AGENT_EVENT</code> → <code>HITL_ESCALATION</code> → <code>NOTIFICATION_OUT</code>. Each topic has a dead-letter queue. Message retention is 7 days for replay on failure.<br><br>The gateway is the only service with a public HTTPS endpoint. Every other service is internal-only, reachable only via Pub/Sub push subscriptions.</div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>Direct HTTP between services.</strong> Simplest approach. Each service calls the next directly via Cloud Run internal URL. No Pub/Sub infrastructure. Easier to reason about synchronously.<br><br>Rejected because: (1) A direct HTTP call from the webhook gateway to the STT service means the gateway waits 4 seconds for transcription to complete before responding to Meta's webhook. Meta requires a 200 response within 5 seconds — tight, and breaks immediately if STT is under load. (2) A failed STT call fails the entire pipeline with no retry mechanism. (3) Tightly coupled services cannot be deployed or scaled independently.<br><br><strong>Eventarc.</strong> GCP's managed event routing. Built on Pub/Sub under the hood. Adds trigger configuration complexity with no meaningful benefit over direct Pub/Sub for this use case.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">Webhook gateway responds to Meta in &lt; 200ms — processing happens asynchronously downstream</div>
+        <div class="consequence-item pos">Dead-letter queue provides automatic retry on any service failure</div>
+        <div class="consequence-item pos">7-day message retention enables replay for debugging and recovery</div>
+        <div class="consequence-item pos">Services can be deployed, scaled, and updated independently</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">Distributed tracing is more complex — Cloud Trace correlation IDs must be propagated in message attributes</div>
+        <div class="consequence-item neg">Local development requires a Pub/Sub emulator or test doubles</div>
+        <div class="consequence-item neg">Message ordering not guaranteed by default — requires ordered delivery configuration for session-sensitive flows</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Mitigations</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">Trace ID injected as Pub/Sub message attribute on every event — Cloud Trace correlates across topics</div>
+        <div class="consequence-item neu">Pub/Sub emulator configured in docker-compose for local development</div>
+        <div class="consequence-item neu">Ordered delivery enabled on session-sensitive subscriptions (leave agent conversation state)</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Adding Pub/Sub to a simple request/response flow is over-engineering for an SMB HR system."</div>
+        <div class="rebuttal-a">The flow is not simple request/response. It is: receive audio → transcribe (2–4s) → classify intent (1s) → query DB (0.6s) → query RAG (1.3s) → decide → write → notify. <strong>Total: 6–11 seconds of processing behind a Meta webhook that requires a 200 response in 5 seconds.</strong> Pub/Sub is not over-engineering — it is the minimum viable architecture for meeting the channel's SLA. A direct HTTP chain would fail Meta's webhook timeout on any interaction involving STT.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Message duplication in Pub/Sub could cause duplicate leave approvals."</div>
+        <div class="rebuttal-a"><strong>Idempotency is implemented at the Leave Agent layer.</strong> Every leave request is keyed by <code>employee_id + date + leave_type</code>. Before writing a new leave record, the agent checks for an existing record with the same key. A duplicate Pub/Sub delivery triggers a duplicate check — the second invocation finds the existing record and returns the already-committed decision without creating a new one. The audit log entry for the duplicate is flagged as a replay.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADR-005 -->
+<div class="adr" id="adr-005">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-005</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">Compute</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">Cloud Run over <em>GKE</em> for all compute</div>
+    <div class="adr-context">The choice between Cloud Run and GKE is fundamentally a question of operational complexity vs. control. At SMB scale, the right answer is not always the most powerful one.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">Use <strong>Cloud Run</strong> for all compute — application containers, STT service, agent containers. No GKE cluster.<br><br>Cloud Run provides: scale-to-zero (zero idle cost), managed TLS, automatic scaling, built-in Pub/Sub push subscription support, and 99.95% SLA. The entire infrastructure is managed — no node pools, no pod disruption budgets, no cluster upgrades to manage.<br><br><strong>At a 50-employee business generating 500 interactions/month, an always-on GKE cluster would cost more per month than the entire rest of the infrastructure combined.</strong></div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>GKE Autopilot.</strong> Managed Kubernetes. Provides more control over networking, sidecar injection, resource limits, and multi-container pod patterns. Required for workloads with GPU node pool requirements at scale, custom networking, or service mesh (Istio).<br><br>Rejected at current scale because: GKE Autopilot minimum cost ~$74/month for the control plane alone — exceeding our total infrastructure budget. No GPU node pools available in Autopilot (required for Whisper at scale, though T4 spot on Cloud Run covers SMB).<br><br><strong>GKE Standard.</strong> Even more expensive. Full cluster management burden. Not appropriate for SMB scale.<br><br><strong>Cloud Run functions (gen 2).</strong> Considered for notification dispatcher and audit log writer. Selected over standard Cloud Run for these lightweight, event-triggered functions due to simpler deployment model.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">Zero idle cost — scale-to-zero eliminates the largest infrastructure expense</div>
+        <div class="consequence-item pos">No cluster management — no node upgrades, no pod scheduling, no etcd backups</div>
+        <div class="consequence-item pos">99.95% SLA with zero operational overhead</div>
+        <div class="consequence-item pos">GPU T4 spot instances available on Cloud Run for Whisper</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">Cold start latency (mitigated by min-instance config on critical services)</div>
+        <div class="consequence-item neg">No sidecar containers — each service must bundle all dependencies</div>
+        <div class="consequence-item neg">At 500+ employees with sustained load, GKE may become more cost-effective</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Migration trigger to GKE</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">When sustained concurrent requests exceed Cloud Run's concurrency-per-instance limits</div>
+        <div class="consequence-item neu">When Whisper requires dedicated GPU node pool (not available on Cloud Run spot)</div>
+        <div class="consequence-item neu">When monthly Cloud Run cost exceeds GKE Autopilot TCO — estimated at 300+ employees</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Cloud Run cold starts on the GPU STT service will cause unacceptable IVR latency."</div>
+        <div class="rebuttal-a"><strong>The STT service has <code>min-instances: 1</code> configured in Terraform.</strong> One warm instance is kept always-on at a cost of approximately $3.20/month (1 vCPU + 16Gi memory idle rate on Cloud Run). This eliminates cold starts entirely on the critical IVR path. The 10-second GPU cold start only occurs if the min-instance is recycled — Cloud Run keeps min-instances warm indefinitely. P99 STT latency with min-instance warm: consistently &lt; 4 seconds.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"A GCP customer already running GKE would expect this to run on their existing cluster."</div>
+        <div class="rebuttal-a">Valid consideration for an enterprise deployment. <strong>The containerised architecture is cluster-agnostic.</strong> All services are standard Docker containers. Deploying to a customer's GKE cluster requires Helm chart definitions for each service (Deployment, Service, HPA) — approximately 2 days of work per service. The Terraform modules would be replaced with Helm charts. Application code is unchanged. This migration path is explicitly documented in the deployment guide.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADR-006 -->
+<div class="adr" id="adr-006">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-006</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">Voice infrastructure</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">Exotel over <em>Twilio</em> for voice gateway</div>
+    <div class="adr-context">Voice call infrastructure is the highest per-interaction cost component in markets where IVR is heavily used. For a system deployed in India and other South/Southeast Asian markets, the choice of voice provider has a significant impact on per-minute cost and call quality.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">Use <strong>Exotel</strong> (India) or <strong>Plivo</strong> as the IVR voice gateway for India and Southeast Asia deployments. For other regions, substitute with the equivalent local SIP provider.<br><br>Exotel operates India-local SIP infrastructure with data centres in Mumbai and Chennai. Per-minute rate: approximately ₹0.30–0.40/min (~$0.004/min) vs Twilio's $0.013/min — a <strong>68% cost reduction</strong> on voice calls. Exotel routes over the local PSTN, reducing latency for Indian callers. The IVR layer in the architecture is provider-agnostic — substituting Exotel with another SIP provider requires only a gateway configuration change.</div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>Twilio Voice.</strong> The default choice for programmable voice. Excellent documentation, global coverage, reliable SLA, strong developer experience. Used by the majority of voice-AI startups globally.<br><br>Rejected for India-primary deployments because: (1) US-billed international leg adds latency and cost. (2) $0.013/min vs ₹0.35/min — Twilio costs 3× more for the same call. (3) No India data centre — call audio routes internationally before reaching the STT service, adding 80–120ms round-trip latency.<br><br><strong>BSNL SIP Trunk.</strong> Considered. Cheapest possible option for India. Rejected: requires physical SIP hardware configuration, no API management interface, no programmable IVR capability without additional infrastructure.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">68% cost reduction on voice calls vs Twilio</div>
+        <div class="consequence-item pos">India-local PSTN routing — lower latency for Indian callers</div>
+        <div class="consequence-item pos">TRAI compliance handled natively by Exotel</div>
+        <div class="consequence-item pos">Local DID numbers across all Indian states</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">Exotel pricing not publicly documented as standard per-minute rate — requires sales engagement for exact pricing</div>
+        <div class="consequence-item neg">Less mature international coverage — deployments outside India, SEA, MEA require provider substitution</div>
+        <div class="consequence-item neg">Smaller developer ecosystem than Twilio — fewer third-party integrations</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Provider substitution by region</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">Africa: Africa's Talking (Kenya, Nigeria) — local PSTN, competitive rates</div>
+        <div class="consequence-item neu">Southeast Asia: Plivo with Singapore routing</div>
+        <div class="consequence-item neu">Latin America: Twilio (no viable local alternative at comparable quality)</div>
+        <div class="consequence-item neu">Europe/US: Twilio — cost differential less significant, developer ecosystem value higher</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Exotel doesn't publish per-minute rates — how can you claim 68% savings if the pricing isn't verifiable?"</div>
+        <div class="rebuttal-a">This is a fair challenge and is <strong>explicitly acknowledged in the cost methodology page</strong> of this portfolio. The ₹0.30–0.40/min estimate is derived from Exotel's credit-based plan structure and third-party comparisons, not from a published rate card. The cost methodology page documents this caveat and directs readers to request a direct quote from Exotel for production pricing. The 68% savings claim is directional — exact savings depend on call volume tier and negotiated rates.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"For a global product, defaulting to an India-only provider creates a two-tier architecture."</div>
+        <div class="rebuttal-a"><strong>The architecture is explicitly designed for this.</strong> The IVR gateway is a replaceable module behind a provider-agnostic interface: <code>initiate_call(number)</code>, <code>stream_audio(session_id)</code>, <code>end_call(session_id)</code>. Swapping Exotel for Twilio for a non-India deployment is a gateway config change — one environment variable and one provider SDK import. The cost methodology page shows region-specific provider recommendations. A global enterprise deployment would use Twilio globally and Exotel for India — the architecture supports both simultaneously.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADR-007 -->
+<div class="adr" id="adr-007">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-007</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">HITL policy</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">HITL timeout: <em>24-hour auto-deny</em></div>
+    <div class="adr-context">When the system escalates to the owner and the owner does not respond, the system must eventually resolve the escalation. The timeout policy is not a technical decision — it is a policy decision with legal consequences. It must be configurable, documented, and its default must reflect the least harm to the worker.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">If an owner does not respond to a HITL escalation within <strong>24 hours</strong>, the leave request is automatically <strong>denied</strong> and the worker is notified with an explanation that the request could not be processed and they should contact the owner directly.<br><br>At <strong>4 hours</strong>, a re-escalation with an URGENT flag is sent. The 24-hour and 4-hour thresholds are configurable parameters in the HR Policy PDF — an owner can set different values in their policy document, and the system respects those values via the RAG configuration parser.<br><br>The timeout behaviour is written to the audit log: <code>decision_by: TIMEOUT</code>, <code>reason: "Owner did not respond within configured timeout period"</code>.</div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>Auto-approve on timeout.</strong> Argued that an unanswered escalation implies the owner has no objection. Rejected: auto-approval on a silence creates a legal liability. If a worker is approved for leave during a period where coverage falls below statutory minimums, and the approval was granted by a system timeout, the employer has no defence. Silence is not consent in employment law.<br><br><strong>Keep escalation open indefinitely.</strong> No timeout. The worker's request remains pending until the owner responds. Rejected: a worker waiting indefinitely for a leave decision is a worse employee experience than a denial with a clear explanation and an instruction to escalate directly. Indefinite pending also breaks the system's SLA guarantee.<br><br><strong>48-hour timeout.</strong> Considered. 24 hours is sufficient for an owner to respond to a WhatsApp message. 48 hours introduces a weekend problem — a Friday escalation would auto-deny on Sunday, which may not be appropriate. 24 hours is both more responsive and more consistent.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">Worker receives a definitive response within 24 hours in all cases</div>
+        <div class="consequence-item pos">System SLA is upheld — no interaction is left permanently unresolved</div>
+        <div class="consequence-item pos">Audit log records the timeout as a decision event — legally defensible</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">A worker may be denied leave they were entitled to because the owner was unreachable</div>
+        <div class="consequence-item neg">Weekend timing means a Friday evening escalation auto-denies Saturday evening</div>
+        <div class="consequence-item neg">Configurable threshold means policy document must be clear — a poorly written policy could set timeout to 1 hour</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Mitigations</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">Denial message instructs worker to contact owner directly — the denial is not final if the owner intervenes</div>
+        <div class="consequence-item neu">Owner can reverse a timeout denial via the dashboard with a manual approval — full audit trail preserved</div>
+        <div class="consequence-item neu">Sample HR Policy PDF sets 24-hour default with explanation of implications</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"Auto-denying a leave request because the owner didn't check WhatsApp is unfair to the worker."</div>
+        <div class="rebuttal-a">The fairness question is real. The alternative — leaving a request pending indefinitely — is worse for the worker, not better. <strong>A worker who needs to plan around a leave decision cannot plan around a pending status.</strong> A denial with a clear explanation ("the system could not reach your employer within the required window — please contact them directly") gives the worker agency. An indefinite pending status gives them nothing. The owner retains the ability to reverse the denial at any point after the fact.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"This should be configurable per worker type, not a global setting."</div>
+        <div class="rebuttal-a"><strong>It is configurable — via the HR Policy PDF.</strong> The policy document can specify different timeout thresholds for different leave types or worker categories. The RAG configuration parser extracts these values at indexing time. A policy that says "HITL timeout for casual leave: 12 hours; for sick leave: 4 hours; for emergency leave: 1 hour" is fully supported. The 24-hour global default in the sample policy is a reasonable starting point that the employer can adjust.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADR-008 -->
+<div class="adr" id="adr-008">
+  <div class="adr-header reveal">
+    <div class="adr-meta">
+      <span class="adr-id">ADR-008</span>
+      <span class="adr-status-badge status-accepted">Accepted</span>
+      <span class="adr-category">Identity &amp; security</span>
+      <span class="adr-category">2026-Q1</span>
+    </div>
+    <div class="adr-title">Mobile number as <em>sole</em> employee identity</div>
+    <div class="adr-context">For a workforce with no company email addresses and no corporate device access, the conventional identity stack (SSO, LDAP, SAML, JWT) is not viable. The identity mechanism must be something the worker already has, already trusts, and cannot lose or forget.</div>
+  </div>
+  <div class="adr-body">
+    <div class="adr-col">
+      <div class="adr-col-label">Decision</div>
+      <div class="adr-col-body">The <strong>WhatsApp sender phone number</strong>, verified by Meta's API on every inbound message, is the employee's identity. The IVR caller ID, verified by Exotel, is the identity on voice calls. No username, no password, no app login, no OTP is required or offered.<br><br>On onboarding, the worker sends one WhatsApp message to register. Their phone number is stored in Firestore <code>/employees/{id}</code> as the <code>mobile</code> field. Every subsequent interaction is authenticated by matching the sender number against registered employees. <strong>The telco and Meta have already performed KYC on this number</strong> — the system inherits that verification.</div>
+    </div>
+    <div class="adr-col tinted">
+      <div class="adr-col-label">Alternatives considered</div>
+      <div class="adr-col-body"><strong>WhatsApp OTP verification.</strong> Send a one-time passcode to the worker's number for each session. Adds a second factor. Rejected: the phone number IS the second factor. A WhatsApp OTP sent to the same phone number adds no security — an attacker with access to the phone can also receive the OTP. It adds friction without adding security for this threat model.<br><br><strong>Employee ID + PIN.</strong> Worker provides their employee ID and a 4-digit PIN. Rejected: a manufacturing worker who forgets their PIN has no self-service reset mechanism. Support overhead on PIN resets would be significant. The threat model for a 52-person textile business does not justify this friction.<br><br><strong>Biometric via smartphone.</strong> Fingerprint or face unlock before WhatsApp session. Rejected: Android fragmentation makes biometric API reliability inconsistent across the low-to-mid-range devices used by this workforce.</div>
+    </div>
+  </div>
+  <div class="consequences reveal">
+    <div class="consequence-group">
+      <div class="consequence-label positive">Positive consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item pos">Zero authentication friction — worker sends a message, system knows who they are</div>
+        <div class="consequence-item pos">No password resets, no locked accounts, no support overhead</div>
+        <div class="consequence-item pos">Meta and telco KYC inherited — number is tied to a verified identity</div>
+        <div class="consequence-item pos">Number change handled via a simple re-registration message to the owner</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label negative">Negative consequences</div>
+      <div class="consequence-list">
+        <div class="consequence-item neg">SIM swap attack: attacker obtains worker's number via telco — can impersonate worker</div>
+        <div class="consequence-item neg">Shared phone: if a worker shares their phone, household member could apply for leave</div>
+        <div class="consequence-item neg">Number change not self-service — requires owner to update the employee record</div>
+      </div>
+    </div>
+    <div class="consequence-group">
+      <div class="consequence-label neutral">Risk acceptance</div>
+      <div class="consequence-list">
+        <div class="consequence-item neu">SIM swap accepted: affects &lt; 0.01% of interactions at SMB scale; mitigated by audit log and HITL for suspicious patterns</div>
+        <div class="consequence-item neu">Shared phone accepted: the same household member who could apply for leave could also walk into the factory and tell the supervisor — not a novel attack vector</div>
+        <div class="consequence-item neu">Number change: documented process in the owner onboarding guide</div>
+      </div>
+    </div>
+  </div>
+  <div class="rebuttals reveal">
+    <div class="rebuttals-label">Design review pushbacks</div>
+    <div class="rebuttal-list">
+      <div class="rebuttal">
+        <div class="rebuttal-q">"SIM swap is a real and growing attack vector in India. This is not an acceptable risk for a payroll system."</div>
+        <div class="rebuttal-a">The risk is real but the threat model is calibrated. <strong>SIM swap attacks target financial accounts with large balances, not HR systems at 52-person textile businesses.</strong> The incentive structure for a sophisticated SIM swap attack to falsely approve leave at Rathi Textiles is essentially zero. The audit trail records every decision with a timestamp and the sender number — an anomalous pattern (multiple leave applications in rapid succession, unusual dates) triggers HITL review. For Phase 3 payroll, the threat model is reassessed — payroll disbursement may warrant stronger identity controls for the payment trigger specifically.</div>
+      </div>
+      <div class="rebuttal">
+        <div class="rebuttal-q">"GDPR and DPDP require explicit consent for processing personal data — does a phone number registration constitute that?"</div>
+        <div class="rebuttal-a"><strong>Yes, with proper implementation.</strong> The onboarding flow presents a consent message in the worker's detected language before their number is registered. The consent records the purpose of data processing (HR management, leave tracking, payroll), the data categories collected (mobile number, leave records), and the retention period. This consent record is stored in Firestore alongside the employee record. The sample HR Policy PDF includes a data processing notice that satisfies DPDP Act 2023 requirements for employer-employee HR data.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-nav">
+  <a href="page-09.html" class="page-nav-item">
+    <span class="pn-dir">← Previous</span>
+    <span class="pn-title">Platform &amp; Infrastructure</span>
+  </a>
+  <a href="page-11.html" class="page-nav-item" style="text-align:right;">
+    <span class="pn-dir">Next →</span>
+    <span class="pn-title">HR Policy PDF</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 10 · Architecture Decision Records · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05, rootMargin: '0px 0px -24px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

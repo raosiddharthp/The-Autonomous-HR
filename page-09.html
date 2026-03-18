@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Platform & Infrastructure — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:#1a1612;--ink-mid:#3d3830;--ink-light:#7a7268;
+  --paper:#f5f0e8;--paper-2:#ede8df;--paper-3:#e4ddd2;
+  --saffron:#c4620a;--saffron-2:#e07520;--saffron-light:#fdf0e4;
+  --rule:#c8bfb0;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--display:'Instrument Serif',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+.hero{padding:112px 48px 72px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:10px;right:24px;font-family:var(--display);font-size:180px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,76px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:20px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:600px;}
+
+/* SECTION */
+.sec{padding:88px 48px;border-top:1px solid var(--rule);}
+.sec.dark{background:var(--ink);}
+.sec.tinted{background:var(--paper-2);}
+.sec-label{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;}
+.sec.dark .sec-label{color:rgba(255,255,255,0.3);}
+.sec-title{font-family:var(--display);font-size:clamp(28px,3.8vw,52px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:var(--ink);margin-bottom:16px;}
+.sec-title em{font-style:italic;color:var(--saffron);}
+.sec.dark .sec-title{color:var(--paper);}
+.sec.dark .sec-title em{color:var(--saffron-2);}
+.sec-lead{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.7;color:var(--ink-mid);max-width:680px;margin-bottom:48px;}
+.sec.dark .sec-lead{color:rgba(245,240,232,0.5);}
+
+/* GCP ARCH DIAGRAM */
+.arch-diagram{background:#0d1117;padding:40px;overflow-x:auto;}
+.arch-region{border:1px dashed rgba(255,255,255,0.12);padding:24px;margin-bottom:16px;position:relative;}
+.arch-region-label{position:absolute;top:-10px;left:16px;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;background:#0d1117;padding:0 8px;color:rgba(255,255,255,0.3);}
+.arch-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.arch-row:last-child{margin-bottom:0;}
+.arch-svc{display:flex;flex-direction:column;gap:3px;padding:12px 16px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);min-width:140px;}
+.arch-svc.saffron{border-color:rgba(196,98,10,0.4);background:rgba(196,98,10,0.08);}
+.arch-svc.blue{border-color:rgba(26,115,232,0.35);background:rgba(26,115,232,0.07);}
+.arch-svc.green{border-color:rgba(0,168,132,0.35);background:rgba(0,168,132,0.07);}
+.arch-svc.ext{border-style:dashed;border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);}
+.svc-name{font-family:var(--mono);font-size:11px;font-weight:500;color:rgba(255,255,255,0.7);letter-spacing:0.03em;}
+.svc-type{font-family:var(--mono);font-size:10px;font-weight:300;color:rgba(255,255,255,0.25);letter-spacing:0.03em;}
+.arch-arrow{display:flex;align-items:center;color:rgba(255,255,255,0.2);font-family:var(--mono);font-size:12px;padding:0 4px;align-self:center;}
+
+/* SERVICE CATALOGUE */
+.svc-catalogue{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.svc-card{background:var(--paper-2);padding:32px 28px;transition:background 0.2s;}
+.svc-card:hover{background:var(--paper-3);}
+.svc-card.managed{border-top:3px solid #185fa5;}
+.svc-card.oss{border-top:3px solid var(--saffron);}
+.svc-card.external{border-top:3px solid #2d6b42;}
+.svc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.svc-card-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--ink);line-height:1.3;}
+.svc-badge{font-family:var(--mono);font-size:9px;font-weight:500;padding:3px 7px;letter-spacing:0.06em;text-transform:uppercase;}
+.badge-gcp{background:#e6f1fb;color:#185fa5;border:1px solid #b5d4f4;}
+.badge-oss{background:var(--saffron-light);color:var(--saffron);border:1px solid #f0c090;}
+.badge-ext{background:#e8f4ec;color:#2d6b42;border:1px solid #b8dfc4;}
+.svc-card-role{font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--saffron);margin-bottom:8px;}
+.svc-card-body{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.65;}
+.svc-card-config{margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--ink-light);line-height:1.7;}
+.svc-card-config span{color:var(--saffron);}
+
+/* TERRAFORM */
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.tf-block{background:#0d1117;padding:0;}
+.tf-block-header{padding:16px 24px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;}
+.tf-block-title{font-family:var(--mono);font-size:11px;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:0.06em;}
+.tf-block-file{font-family:var(--mono);font-size:10px;font-weight:300;color:rgba(255,255,255,0.2);letter-spacing:0.04em;}
+.code{padding:20px 24px;font-family:var(--mono);font-size:11px;line-height:1.8;color:rgba(255,255,255,0.6);overflow-x:auto;}
+.code .cm{color:rgba(255,255,255,0.2);font-style:italic;}
+.code .kw{color:#79c0ff;}
+.code .str{color:#a5d6ff;}
+.code .num{color:#f2cc60;}
+.code .res{color:var(--saffron-2);}
+.code .var{color:#d2a8ff;}
+.code .key{color:rgba(255,255,255,0.5);}
+.code .val{color:#a5d6ff;}
+
+/* SECURITY */
+.security-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.sec-card{padding:36px 28px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
+.sec-card-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;}
+.sec-card-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--paper);margin-bottom:8px;line-height:1.35;}
+.sec-card-body{font-family:var(--serif);font-size:13px;font-weight:300;color:rgba(245,240,232,0.5);line-height:1.7;}
+.sec-card-body strong{color:rgba(245,240,232,0.85);font-weight:400;}
+.sec-card-code{margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.04);font-family:var(--mono);font-size:11px;color:var(--saffron-2);line-height:1.7;}
+
+/* CICD PIPELINE */
+.cicd-steps{display:flex;flex-direction:column;gap:2px;}
+.cicd-step{display:grid;grid-template-columns:56px 1fr auto;gap:20px;align-items:center;padding:24px 28px;background:var(--paper-2);transition:background 0.2s;}
+.cicd-step:hover{background:var(--paper-3);}
+.cicd-step-num{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--saffron);letter-spacing:0.06em;}
+.cicd-step-content{display:flex;flex-direction:column;gap:4px;}
+.cicd-step-title{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--ink);}
+.cicd-step-detail{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--ink-light);line-height:1.6;letter-spacing:0.02em;}
+.cicd-step-detail span{color:var(--saffron);}
+.cicd-step-tool{font-family:var(--mono);font-size:10px;font-weight:500;padding:4px 10px;background:var(--paper-3);color:var(--ink-light);border:1px solid var(--rule);white-space:nowrap;letter-spacing:0.04em;}
+
+/* IAM TABLE */
+.iam-table{width:100%;border-collapse:collapse;}
+.iam-table th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--paper);text-align:left;padding:12px 18px;background:var(--ink);}
+.iam-table td{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);padding:14px 18px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.5;}
+.iam-table tr:nth-child(even) td{background:var(--paper-2);}
+.iam-table td:first-child{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink);white-space:nowrap;}
+.iam-table td:last-child{font-family:var(--mono);font-size:11px;color:var(--saffron);white-space:nowrap;}
+
+/* PAGE NAV */
+.page-nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.page-nav-item{padding:48px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:8px;}
+.page-nav-item:hover{background:var(--paper-2);}
+.page-nav-item+.page-nav-item{border-left:1px solid var(--rule);}
+.pn-dir{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pn-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--saffron);}
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+.reveal-delay-3{transition-delay:0.3s;}
+
+@media(max-width:1100px){
+  .svc-catalogue,.security-grid{grid-template-columns:1fr 1fr;}
+  .tf-grid{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  nav{padding:16px 24px;}.nav-links{display:none;}
+  .sec,.hero{padding-left:24px;padding-right:24px;}
+  .svc-catalogue,.security-grid{grid-template-columns:1fr;}
+  .cicd-step{grid-template-columns:40px 1fr;}
+  .cicd-step-tool{display:none;}
+  .arch-row{flex-direction:column;}
+  .page-nav{grid-template-columns:1fr;}
+  .page-nav-item+.page-nav-item{border-left:none;border-top:1px solid var(--rule);}
+  footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-08.html">MLOps</a></li>
+    <li><a href="page-07.html">Agent Architecture</a></li>
+    <li><a href="page-06.html">TOGAF ADM</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg">Infra</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Page 09<span>/</span>Platform &amp; Infrastructure
+  </div>
+  <h1>GCP reference architecture.<br><em>Infrastructure as code.</em></h1>
+  <p class="hero-sub">Every resource in this system has a corresponding Terraform definition. Nothing is created via the console. Nothing is manual. The infrastructure is reproducible, version-controlled, and deployable from a cold GCP project in under 15 minutes — because a portfolio architecture that cannot be built is not a production-grade architecture.</p>
+</div>
+
+<!-- SECTION 1: GCP REFERENCE ARCHITECTURE -->
+<div class="sec dark" id="architecture">
+  <div class="sec-label reveal">01 — GCP reference architecture</div>
+  <div class="sec-title reveal reveal-delay-1">All services.<br><em>One region. asia-south1.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">All compute, storage, and managed services are deployed in GCP asia-south1 (Mumbai) for data residency compliance with India's DPDP Act 2023 and for latency to the Indian workforce. External services (Meta WhatsApp API, Supabase, Exotel) communicate over HTTPS — no VPN peering required.</div>
+
+  <div class="arch-diagram reveal">
+    <!-- External channels -->
+    <div class="arch-region">
+      <div class="arch-region-label">External channels (outside GCP)</div>
+      <div class="arch-row">
+        <div class="arch-svc ext"><span class="svc-name">Meta WhatsApp</span><span class="svc-type">Cloud API · HTTPS webhooks</span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-svc ext"><span class="svc-name">Exotel / Plivo</span><span class="svc-type">India SIP · IVR gateway</span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-svc ext"><span class="svc-name">Supabase</span><span class="svc-type">pgvector · AWS ap-south-1</span></div>
+      </div>
+    </div>
+
+    <!-- GCP project -->
+    <div class="arch-region">
+      <div class="arch-region-label">GCP Project: autohr-prod · asia-south1 (Mumbai)</div>
+
+      <!-- API gateway / ingress -->
+      <div class="arch-row">
+        <div class="arch-svc blue"><span class="svc-name">Cloud Run · webhook-gateway</span><span class="svc-type">Inbound WA + IVR webhooks · HTTPS · IAM-authenticated</span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-svc blue"><span class="svc-name">Cloud Pub/Sub</span><span class="svc-type">INBOUND_MSG topic · event fabric</span></div>
+      </div>
+
+      <!-- Speech layer -->
+      <div class="arch-row" style="margin-top:8px;">
+        <div class="arch-svc saffron"><span class="svc-name">Cloud Run · stt-service</span><span class="svc-type">Whisper large-v3 · T4 GPU spot · min-instances: 1</span></div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-svc saffron"><span class="svc-name">Cloud Run · nllb-service</span><span class="svc-type">NLLB-200 3.3B · CPU · bundled with STT</span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-svc blue"><span class="svc-name">Pub/Sub · STT_RESULT</span><span class="svc-type">transcript + language + confidence</span></div>
+      </div>
+
+      <!-- Agent layer -->
+      <div class="arch-row" style="margin-top:8px;">
+        <div class="arch-svc saffron"><span class="svc-name">Cloud Run · intent-router</span><span class="svc-type">Gemini Flash · stateless · scale-to-zero</span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-svc saffron"><span class="svc-name">Cloud Run · leave-agent</span><span class="svc-type">LangGraph · stateful · Firestore sessions</span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-svc saffron"><span class="svc-name">Cloud Run · hitl-manager</span><span class="svc-type">HITL orchestration · webhook listener</span></div>
+      </div>
+
+      <!-- Data layer -->
+      <div class="arch-row" style="margin-top:8px;">
+        <div class="arch-svc green"><span class="svc-name">Firestore</span><span class="svc-type">employees · leave_requests · audit_log · sessions</span></div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-svc green"><span class="svc-name">Cloud Storage</span><span class="svc-type">policy PDFs · audio backups · model artifacts</span></div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-svc green"><span class="svc-name">Artifact Registry</span><span class="svc-type">container images · Whisper versions</span></div>
+      </div>
+
+      <!-- Platform layer -->
+      <div class="arch-row" style="margin-top:8px;">
+        <div class="arch-svc blue"><span class="svc-name">Secret Manager</span><span class="svc-type">WA token · Exotel key · Supabase URL</span></div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-svc blue"><span class="svc-name">Cloud Monitoring</span><span class="svc-type">alerting · dashboards · uptime checks</span></div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-svc blue"><span class="svc-name">Cloud Build</span><span class="svc-type">CI/CD · container builds · tf plan/apply</span></div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-svc blue"><span class="svc-name">Vertex AI</span><span class="svc-type">Gemini Flash · text-embedding-004</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: SERVICE CATALOGUE -->
+<div class="sec tinted" id="services">
+  <div class="sec-label reveal">02 — Service catalogue</div>
+  <div class="sec-title reveal reveal-delay-1">Every service.<br><em>Every configuration decision.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Twelve services. Each deployed with a specific configuration chosen for cost, latency, or compliance reasons. None of these are defaults — every parameter is a deliberate decision.</div>
+
+  <div class="svc-catalogue">
+    <div class="svc-card managed reveal">
+      <div class="svc-header"><div class="svc-card-name">Cloud Run<br>webhook-gateway</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">Ingress · Channel normalisation</div>
+      <div class="svc-card-body">Receives inbound WhatsApp webhooks and IVR audio streams. Validates Meta signature header. Publishes normalised event to Pub/Sub.</div>
+      <div class="svc-card-config"><span>min-instances:</span> 1 (always warm — inbound messages cannot wait)<br><span>max-instances:</span> 10<br><span>cpu:</span> 1 vCPU · <span>memory:</span> 512Mi<br><span>ingress:</span> all (public HTTPS endpoint)<br><span>auth:</span> --no-allow-unauthenticated + Meta signature verification</div>
+    </div>
+    <div class="svc-card oss reveal reveal-delay-1">
+      <div class="svc-header"><div class="svc-card-name">Cloud Run<br>stt-service</div><span class="svc-badge badge-oss">OSS on GCP</span></div>
+      <div class="svc-card-role">Speech-to-text · Whisper large-v3</div>
+      <div class="svc-card-body">Transcribes audio. Detects language. Returns confidence score. GPU T4 spot — 83% cheaper than on-demand. Fallback to Google STT on spot unavailability.</div>
+      <div class="svc-card-config"><span>min-instances:</span> 1 warm (eliminates cold-start on calls)<br><span>gpu:</span> nvidia-tesla-t4 · spot<br><span>cpu:</span> 4 vCPU · <span>memory:</span> 16Gi<br><span>timeout:</span> 30s per request<br><span>ingress:</span> internal-only (Pub/Sub push subscription)</div>
+    </div>
+    <div class="svc-card oss reveal reveal-delay-2">
+      <div class="svc-header"><div class="svc-card-name">Cloud Run<br>intent-router</div><span class="svc-badge badge-oss">Gemini Flash</span></div>
+      <div class="svc-card-role">Orchestrator · Intent classification</div>
+      <div class="svc-card-body">Stateless. Classifies intent, extracts entities, routes to specialist agent via Pub/Sub. Fast path — must complete in under 1 second.</div>
+      <div class="svc-card-config"><span>min-instances:</span> 0 (scale-to-zero · warm in 800ms)<br><span>max-instances:</span> 20<br><span>cpu:</span> 1 vCPU · <span>memory:</span> 512Mi<br><span>concurrency:</span> 80 requests per instance<br><span>ingress:</span> internal-only</div>
+    </div>
+    <div class="svc-card oss reveal">
+      <div class="svc-header"><div class="svc-card-name">Cloud Run<br>leave-agent</div><span class="svc-badge badge-oss">LangGraph</span></div>
+      <div class="svc-card-role">Specialist agent · Leave lifecycle</div>
+      <div class="svc-card-body">Stateful LangGraph agent. Session state persisted in Firestore. Handles leave application, balance query, approval, denial, HITL escalation. Longest-running agent — average 4s per interaction.</div>
+      <div class="svc-card-config"><span>min-instances:</span> 0 (scale-to-zero)<br><span>max-instances:</span> 10<br><span>cpu:</span> 2 vCPU · <span>memory:</span> 1Gi<br><span>timeout:</span> 60s (covers full state machine execution)<br><span>ingress:</span> internal-only</div>
+    </div>
+    <div class="svc-card managed reveal reveal-delay-1">
+      <div class="svc-header"><div class="svc-card-name">Firestore<br>(Native mode)</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">Primary database · All entities</div>
+      <div class="svc-card-body">Stores employee records, leave ledger, HITL queue, sessions, and audit log. Append-only security rules on /audit_log — no service account holds update/delete permissions on this collection.</div>
+      <div class="svc-card-config"><span>mode:</span> Native (not Datastore mode)<br><span>location:</span> asia-south1 (single-region · DPDP compliant)<br><span>backup:</span> daily managed backup · 7-day retention<br><span>security rules:</span> audit_log collection append-only</div>
+    </div>
+    <div class="svc-card managed reveal reveal-delay-2">
+      <div class="svc-header"><div class="svc-card-name">Cloud Pub/Sub</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">Event bus · Service decoupling</div>
+      <div class="svc-card-body">Five topics: INBOUND_MSG, STT_RESULT, AGENT_EVENT, HITL_ESCALATION, NOTIFICATION_OUT. All subscriptions use push delivery to Cloud Run endpoints. Dead-letter topics on all critical subscriptions.</div>
+      <div class="svc-card-config"><span>delivery:</span> push (not pull · lower latency)<br><span>ack deadline:</span> 60s (covers worst-case agent execution)<br><span>dead-letter:</span> enabled · max delivery attempts: 5<br><span>retention:</span> 7 days (for replay on failures)</div>
+    </div>
+    <div class="svc-card managed reveal">
+      <div class="svc-header"><div class="svc-card-name">Secret Manager</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">Credentials · Zero secrets in code</div>
+      <div class="svc-card-body">Stores all credentials: WhatsApp API token, Exotel API key, Supabase connection string, Gemini API key. Each Cloud Run service accesses only the secrets it needs via its service account IAM binding.</div>
+      <div class="svc-card-config"><span>rotation:</span> automated 90-day rotation on WA token<br><span>access:</span> per-service-account binding · principle of least privilege<br><span>audit:</span> all accesses logged to Cloud Audit Logs<br><span>versions:</span> previous version retained 30 days on rotation</div>
+    </div>
+    <div class="svc-card managed reveal reveal-delay-1">
+      <div class="svc-header"><div class="svc-card-name">Vertex AI<br>Gemini Flash</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">LLM inference · Intent + reasoning</div>
+      <div class="svc-card-body">Accessed via Vertex AI SDK from Leave Agent and Intent Router. Model version pinned — not using 'latest' alias. Region: asia-south1 for data residency. Quota: 60 QPM on Gemini Flash adequate for SMB scale.</div>
+      <div class="svc-card-config"><span>model:</span> gemini-1.5-flash-002 (pinned)<br><span>region:</span> asia-south1 (data residency)<br><span>quota:</span> 60 QPM · 1M TPM (adequate for ≤ 500 emp)<br><span>safety:</span> harm_block_threshold: BLOCK_NONE (HR context)</div>
+    </div>
+    <div class="svc-card managed reveal reveal-delay-2">
+      <div class="svc-header"><div class="svc-card-name">Cloud Storage</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">Object storage · PDFs · artifacts</div>
+      <div class="svc-card-body">Three buckets: policy-documents (HR PDFs, versioned), audio-archive (voice recordings, 90-day TTL), model-artifacts (Whisper container layers). All buckets: asia-south1, uniform bucket-level access.</div>
+      <div class="svc-card-config"><span>policy-documents:</span> versioning enabled · lifecycle: archive after 1yr<br><span>audio-archive:</span> TTL 90 days (DPDP minimum retention)<br><span>model-artifacts:</span> versioning enabled · no TTL<br><span>access:</span> uniform bucket-level (no per-object ACLs)</div>
+    </div>
+    <div class="svc-card managed reveal">
+      <div class="svc-header"><div class="svc-card-name">Artifact Registry</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">Container registry · Image versioning</div>
+      <div class="svc-card-body">All Cloud Run container images stored here. Two repositories: autohr-services (application containers) and autohr-models (Whisper fine-tuned images with model weights baked in). Vulnerability scanning enabled on push.</div>
+      <div class="svc-card-config"><span>format:</span> Docker<br><span>location:</span> asia-south1<br><span>scanning:</span> automated vulnerability scan on push<br><span>retention:</span> keep last 10 versions per service · auto-clean older</div>
+    </div>
+    <div class="svc-card external reveal reveal-delay-1">
+      <div class="svc-header"><div class="svc-card-name">Supabase<br>(pgvector)</div><span class="svc-badge badge-ext">External managed</span></div>
+      <div class="svc-card-role">Vector store · Policy RAG</div>
+      <div class="svc-card-body">Postgres + pgvector extension. Hosts HR Policy PDF embeddings. AWS ap-south-1 (Mumbai) — same Indian jurisdiction as GCP asia-south1. Connection string stored in Secret Manager. HNSW index for sub-10ms retrieval.</div>
+      <div class="svc-card-config"><span>tier:</span> Free (500MB · adequate for SMB policy docs)<br><span>region:</span> aws ap-south-1 (IN jurisdiction · DPDP compliant)<br><span>index:</span> HNSW · ef_construction: 128 · m: 16<br><span>migration trigger:</span> &gt; 400MB used → Supabase Pro ($25/mo)</div>
+    </div>
+    <div class="svc-card managed reveal reveal-delay-2">
+      <div class="svc-header"><div class="svc-card-name">Cloud Build<br>+ Cloud Deploy</div><span class="svc-badge badge-gcp">GCP managed</span></div>
+      <div class="svc-card-role">CI/CD · Terraform pipeline</div>
+      <div class="svc-card-body">Cloud Build runs on every push to main: lint, test, container build, push to Artifact Registry. Cloud Deploy manages progressive delivery to staging then production. Terraform plan/apply runs in Cloud Build with remote state in GCS.</div>
+      <div class="svc-card-config"><span>triggers:</span> push to main · PR to main (plan only)<br><span>tf state:</span> GCS bucket · versioned · state locking<br><span>approval:</span> manual gate between staging → production<br><span>rollback:</span> Cloud Run revision rollback · &lt; 30s</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: TERRAFORM IaC -->
+<div class="sec dark" id="terraform">
+  <div class="sec-label reveal">03 — Terraform IaC</div>
+  <div class="sec-title reveal reveal-delay-1">Infrastructure as code.<br><em>No console. No exceptions.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Every GCP resource in this system is defined in Terraform. The repo contains a complete <code style="font-family:var(--mono);font-size:15px;background:rgba(255,255,255,0.07);padding:2px 6px;">/terraform</code> directory that can provision the entire infrastructure from a cold GCP project. Select modules shown below — full source in the GitHub repo.</div>
+
+  <div class="tf-grid reveal">
+    <div class="tf-block">
+      <div class="tf-block-header">
+        <span class="tf-block-title">Cloud Run — Leave Agent</span>
+        <span class="tf-block-file">terraform/modules/cloud_run/leave_agent.tf</span>
+      </div>
+      <div class="code">
+<span class="kw">resource</span> <span class="res">"google_cloud_run_v2_service"</span> <span class="str">"leave_agent"</span> {
+  <span class="key">name</span>     = <span class="str">"leave-agent"</span>
+  <span class="key">location</span> = <span class="val">var.region</span>  <span class="cm"># asia-south1</span>
+  <span class="key">ingress</span>  = <span class="str">"INGRESS_TRAFFIC_INTERNAL_ONLY"</span>
+
+  <span class="key">template</span> {
+    <span class="key">service_account</span> = <span class="val">google_service_account.leave_agent_sa.email</span>
+
+    <span class="key">scaling</span> {
+      <span class="key">min_instance_count</span> = <span class="num">0</span>
+      <span class="key">max_instance_count</span> = <span class="num">10</span>
+    }
+
+    <span class="key">containers</span> {
+      <span class="key">image</span> = <span class="str">"${var.region}-docker.pkg.dev/${var.project_id}/autohr-services/leave-agent:${var.image_tag}"</span>
+
+      <span class="key">resources</span> {
+        <span class="key">limits</span> = {
+          <span class="key">cpu</span>    = <span class="str">"2"</span>
+          <span class="key">memory</span> = <span class="str">"1Gi"</span>
+        }
+      }
+
+      <span class="cm"># Secrets from Secret Manager — no env var credentials</span>
+      <span class="key">env</span> {
+        <span class="key">name</span> = <span class="str">"GEMINI_API_KEY"</span>
+        <span class="key">value_source</span> {
+          <span class="key">secret_key_ref</span> {
+            <span class="key">secret</span>  = <span class="val">google_secret_manager_secret.gemini_key.secret_id</span>
+            <span class="key">version</span> = <span class="str">"latest"</span>
+          }
+        }
+      }
+
+      <span class="key">env</span> {
+        <span class="key">name</span>  = <span class="str">"GEMINI_MODEL"</span>
+        <span class="key">value</span> = <span class="str">"gemini-1.5-flash-002"</span>  <span class="cm"># pinned — not latest</span>
+      }
+
+      <span class="key">env</span> {
+        <span class="key">name</span>  = <span class="str">"RAG_CONFIDENCE_THRESHOLD"</span>
+        <span class="key">value</span> = <span class="str">"0.80"</span>
+      }
+
+      <span class="key">startup_probe</span> {
+        <span class="key">http_get</span> { <span class="key">path</span> = <span class="str">"/health"</span> }
+        <span class="key">initial_delay_seconds</span> = <span class="num">10</span>
+        <span class="key">failure_threshold</span>     = <span class="num">3</span>
+      }
+    }
+  }
+}
+      </div>
+    </div>
+
+    <div class="tf-block">
+      <div class="tf-block-header">
+        <span class="tf-block-title">Firestore Security Rules</span>
+        <span class="tf-block-file">terraform/modules/firestore/security_rules.tf</span>
+      </div>
+      <div class="code">
+<span class="cm"># Firestore security rules — audit_log is append-only</span>
+<span class="kw">resource</span> <span class="res">"google_firestore_document"</span> <span class="str">"security_rules"</span> {
+  <span class="key">project</span>     = <span class="val">var.project_id</span>
+  <span class="key">collection</span>  = <span class="str">"_security_rules"</span>
+  <span class="key">document_id</span> = <span class="str">"rules"</span>
+
+  <span class="cm"># Inline rules — enforced at Firestore layer</span>
+  <span class="cm"># No service account can bypass these</span>
+}
+
+<span class="cm"># The actual Firestore rules (firestore.rules)</span>
+<span class="cm"># deployed via firebase-tools in CI/CD:</span>
+
+<span class="cm">/*
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Audit log: service accounts may CREATE only
+    // UPDATE and DELETE are denied for ALL identities
+    match /audit_log/{entry} {
+      allow create: if request.auth != null;
+      allow read:   if request.auth != null;
+      allow update: if false;   // immutable
+      allow delete: if false;   // immutable
+    }
+
+    // Leave requests: agents may create and read
+    // Workers may read their own records only
+    match /leave_requests/{id} {
+      allow create: if request.auth != null;
+      allow read:   if request.auth.uid == resource.data.employee_id
+                    || request.auth.token.role == "agent";
+      allow update: if request.auth.token.role == "agent";
+      allow delete: if false;
+    }
+
+    // Sessions: 24h TTL enforced via scheduled Cloud Function
+    match /sessions/{id} {
+      allow read, write: if request.auth.token.role == "agent";
+    }
+  }
+}
+*/</span>
+      </div>
+    </div>
+
+    <div class="tf-block">
+      <div class="tf-block-header">
+        <span class="tf-block-title">IAM — Service Account bindings</span>
+        <span class="tf-block-file">terraform/modules/iam/service_accounts.tf</span>
+      </div>
+      <div class="code">
+<span class="cm"># Each service gets its own SA — minimum permissions</span>
+<span class="kw">resource</span> <span class="res">"google_service_account"</span> <span class="str">"leave_agent_sa"</span> {
+  <span class="key">account_id</span>   = <span class="str">"leave-agent-sa"</span>
+  <span class="key">display_name</span> = <span class="str">"Leave Agent Service Account"</span>
+}
+
+<span class="cm"># Firestore: read + write (not admin)</span>
+<span class="kw">resource</span> <span class="res">"google_project_iam_member"</span> <span class="str">"leave_agent_firestore"</span> {
+  <span class="key">project</span> = <span class="val">var.project_id</span>
+  <span class="key">role</span>    = <span class="str">"roles/datastore.user"</span>
+  <span class="key">member</span>  = <span class="str">"serviceAccount:${google_service_account.leave_agent_sa.email}"</span>
+}
+
+<span class="cm"># Secret Manager: access to leave-agent secrets only</span>
+<span class="kw">resource</span> <span class="res">"google_secret_manager_secret_iam_member"</span> <span class="str">"leave_agent_gemini"</span> {
+  <span class="key">secret_id</span> = <span class="val">google_secret_manager_secret.gemini_key.id</span>
+  <span class="key">role</span>      = <span class="str">"roles/secretmanager.secretAccessor"</span>
+  <span class="key">member</span>    = <span class="str">"serviceAccount:${google_service_account.leave_agent_sa.email}"</span>
+}
+
+<span class="cm"># Pub/Sub: publish to AGENT_EVENT topic only</span>
+<span class="kw">resource</span> <span class="res">"google_pubsub_topic_iam_member"</span> <span class="str">"leave_agent_pubsub"</span> {
+  <span class="key">topic</span>  = <span class="val">google_pubsub_topic.agent_event.name</span>
+  <span class="key">role</span>   = <span class="str">"roles/pubsub.publisher"</span>
+  <span class="key">member</span> = <span class="str">"serviceAccount:${google_service_account.leave_agent_sa.email}"</span>
+}
+
+<span class="cm"># Vertex AI: invoke Gemini models only</span>
+<span class="kw">resource</span> <span class="res">"google_project_iam_member"</span> <span class="str">"leave_agent_vertex"</span> {
+  <span class="key">project</span> = <span class="val">var.project_id</span>
+  <span class="key">role</span>    = <span class="str">"roles/aiplatform.user"</span>
+  <span class="key">member</span>  = <span class="str">"serviceAccount:${google_service_account.leave_agent_sa.email}"</span>
+}
+<span class="cm"># NOTE: STT service account does NOT get Vertex AI role</span>
+<span class="cm"># Pub/Sub service account does NOT get Firestore role</span>
+<span class="cm"># No cross-domain access — enforced at IAM layer</span>
+      </div>
+    </div>
+
+    <div class="tf-block">
+      <div class="tf-block-header">
+        <span class="tf-block-title">Cloud Run — STT Service (GPU)</span>
+        <span class="tf-block-file">terraform/modules/cloud_run/stt_service.tf</span>
+      </div>
+      <div class="code">
+<span class="kw">resource</span> <span class="res">"google_cloud_run_v2_service"</span> <span class="str">"stt_service"</span> {
+  <span class="key">name</span>     = <span class="str">"stt-service"</span>
+  <span class="key">location</span> = <span class="val">var.region</span>
+  <span class="key">ingress</span>  = <span class="str">"INGRESS_TRAFFIC_INTERNAL_ONLY"</span>
+
+  <span class="key">template</span> {
+    <span class="key">service_account</span> = <span class="val">google_service_account.stt_sa.email</span>
+
+    <span class="key">scaling</span> {
+      <span class="key">min_instance_count</span> = <span class="num">1</span>  <span class="cm"># warm — eliminates GPU cold start</span>
+      <span class="key">max_instance_count</span> = <span class="num">5</span>
+    }
+
+    <span class="key">node_selector</span> {
+      <span class="key">accelerator</span> = <span class="str">"nvidia-tesla-t4"</span>
+    }
+
+    <span class="key">containers</span> {
+      <span class="key">image</span> = <span class="str">"${var.region}-docker.pkg.dev/${var.project_id}/autohr-models/whisper-large-v3:${var.whisper_tag}"</span>
+
+      <span class="key">resources</span> {
+        <span class="key">limits</span> = {
+          <span class="key">cpu</span>              = <span class="str">"4"</span>
+          <span class="key">memory</span>           = <span class="str">"16Gi"</span>
+          <span class="key">"nvidia.com/gpu"</span> = <span class="str">"1"</span>
+        }
+        <span class="key">startup_cpu_boost</span> = <span class="kw">true</span>
+      }
+
+      <span class="key">env</span> {
+        <span class="key">name</span>  = <span class="str">"WHISPER_MODEL"</span>
+        <span class="key">value</span> = <span class="str">"large-v3"</span>
+      }
+
+      <span class="key">env</span> {
+        <span class="key">name</span>  = <span class="str">"FALLBACK_TO_GOOGLE_STT"</span>
+        <span class="key">value</span> = <span class="str">"true"</span>  <span class="cm"># automatic fallback on error</span>
+      }
+
+      <span class="key">env</span> {
+        <span class="key">name</span>  = <span class="str">"MIN_CONFIDENCE_THRESHOLD"</span>
+        <span class="key">value</span> = <span class="str">"0.85"</span>
+      }
+    }
+  }
+}
+      </div>
+    </div>
+
+    <div class="tf-block">
+      <div class="tf-block-header">
+        <span class="tf-block-title">Pub/Sub topics + subscriptions</span>
+        <span class="tf-block-file">terraform/modules/pubsub/topics.tf</span>
+      </div>
+      <div class="code">
+<span class="cm"># Five topics — one per pipeline stage</span>
+<span class="kw">locals</span> {
+  <span class="key">topics</span> = [
+    <span class="str">"inbound-msg"</span>,
+    <span class="str">"stt-result"</span>,
+    <span class="str">"agent-event"</span>,
+    <span class="str">"hitl-escalation"</span>,
+    <span class="str">"notification-out"</span>,
+  ]
+}
+
+<span class="kw">resource</span> <span class="res">"google_pubsub_topic"</span> <span class="str">"topics"</span> {
+  <span class="key">for_each</span> = <span class="kw">toset</span>(<span class="val">local.topics</span>)
+  <span class="key">name</span>     = <span class="str">"autohr-${each.key}"</span>
+
+  <span class="cm"># Retain messages 7 days for replay on failure</span>
+  <span class="key">message_retention_duration</span> = <span class="str">"604800s"</span>
+}
+
+<span class="cm"># Dead-letter topic for all critical subscriptions</span>
+<span class="kw">resource</span> <span class="res">"google_pubsub_topic"</span> <span class="str">"dead_letter"</span> {
+  <span class="key">name</span> = <span class="str">"autohr-dead-letter"</span>
+}
+
+<span class="cm"># Push subscription: inbound-msg → stt-service</span>
+<span class="kw">resource</span> <span class="res">"google_pubsub_subscription"</span> <span class="str">"inbound_to_stt"</span> {
+  <span class="key">name</span>  = <span class="str">"inbound-to-stt"</span>
+  <span class="key">topic</span> = <span class="val">google_pubsub_topic.topics["inbound-msg"].name</span>
+
+  <span class="key">push_config</span> {
+    <span class="key">push_endpoint</span> = <span class="str">"${google_cloud_run_v2_service.stt_service.uri}/transcribe"</span>
+    <span class="key">oidc_token</span> {
+      <span class="key">service_account_email</span> = <span class="val">google_service_account.pubsub_invoker_sa.email</span>
+    }
+  }
+
+  <span class="key">ack_deadline_seconds</span> = <span class="num">60</span>
+
+  <span class="key">dead_letter_policy</span> {
+    <span class="key">dead_letter_topic</span>     = <span class="val">google_pubsub_topic.dead_letter.id</span>
+    <span class="key">max_delivery_attempts</span> = <span class="num">5</span>
+  }
+}
+      </div>
+    </div>
+
+    <div class="tf-block">
+      <div class="tf-block-header">
+        <span class="tf-block-title">Cloud Monitoring — Alerting policies</span>
+        <span class="tf-block-file">terraform/modules/monitoring/alerts.tf</span>
+      </div>
+      <div class="code">
+<span class="cm"># Alert: STT P95 latency > 6s</span>
+<span class="kw">resource</span> <span class="res">"google_monitoring_alert_policy"</span> <span class="str">"stt_latency"</span> {
+  <span class="key">display_name</span> = <span class="str">"STT P95 latency exceeded"</span>
+  <span class="key">combiner</span>     = <span class="str">"OR"</span>
+
+  <span class="key">conditions</span> {
+    <span class="key">display_name</span> = <span class="str">"STT P95 > 6000ms"</span>
+    <span class="key">condition_threshold</span> {
+      <span class="key">filter</span>     = <span class="str">"resource.type=\"cloud_run_revision\" AND metric.type=\"run.googleapis.com/request_latencies\""</span>
+      <span class="key">comparison</span> = <span class="str">"COMPARISON_GT"</span>
+      <span class="key">threshold_value</span> = <span class="num">6000</span>
+      <span class="key">duration</span>        = <span class="str">"300s"</span>
+      <span class="key">aggregations</span> {
+        <span class="key">alignment_period</span>   = <span class="str">"300s"</span>
+        <span class="key">per_series_aligner</span> = <span class="str">"ALIGN_PERCENTILE_95"</span>
+      }
+    }
+  }
+
+  <span class="key">notification_channels</span> = [<span class="val">google_monitoring_notification_channel.oncall.name</span>]
+}
+
+<span class="cm"># Alert: monthly spend projection > ₹1500</span>
+<span class="kw">resource</span> <span class="res">"google_billing_budget"</span> <span class="str">"monthly_budget"</span> {
+  <span class="key">billing_account</span> = <span class="val">var.billing_account_id</span>
+  <span class="key">display_name</span>    = <span class="str">"AutoHR monthly budget"</span>
+
+  <span class="key">budget_filter</span> {
+    <span class="key">projects</span> = [<span class="str">"projects/${var.project_id}"</span>]
+  }
+
+  <span class="key">amount</span> {
+    <span class="key">specified_amount</span> {
+      <span class="key">currency_code</span> = <span class="str">"INR"</span>
+      <span class="key">units</span>         = <span class="str">"2000"</span>  <span class="cm"># hard ceiling</span>
+    }
+  }
+
+  <span class="key">threshold_rules</span> { <span class="key">threshold_percent</span> = <span class="num">0.75</span> }  <span class="cm"># alert at ₹1500</span>
+  <span class="key">threshold_rules</span> { <span class="key">threshold_percent</span> = <span class="num">1.0</span>  }  <span class="cm"># alert at ₹2000</span>
+}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: SECURITY MODEL -->
+<div class="sec dark" id="security">
+  <div class="sec-label reveal">04 — Security model</div>
+  <div class="sec-title reveal reveal-delay-1">Threat model for<br><em>an SMB HR system.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">The threat model is not a regulated enterprise — it is a 52-person textile business. The security priorities reflect this: protect employee PII, prevent unauthorised leave manipulation, ensure the audit log cannot be tampered with. Zero-trust networking and hardware security modules are not in scope at this stage.</div>
+
+  <div class="security-grid reveal">
+    <div class="sec-card">
+      <div class="sec-card-label">Control 01 · Identity</div>
+      <div class="sec-card-title">Mobile number as employee identity</div>
+      <div class="sec-card-body">WhatsApp sender number verified by Meta API on every inbound message. IVR caller ID verified by Exotel. <strong>No password, no token, no app login required.</strong> The phone number IS the credential — already verified by the telco and by Meta's onboarding process.</div>
+      <div class="sec-card-code">Threat mitigated: employee impersonation via web portal<br>Not mitigated: SIM swap — accepted risk at SMB threat level</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-card-label">Control 02 · Authorisation</div>
+      <div class="sec-card-title">Per-service IAM — minimum permissions</div>
+      <div class="sec-card-body">Each Cloud Run service has a dedicated Service Account with permissions scoped to exactly the resources it needs. <strong>The STT service cannot read Firestore. The Leave Agent cannot access grievance records.</strong> Lateral movement is prevented at the IAM layer — a compromised container can only access its own domain.</div>
+      <div class="sec-card-code">Enforced in Terraform service_accounts.tf<br>Verified: gcloud iam service-accounts list --format=json</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-card-label">Control 03 · Secrets</div>
+      <div class="sec-card-title">Zero credentials in code</div>
+      <div class="sec-card-body">All secrets (WhatsApp API token, Exotel key, Supabase connection string, Gemini API key) stored in Secret Manager. <strong>No credential appears in source code, Dockerfiles, environment variable defaults, or CI/CD configuration.</strong> Secrets are injected at Cloud Run startup via IAM-authenticated Secret Manager API calls.</div>
+      <div class="sec-card-code">Enforced: pre-commit hook scans for credential patterns<br>Rotation: automated 90-day rotation on WA token via Secret Manager</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-card-label">Control 04 · Data integrity</div>
+      <div class="sec-card-title">Append-only audit log</div>
+      <div class="sec-card-body">Firestore security rules deny update and delete on /audit_log for all identities — including the owner service account. <strong>No past record can be modified.</strong> In a labour dispute, the complete, unmodified history of every HR decision is available. This is the system's legal defence — and it is enforced at the database layer, not at the application layer.</div>
+      <div class="sec-card-code">rules_version = '2'<br>allow update: if false;  // immutable<br>allow delete: if false;  // immutable</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-card-label">Control 05 · Transport</div>
+      <div class="sec-card-title">HTTPS everywhere — Google-managed TLS</div>
+      <div class="sec-card-body">All Cloud Run endpoints are HTTPS with Google-managed TLS certificates. Pub/Sub uses TLS transport. Supabase connection uses TLS with certificate pinning in the connection string. <strong>No plaintext communication on any path.</strong></div>
+      <div class="sec-card-code">Cloud Run: TLS termination at Google Front End<br>Pub/Sub: TLS 1.3 enforced on all subscriptions</div>
+    </div>
+    <div class="sec-card">
+      <div class="sec-card-label">Control 06 · Compliance</div>
+      <div class="sec-card-title">DPDP Act 2023 — data residency</div>
+      <div class="sec-card-body">All GCP resources in asia-south1 (Mumbai). Supabase on AWS ap-south-1 (Mumbai). Vertex AI inference pinned to asia-south1. <strong>No personal data leaves Indian jurisdiction.</strong> Audio recordings retained maximum 90 days per DPDP minimum period. Employee records retained per labour law requirements (employment duration + 3 years).</div>
+      <div class="sec-card-code">Terraform: provider region = "asia-south1"<br>Org policy: constraints/gcp.resourceLocations enforced</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: CI/CD PIPELINE -->
+<div class="sec tinted" id="cicd">
+  <div class="sec-label reveal">05 — CI/CD pipeline</div>
+  <div class="sec-title reveal reveal-delay-1">From commit to production.<br><em>Automated. Gated. Reversible.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Every change to the system — application code, Terraform configuration, or Whisper model weights — goes through the same pipeline. No console deployments. No manual Cloud Run deploys. The pipeline is the only path to production.</div>
+
+  <div class="cicd-steps reveal">
+    <div class="cicd-step">
+      <div class="cicd-step-num">01</div>
+      <div class="cicd-step-content">
+        <div class="cicd-step-title">Code push to feature branch</div>
+        <div class="cicd-step-detail">Developer pushes to <span>feature/</span> branch · pre-commit hooks run: credential scan, linting, unit tests · Cloud Build trigger: PR validation pipeline</div>
+      </div>
+      <div class="cicd-step-tool">Cloud Build · pre-commit</div>
+    </div>
+    <div class="cicd-step">
+      <div class="cicd-step-num">02</div>
+      <div class="cicd-step-content">
+        <div class="cicd-step-title">Pull request — Terraform plan</div>
+        <div class="cicd-step-detail"><span>terraform plan</span> runs against staging state · diff posted as PR comment · no apply until merge · manual code review required</div>
+      </div>
+      <div class="cicd-step-tool">Terraform Cloud Build trigger</div>
+    </div>
+    <div class="cicd-step">
+      <div class="cicd-step-num">03</div>
+      <div class="cicd-step-content">
+        <div class="cicd-step-title">Merge to main — container build</div>
+        <div class="cicd-step-detail">Cloud Build builds container image · <span>docker build</span> with layer caching · vulnerability scan via Artifact Registry · image pushed with <span>git_sha</span> tag</div>
+      </div>
+      <div class="cicd-step-tool">Cloud Build · Artifact Registry</div>
+    </div>
+    <div class="cicd-step">
+      <div class="cicd-step-num">04</div>
+      <div class="cicd-step-content">
+        <div class="cicd-step-title">Staging deployment — automated</div>
+        <div class="cicd-step-detail"><span>terraform apply</span> to staging workspace · Cloud Run revision deployed · integration tests run against staging endpoints · Pub/Sub end-to-end smoke test</div>
+      </div>
+      <div class="cicd-step-tool">Cloud Deploy · staging</div>
+    </div>
+    <div class="cicd-step">
+      <div class="cicd-step-num">05</div>
+      <div class="cicd-step-content">
+        <div class="cicd-step-title">Manual promotion gate</div>
+        <div class="cicd-step-detail">Cloud Deploy promotion requires manual approval · staging test results reviewed · Terraform plan against production state reviewed · one-click promote or reject</div>
+      </div>
+      <div class="cicd-step-tool">Cloud Deploy · approval gate</div>
+    </div>
+    <div class="cicd-step">
+      <div class="cicd-step-num">06</div>
+      <div class="cicd-step-content">
+        <div class="cicd-step-title">Production deployment — traffic split</div>
+        <div class="cicd-step-detail">New Cloud Run revision deployed with <span>10% traffic</span> · error rate monitored for 15 minutes · automated full promotion or rollback based on error threshold</div>
+      </div>
+      <div class="cicd-step-tool">Cloud Run · traffic splitting</div>
+    </div>
+    <div class="cicd-step">
+      <div class="cicd-step-num">07</div>
+      <div class="cicd-step-content">
+        <div class="cicd-step-title">Rollback — 30 seconds</div>
+        <div class="cicd-step-detail">Previous Cloud Run revision retained for 30 days · instant rollback via <span>gcloud run services update-traffic</span> · Terraform state rolled back in separate operation</div>
+      </div>
+      <div class="cicd-step-tool">Cloud Run revisions</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: IAM MATRIX -->
+<div class="sec" id="iam">
+  <div class="sec-label reveal">06 — IAM service account matrix</div>
+  <div class="sec-title reveal reveal-delay-1">Who can do what.<br><em>Nothing more. Nothing less.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Every service account permission in this system is intentional, documented, and enforced in Terraform. The absence of a permission is as deliberate as its presence.</div>
+
+  <div class="reveal">
+    <table class="iam-table">
+      <thead>
+        <tr>
+          <th>Service account</th>
+          <th>Firestore</th>
+          <th>Pub/Sub</th>
+          <th>Secret Manager</th>
+          <th>Vertex AI</th>
+          <th>Cloud Storage</th>
+          <th>Artifact Registry</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>webhook-gateway-sa</td>
+          <td>—</td>
+          <td>publish: inbound-msg</td>
+          <td>WA token (read)</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>stt-service-sa</td>
+          <td>—</td>
+          <td>publish: stt-result</td>
+          <td>—</td>
+          <td>—</td>
+          <td>audio-archive (write)</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>intent-router-sa</td>
+          <td>read: employees</td>
+          <td>publish: agent-event</td>
+          <td>Gemini key (read)</td>
+          <td>aiplatform.user</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>leave-agent-sa</td>
+          <td>read/write: leave_requests, employees, sessions · create: audit_log · read: audit_log</td>
+          <td>publish: hitl-escalation, notification-out</td>
+          <td>Gemini key · Supabase URL (read)</td>
+          <td>aiplatform.user</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>hitl-manager-sa</td>
+          <td>read/write: hitl_queue · create: audit_log</td>
+          <td>publish: notification-out</td>
+          <td>WA token (read)</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>notification-sa</td>
+          <td>—</td>
+          <td>subscribe: notification-out</td>
+          <td>WA token (read)</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>rag-indexer-sa</td>
+          <td>read/write: policy_versions</td>
+          <td>—</td>
+          <td>Supabase URL · Gemini key (read)</td>
+          <td>aiplatform.user</td>
+          <td>policy-documents (read)</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>cicd-cloudbuild-sa</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>tf-state bucket (read/write)</td>
+          <td>reader + writer</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="page-nav">
+  <a href="page-08.html" class="page-nav-item">
+    <span class="pn-dir">← Previous</span>
+    <span class="pn-title">MLOps</span>
+  </a>
+  <a href="page-10.html" class="page-nav-item" style="text-align:right;">
+    <span class="pn-dir">Next →</span>
+    <span class="pn-title">Architecture Decision Records</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 09 · Platform &amp; Infrastructure · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06, rootMargin: '0px 0px -28px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agent Architecture — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:#1a1612;--ink-mid:#3d3830;--ink-light:#7a7268;
+  --paper:#f5f0e8;--paper-2:#ede8df;--paper-3:#e4ddd2;
+  --saffron:#c4620a;--saffron-2:#e07520;--saffron-light:#fdf0e4;
+  --rule:#c8bfb0;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--display:'Instrument Serif',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+/* HERO */
+.hero{padding:112px 48px 72px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:10px;right:24px;font-family:var(--display);font-size:220px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,76px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:20px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:600px;}
+
+/* SECTION */
+.sec{padding:88px 48px;border-top:1px solid var(--rule);}
+.sec.dark{background:var(--ink);}
+.sec.tinted{background:var(--paper-2);}
+.sec-label{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;}
+.sec.dark .sec-label{color:rgba(255,255,255,0.3);}
+.sec-title{font-family:var(--display);font-size:clamp(30px,3.8vw,54px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:var(--ink);margin-bottom:16px;}
+.sec-title em{font-style:italic;color:var(--saffron);}
+.sec.dark .sec-title{color:var(--paper);}
+.sec.dark .sec-title em{color:var(--saffron-2);}
+.sec-lead{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.7;color:var(--ink-mid);max-width:680px;margin-bottom:56px;}
+.sec.dark .sec-lead{color:rgba(245,240,232,0.5);}
+
+/* AGENT TOPOLOGY */
+.topology{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.agent-card{padding:40px 32px;background:var(--paper-2);position:relative;overflow:hidden;transition:background 0.2s;}
+.agent-card:hover{background:var(--paper-3);}
+.agent-card.primary{background:var(--ink);}
+.agent-badge{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:12px;}
+.agent-card.primary .agent-badge{color:var(--saffron-2);}
+.agent-name{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.3;}
+.agent-card.primary .agent-name{color:var(--paper);}
+.agent-model{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-light);letter-spacing:0.04em;margin-bottom:16px;}
+.agent-card.primary .agent-model{color:rgba(255,255,255,0.3);}
+.agent-resp{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.7;margin-bottom:16px;}
+.agent-card.primary .agent-resp{color:rgba(245,240,232,0.55);}
+.agent-boundary{padding:12px 16px;background:var(--saffron-light);border-left:2px solid var(--saffron);}
+.agent-card.primary .agent-boundary{background:rgba(196,98,10,0.15);border-left-color:var(--saffron-2);}
+.agent-boundary-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--saffron);margin-bottom:4px;}
+.agent-card.primary .agent-boundary-label{color:var(--saffron-2);}
+.agent-boundary-text{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--saffron);line-height:1.55;}
+.agent-card.primary .agent-boundary-text{color:rgba(224,117,32,0.8);}
+.agent-tools{margin-top:16px;display:flex;flex-wrap:wrap;gap:5px;}
+.tool-tag{font-family:var(--mono);font-size:10px;font-weight:400;padding:3px 8px;background:rgba(0,0,0,0.05);color:var(--ink-light);border:1px solid var(--rule);letter-spacing:0.03em;}
+.agent-card.primary .tool-tag{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border-color:rgba(255,255,255,0.08);}
+
+/* SEQUENCE DIAGRAM */
+.seq-wrap{background:var(--ink);padding:40px;overflow-x:auto;}
+.seq-diagram{min-width:760px;position:relative;}
+.seq-actors{display:grid;gap:0;margin-bottom:0;}
+.seq-actor{font-family:var(--mono);font-size:11px;font-weight:500;color:rgba(255,255,255,0.6);text-align:center;padding:10px 8px;border-bottom:2px solid rgba(255,255,255,0.12);letter-spacing:0.04em;text-transform:uppercase;}
+.seq-actor.highlight{color:var(--saffron-2);border-bottom-color:var(--saffron);}
+.seq-rows{display:flex;flex-direction:column;}
+.seq-row{display:grid;align-items:center;min-height:44px;position:relative;}
+.seq-lifelines{position:absolute;inset:0;display:grid;pointer-events:none;}
+.seq-lifeline{border-left:1px dashed rgba(255,255,255,0.08);height:100%;}
+.seq-lifeline.highlight{border-left-color:rgba(196,98,10,0.3);}
+.seq-content{position:relative;z-index:1;display:flex;align-items:center;padding:6px 0;}
+.seq-arrow{display:flex;align-items:center;position:absolute;}
+.seq-arrow-line{height:1px;background:rgba(255,255,255,0.25);}
+.seq-arrow-line.saffron{background:var(--saffron);}
+.seq-arrow-line.green{background:#00a884;}
+.seq-arrow-line.red{background:#cf6679;}
+.seq-arrow-head{width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;flex-shrink:0;}
+.seq-arrow-head.right{border-left:6px solid rgba(255,255,255,0.25);}
+.seq-arrow-head.right.saffron{border-left-color:var(--saffron);}
+.seq-arrow-head.right.green{border-left-color:#00a884;}
+.seq-arrow-head.right.red{border-left-color:#cf6679;}
+.seq-arrow-head.left{border-right:6px solid rgba(255,255,255,0.25);}
+.seq-arrow-head.left.green{border-right-color:#00a884;}
+.seq-msg{font-family:var(--mono);font-size:10px;font-weight:400;color:rgba(255,255,255,0.5);letter-spacing:0.03em;position:absolute;white-space:nowrap;}
+.seq-msg.saffron{color:var(--saffron-2);}
+.seq-msg.green{color:#00a884;}
+.seq-msg.red{color:#cf6679;}
+.seq-note{background:rgba(255,255,255,0.04);border-left:2px solid rgba(255,255,255,0.1);padding:8px 14px;margin:4px 0 4px 0;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.03em;font-style:italic;}
+.seq-note.saffron{border-left-color:var(--saffron);color:var(--saffron-2);}
+.seq-note.green{border-left-color:#00a884;color:#00a884;}
+.seq-divider{height:1px;background:rgba(255,255,255,0.06);margin:12px 0;}
+.seq-phase-label{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:6px 0 2px;}
+
+/* STATE MACHINE */
+.sm-wrap{display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start;}
+.sm-states{display:flex;flex-direction:column;gap:2px;}
+.sm-state{display:grid;grid-template-columns:160px 1fr;gap:0;overflow:hidden;transition:all 0.2s;cursor:default;}
+.sm-state:hover .sm-state-content{background:var(--paper-3);}
+.sm-state-label{padding:20px 20px;display:flex;flex-direction:column;justify-content:center;}
+.sm-state-label.initial{background:var(--ink);}
+.sm-state-label.processing{background:#1a3a2a;}
+.sm-state-label.deciding{background:#3a1a0a;}
+.sm-state-label.hitl{background:#3a2a0a;}
+.sm-state-label.terminal-ok{background:#0a2a1a;}
+.sm-state-label.terminal-fail{background:#2a0a0a;}
+.sm-state-name{font-family:var(--mono);font-size:11px;font-weight:500;color:rgba(255,255,255,0.7);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;}
+.sm-state-type{font-family:var(--mono);font-size:10px;font-weight:300;color:rgba(255,255,255,0.25);letter-spacing:0.04em;}
+.sm-state-content{background:var(--paper-2);padding:18px 24px;}
+.sm-state-entry{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-light);line-height:1.65;letter-spacing:0.02em;}
+.sm-state-entry span{color:var(--saffron);}
+.sm-state-entry .green{color:#2d6b42;}
+.sm-state-entry .red{color:#a32d2d;}
+.sm-transitions{background:var(--ink);padding:32px 28px;}
+.sm-trans-title{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:20px;}
+.sm-trans-row{padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.sm-trans-row:last-child{border-bottom:none;}
+.sm-trans-from{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.04em;margin-bottom:4px;}
+.sm-trans-arrow{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--saffron-2);line-height:1.5;}
+.sm-trans-cond{font-family:var(--mono);font-size:10px;font-weight:300;color:rgba(255,255,255,0.3);margin-top:2px;letter-spacing:0.03em;}
+
+/* TOOL MANIFEST */
+.tool-manifest{display:flex;flex-direction:column;gap:2px;}
+.tool-row{display:grid;grid-template-columns:220px 120px 1fr;gap:0;background:var(--paper-2);overflow:hidden;transition:background 0.2s;}
+.tool-row:hover{background:var(--paper-3);}
+.tool-name-cell{padding:18px 20px;border-right:1px solid var(--rule);}
+.tool-name{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);letter-spacing:0.03em;}
+.tool-type{font-family:var(--mono);font-size:10px;font-weight:300;color:var(--ink-light);margin-top:2px;}
+.tool-schema-cell{padding:18px 16px;border-right:1px solid var(--rule);}
+.tool-schema{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--saffron);letter-spacing:0.04em;}
+.tool-desc-cell{padding:18px 20px;}
+.tool-desc{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.55;}
+
+/* HITL SPEC */
+.hitl-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.hitl-card{background:rgba(255,255,255,0.03);padding:36px 32px;border:1px solid rgba(255,255,255,0.06);}
+.hitl-card-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;}
+.hitl-card-title{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--paper);margin-bottom:10px;line-height:1.35;}
+.hitl-card-body{font-family:var(--serif);font-size:13px;font-weight:300;color:rgba(245,240,232,0.5);line-height:1.7;}
+.hitl-card-body strong{color:rgba(245,240,232,0.85);font-weight:400;}
+.hitl-trigger-list{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
+.hitl-trigger{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--saffron-2);padding-left:14px;position:relative;line-height:1.5;}
+.hitl-trigger::before{content:'→';position:absolute;left:0;color:var(--saffron);font-size:10px;}
+
+/* POLICY PDF CTA */
+.policy-cta{background:var(--saffron);padding:56px 48px;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;}
+.policy-cta-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:10px;}
+.policy-cta-title{font-family:var(--display);font-size:clamp(24px,3vw,40px);font-style:italic;font-weight:400;color:var(--paper);line-height:1.2;margin-bottom:10px;}
+.policy-cta-body{font-family:var(--serif);font-size:15px;font-weight:300;color:rgba(255,255,255,0.75);line-height:1.65;max-width:560px;}
+.policy-cta-btn{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:16px 28px;background:var(--paper);color:var(--saffron);text-decoration:none;border:2px solid var(--paper);transition:all 0.2s;white-space:nowrap;}
+.policy-cta-btn:hover{background:transparent;color:var(--paper);}
+
+/* GUARDRAILS */
+.guardrails{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.gr-card{background:var(--paper-2);padding:36px 28px;transition:background 0.2s;}
+.gr-card:hover{background:var(--paper-3);}
+.gr-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;}
+.gr-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.gr-body{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.7;}
+.gr-body strong{font-weight:400;color:var(--ink);}
+
+/* PAGE NAV */
+.page-nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.page-nav-item{padding:48px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:8px;}
+.page-nav-item:hover{background:var(--paper-2);}
+.page-nav-item+.page-nav-item{border-left:1px solid var(--rule);}
+.pn-dir{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pn-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--saffron);}
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+.reveal-delay-3{transition-delay:0.3s;}
+
+@media(max-width:1100px){
+  .topology,.hitl-grid,.guardrails{grid-template-columns:1fr 1fr;}
+  .sm-wrap{grid-template-columns:1fr;}
+  .policy-cta{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  nav{padding:16px 24px;}.nav-links{display:none;}
+  .sec,.hero{padding-left:24px;padding-right:24px;}
+  .topology,.hitl-grid,.guardrails{grid-template-columns:1fr;}
+  .tool-row{grid-template-columns:1fr;}
+  .tool-name-cell,.tool-schema-cell{border-right:none;border-bottom:1px solid var(--rule);}
+  .policy-cta{padding:40px 24px;}
+  .page-nav{grid-template-columns:1fr;}
+  .page-nav-item+.page-nav-item{border-left:none;border-top:1px solid var(--rule);}
+  footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-06.html">TOGAF ADM</a></li>
+    <li><a href="page-05.html">Client Brief</a></li>
+    <li><a href="page-04.html">Workflow</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg">AGT</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Page 07<span>/</span>Agent Architecture
+  </div>
+  <h1>The agents that<br><em>run the system.</em></h1>
+  <p class="hero-sub">Five specialist agents. Each with a defined state machine, a tool manifest, a confidence threshold, an autonomy boundary, and a documented HITL checkpoint. This is not a chatbot with conditionals. It is a formal multi-agent system where every decision is traceable to a policy clause and every escalation is a designed architectural state.</p>
+</div>
+
+<!-- SECTION 1: AGENT TOPOLOGY -->
+<div class="sec tinted" id="topology">
+  <div class="sec-label reveal">01 — Agent topology</div>
+  <div class="sec-title reveal reveal-delay-1">Five agents.<br><em>One orchestrator.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">The Intent Router is the entry point for every interaction. It classifies the incoming message and hands off to the appropriate specialist agent. Each specialist owns exactly one domain — no agent crosses its boundary without an explicit A2A handoff.</div>
+
+  <div class="topology">
+    <div class="agent-card primary reveal">
+      <div class="agent-badge">Orchestrator</div>
+      <div class="agent-name">Intent Router</div>
+      <div class="agent-model">Gemini 1.5 Flash · Vertex AI · Stateless</div>
+      <div class="agent-resp">Receives every inbound message. Classifies intent across 6 categories. Extracts entities (employee ID, leave type, dates, language). Routes to the appropriate specialist agent via Pub/Sub event. The only agent that touches every interaction.</div>
+      <div class="agent-boundary">
+        <div class="agent-boundary-label">Autonomy boundary</div>
+        <div class="agent-boundary-text">Classify and route only. Never decide. Never write state. Never notify. If classification confidence &lt; 0.70 → return clarification prompt to worker.</div>
+      </div>
+      <div class="agent-tools">
+        <span class="tool-tag">classify_intent</span>
+        <span class="tool-tag">extract_entities</span>
+        <span class="tool-tag">detect_language</span>
+        <span class="tool-tag">publish_event</span>
+      </div>
+    </div>
+
+    <div class="agent-card reveal reveal-delay-1">
+      <div class="agent-badge">Specialist · Phase 1</div>
+      <div class="agent-name">Leave Agent</div>
+      <div class="agent-model">LangGraph + Gemini 1.5 Flash · Stateful</div>
+      <div class="agent-resp">Owns the full leave lifecycle: application, balance query, approval, denial, and cancellation. Queries Firestore for employee balance and team headcount. Queries Policy RAG for governing clause. Decides autonomously when confidence ≥ 0.80. Triggers HITL when below threshold.</div>
+      <div class="agent-boundary">
+        <div class="agent-boundary-label">Autonomy boundary</div>
+        <div class="agent-boundary-text">Approve or deny when: policy confidence ≥ 0.80, balance sufficient, coverage maintained. Escalate to HITL on any failure of these conditions.</div>
+      </div>
+      <div class="agent-tools">
+        <span class="tool-tag">get_leave_balance</span>
+        <span class="tool-tag">check_team_coverage</span>
+        <span class="tool-tag">query_policy_rag</span>
+        <span class="tool-tag">write_leave_record</span>
+        <span class="tool-tag">write_audit_log</span>
+        <span class="tool-tag">trigger_hitl</span>
+        <span class="tool-tag">send_notification</span>
+      </div>
+    </div>
+
+    <div class="agent-card reveal reveal-delay-2">
+      <div class="agent-badge">Specialist · Phase 1</div>
+      <div class="agent-name">Policy Q&A Agent</div>
+      <div class="agent-model">Gemini 1.5 Flash + pgvector RAG · Stateless</div>
+      <div class="agent-resp">Answers any question a worker asks about HR policy — entitlements, notice periods, leave types, payslip timing. Retrieves the governing clause from the Policy RAG store and responds in the worker's detected language. Every answer cites its source clause.</div>
+      <div class="agent-boundary">
+        <div class="agent-boundary-label">Autonomy boundary</div>
+        <div class="agent-boundary-text">Answer read-only policy questions. Never interpret ambiguous clauses as decisions. If RAG confidence &lt; 0.75 → acknowledge uncertainty, suggest worker contact owner directly.</div>
+      </div>
+      <div class="agent-tools">
+        <span class="tool-tag">query_policy_rag</span>
+        <span class="tool-tag">translate_response</span>
+        <span class="tool-tag">send_notification</span>
+      </div>
+    </div>
+
+    <div class="agent-card reveal">
+      <div class="agent-badge">Specialist · Phase 2</div>
+      <div class="agent-name">Onboarding Agent</div>
+      <div class="agent-model">LangGraph + Gemini 1.5 Flash · Stateful</div>
+      <div class="agent-resp">Guides new joinee through document collection via WhatsApp conversation. Collects Aadhaar, PAN, bank details, emergency contact, and photo. Validates document formats. Triggers ESIC/EPF registration workflow. Delivers digital offer letter. Maintains session state across a multi-turn conversation spanning hours or days.</div>
+      <div class="agent-boundary">
+        <div class="agent-boundary-label">Autonomy boundary</div>
+        <div class="agent-boundary-text">Collect and validate documents autonomously. Never finalise onboarding without Priya's explicit confirmation. Statutory registration trigger requires owner approval.</div>
+      </div>
+      <div class="agent-tools">
+        <span class="tool-tag">create_employee_record</span>
+        <span class="tool-tag">validate_document</span>
+        <span class="tool-tag">store_document</span>
+        <span class="tool-tag">trigger_esic_registration</span>
+        <span class="tool-tag">send_offer_letter</span>
+      </div>
+    </div>
+
+    <div class="agent-card reveal reveal-delay-1">
+      <div class="agent-badge">Specialist · Phase 4</div>
+      <div class="agent-name">Grievance Agent</div>
+      <div class="agent-model">LangGraph + Gemini 1.5 Flash · Stateful</div>
+      <div class="agent-resp">Receives and logs grievances raised by workers via voice or text. Classifies grievance type (wage, conduct, safety, discrimination). Maintains statutory grievance register. Routes to Priya for resolution. Tracks status. Generates labour inspection export on demand.</div>
+      <div class="agent-boundary">
+        <div class="agent-boundary-label">Autonomy boundary</div>
+        <div class="agent-boundary-text">Log and classify autonomously. Never resolve a grievance without owner action. All wage-related and discrimination grievances require mandatory HITL — no autonomous resolution regardless of confidence.</div>
+      </div>
+      <div class="agent-tools">
+        <span class="tool-tag">log_grievance</span>
+        <span class="tool-tag">classify_grievance</span>
+        <span class="tool-tag">update_grievance_register</span>
+        <span class="tool-tag">trigger_hitl</span>
+        <span class="tool-tag">generate_statutory_report</span>
+      </div>
+    </div>
+
+    <div class="agent-card reveal reveal-delay-2">
+      <div class="agent-badge">Cross-cutting · All phases</div>
+      <div class="agent-name">HITL Manager</div>
+      <div class="agent-model">LangGraph + Cloud Functions · Stateful</div>
+      <div class="agent-resp">Manages every human-in-the-loop escalation. Receives escalation events from any specialist agent. Composes the owner brief (context, AI recommendation, policy clause, confidence score). Sends WhatsApp notification. Waits for resolution via webhook. Times out after 4 hours and re-escalates. Writes resolution to audit log.</div>
+      <div class="agent-boundary">
+        <div class="agent-boundary-label">Autonomy boundary</div>
+        <div class="agent-boundary-text">Compose and deliver briefs autonomously. Never resolve an escalation without explicit owner action. 4-hour timeout triggers re-escalation, not auto-resolution.</div>
+      </div>
+      <div class="agent-tools">
+        <span class="tool-tag">compose_hitl_brief</span>
+        <span class="tool-tag">send_owner_alert</span>
+        <span class="tool-tag">register_resolution_webhook</span>
+        <span class="tool-tag">write_hitl_resolution</span>
+        <span class="tool-tag">re_escalate</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: LEAVE AGENT STATE MACHINE -->
+<div class="sec" id="statemachine">
+  <div class="sec-label reveal">02 — Leave Agent state machine</div>
+  <div class="sec-title reveal reveal-delay-1">Every state. Every<br><em>transition. Every guard.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">The Leave Agent is a LangGraph state machine. Every state has defined entry actions, every transition has an explicit guard condition, and every terminal state writes an immutable audit record before any outbound message is sent. Nothing is implicit.</div>
+
+  <div class="sm-wrap reveal">
+    <div class="sm-states">
+      <div class="sm-state">
+        <div class="sm-state-label initial">
+          <div class="sm-state-name">Idle</div>
+          <div class="sm-state-type">Initial state</div>
+        </div>
+        <div class="sm-state-content">
+          <div class="sm-state-entry">Entry: await Pub/Sub event from Intent Router<br>Data: structured_intent { employee_id, type, dates[], language }</div>
+        </div>
+      </div>
+      <div class="sm-state">
+        <div class="sm-state-label processing">
+          <div class="sm-state-name">Fetching</div>
+          <div class="sm-state-type">Processing</div>
+        </div>
+        <div class="sm-state-content">
+          <div class="sm-state-entry">Entry: <span>get_leave_balance(employee_id)</span> · <span>check_team_coverage(date)</span><br>Guard: if Firestore read fails → emit <span class="red">ERROR</span> event → HITL path</div>
+        </div>
+      </div>
+      <div class="sm-state">
+        <div class="sm-state-label processing">
+          <div class="sm-state-name">RAG lookup</div>
+          <div class="sm-state-type">Processing</div>
+        </div>
+        <div class="sm-state-content">
+          <div class="sm-state-entry">Entry: <span>query_policy_rag(intent, context)</span><br>Returns: { clause_text, clause_id, page, confidence }<br>Guard: if confidence &lt; 0.80 → <span>hitl_trigger = CONFIDENCE</span></div>
+        </div>
+      </div>
+      <div class="sm-state">
+        <div class="sm-state-label deciding">
+          <div class="sm-state-name">Evaluating</div>
+          <div class="sm-state-type">Decision gate</div>
+        </div>
+        <div class="sm-state-content">
+          <div class="sm-state-entry">Checks (all must pass for autonomous approval):<br>1. balance_sufficient = <span class="green">true</span><br>2. coverage_maintained = <span class="green">true</span><br>3. rag_confidence ≥ 0.80 = <span class="green">true</span><br>4. no_legal_threshold_breach = <span class="green">true</span><br>Any false → <span>route to HITL_Pending</span></div>
+        </div>
+      </div>
+      <div class="sm-state">
+        <div class="sm-state-label hitl">
+          <div class="sm-state-name">HITL pending</div>
+          <div class="sm-state-type">Awaiting human</div>
+        </div>
+        <div class="sm-state-content">
+          <div class="sm-state-entry">Entry: <span>trigger_hitl(brief, recommendation)</span><br>Timeout: 4 hours → re-escalate with URGENT flag<br>Timeout 24 hours → auto-deny with audit note<br>Resolution: owner APPROVE / DENY → write_audit_log → notify_worker</div>
+        </div>
+      </div>
+      <div class="sm-state">
+        <div class="sm-state-label terminal-ok">
+          <div class="sm-state-name">Approved</div>
+          <div class="sm-state-type">Terminal · success</div>
+        </div>
+        <div class="sm-state-content">
+          <div class="sm-state-entry">Entry: <span>write_leave_record(APPROVED)</span> · <span>write_audit_log</span> · <span class="green">send_confirmation(language)</span><br>Audit fields: decision_by, rag_confidence, clause_id, timestamp</div>
+        </div>
+      </div>
+      <div class="sm-state">
+        <div class="sm-state-label terminal-fail">
+          <div class="sm-state-name">Denied</div>
+          <div class="sm-state-type">Terminal · denial</div>
+        </div>
+        <div class="sm-state-content">
+          <div class="sm-state-entry">Entry: <span>write_leave_record(DENIED)</span> · <span>write_audit_log</span> · <span class="red">send_denial(language, reason, alternatives)</span><br>Reason must cite policy clause. Alternatives offered where available.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sm-transitions">
+      <div class="sm-trans-title">State transitions</div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">IDLE →</div>
+        <div class="sm-trans-arrow">FETCHING</div>
+        <div class="sm-trans-cond">on: leave_intent_received</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">FETCHING →</div>
+        <div class="sm-trans-arrow">RAG_LOOKUP</div>
+        <div class="sm-trans-cond">guard: firestore_read_success = true</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">FETCHING →</div>
+        <div class="sm-trans-arrow">HITL_PENDING</div>
+        <div class="sm-trans-cond">guard: firestore_read_success = false</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">RAG_LOOKUP →</div>
+        <div class="sm-trans-arrow">EVALUATING</div>
+        <div class="sm-trans-cond">guard: rag_confidence ≥ 0.80</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">RAG_LOOKUP →</div>
+        <div class="sm-trans-arrow">HITL_PENDING</div>
+        <div class="sm-trans-cond">guard: rag_confidence &lt; 0.80</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">EVALUATING →</div>
+        <div class="sm-trans-arrow">APPROVED</div>
+        <div class="sm-trans-cond">guard: all 4 conditions true</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">EVALUATING →</div>
+        <div class="sm-trans-arrow">DENIED</div>
+        <div class="sm-trans-cond">guard: balance_sufficient = false OR coverage_maintained = false</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">EVALUATING →</div>
+        <div class="sm-trans-arrow">HITL_PENDING</div>
+        <div class="sm-trans-cond">guard: legal_threshold_breach = true</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">HITL_PENDING →</div>
+        <div class="sm-trans-arrow">APPROVED / DENIED</div>
+        <div class="sm-trans-cond">on: owner_resolution_received</div>
+      </div>
+      <div class="sm-trans-row">
+        <div class="sm-trans-from">HITL_PENDING →</div>
+        <div class="sm-trans-arrow">DENIED</div>
+        <div class="sm-trans-cond">on: timeout_24h (policy: no response = deny)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: SEQUENCE DIAGRAM -->
+<div class="sec dark" id="sequence">
+  <div class="sec-label reveal">03 — Sequence diagram</div>
+  <div class="sec-title reveal reveal-delay-1">Happy path.<br><em>Eight actors. 11 seconds.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">The full message sequence for an autonomous leave approval — from WhatsApp audio arriving at the Meta API to the confirmation message delivered to the worker. Every arrow is a real system call with a documented interface.</div>
+
+  <div class="seq-wrap reveal">
+    <div class="seq-diagram">
+      <!-- Actors row -->
+      <div class="seq-actors" style="display:grid;grid-template-columns:repeat(8,1fr);">
+        <div class="seq-actor highlight">Worker</div>
+        <div class="seq-actor">WA API</div>
+        <div class="seq-actor">Pub/Sub</div>
+        <div class="seq-actor">Whisper</div>
+        <div class="seq-actor highlight">Intent Router</div>
+        <div class="seq-actor highlight">Leave Agent</div>
+        <div class="seq-actor">Firestore</div>
+        <div class="seq-actor">Policy RAG</div>
+      </div>
+
+      <!-- Sequence rows -->
+      <div style="padding:16px 0;display:flex;flex-direction:column;gap:0;">
+
+        <div class="seq-phase-label">Channel ingestion · 0–2s</div>
+
+        <!-- Worker → WA API -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:6.25%;width:6.25%;height:1px;background:var(--saffron);transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:12.5%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid var(--saffron);"></div>
+          <div style="position:absolute;top:2px;left:7%;font-family:var(--mono);font-size:10px;color:var(--saffron-2);">voice_note_received(audio, sender_number)</div>
+        </div>
+
+        <!-- WA API → Pub/Sub -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:18.75%;width:6.25%;height:1px;background:rgba(255,255,255,0.25);transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:25%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid rgba(255,255,255,0.25);"></div>
+          <div style="position:absolute;top:2px;left:20%;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);">publish(INBOUND_MSG, {audio_url, employee_id})</div>
+        </div>
+
+        <!-- Pub/Sub → Whisper -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:31.25%;width:6.25%;height:1px;background:rgba(255,255,255,0.25);transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:37.5%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid rgba(255,255,255,0.25);"></div>
+          <div style="position:absolute;top:2px;left:32%;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);">transcribe_audio(audio_url)</div>
+        </div>
+
+        <!-- Whisper → Pub/Sub (return) -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:25%;width:12.5%;height:1px;background:rgba(255,255,255,0.15);transform:translateY(-50%);border-top:1px dashed rgba(255,255,255,0.15);"></div>
+          <div style="position:absolute;top:50%;left:25%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-right:6px solid rgba(255,255,255,0.15);"></div>
+          <div style="position:absolute;top:2px;left:26%;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);">→ {transcript, language, confidence: 0.96}  · ~3.8s</div>
+        </div>
+
+        <div class="seq-divider"></div>
+        <div class="seq-phase-label">Orchestration · 2–4s</div>
+
+        <!-- Pub/Sub → Intent Router -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:31.25%;width:12.5%;height:1px;background:var(--saffron);transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:43.75%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid var(--saffron);"></div>
+          <div style="position:absolute;top:2px;left:32%;font-family:var(--mono);font-size:10px;color:var(--saffron-2);">route_intent(transcript, language, employee_id)</div>
+        </div>
+
+        <!-- Intent Router → Leave Agent -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:50%;width:6.25%;height:1px;background:var(--saffron);transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:56.25%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid var(--saffron);"></div>
+          <div style="position:absolute;top:2px;left:51%;font-family:var(--mono);font-size:10px;color:var(--saffron-2);">invoke_leave_agent({type:CASUAL, dates:[tomorrow], employee_id})</div>
+        </div>
+
+        <div class="seq-divider"></div>
+        <div class="seq-phase-label">Leave Agent execution · 4–9s</div>
+
+        <!-- Leave Agent → Firestore -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:62.5%;width:12.5%;height:1px;background:rgba(255,255,255,0.25);transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:75%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid rgba(255,255,255,0.25);"></div>
+          <div style="position:absolute;top:2px;left:63%;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);">get_leave_balance(EMP042) · check_team_coverage(tomorrow)</div>
+        </div>
+
+        <!-- Firestore → Leave Agent (return) -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:62.5%;width:12.5%;height:1px;background:rgba(255,255,255,0.15);transform:translateY(-50%);border-top:1px dashed rgba(255,255,255,0.15);"></div>
+          <div style="position:absolute;top:50%;left:62.5%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-right:6px solid rgba(255,255,255,0.15);"></div>
+          <div style="position:absolute;top:2px;left:64%;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);">→ {casual_balance:6, team_on_leave:1}  · ~0.6s</div>
+        </div>
+
+        <!-- Leave Agent → Policy RAG -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:62.5%;width:25%;height:1px;background:rgba(255,255,255,0.25);transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:87.5%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid rgba(255,255,255,0.25);"></div>
+          <div style="position:absolute;top:2px;left:63%;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);">query_policy_rag("casual leave approval conditions")</div>
+        </div>
+
+        <!-- Policy RAG → Leave Agent (return) -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:62.5%;width:25%;height:1px;background:rgba(255,255,255,0.15);transform:translateY(-50%);border-top:1px dashed rgba(255,255,255,0.15);"></div>
+          <div style="position:absolute;top:50%;left:62.5%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-right:6px solid rgba(255,255,255,0.15);"></div>
+          <div style="position:absolute;top:2px;left:64%;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);">→ {clause:"§4.2", confidence:0.94}  · ~1.3s</div>
+        </div>
+
+        <div class="seq-note saffron">Leave Agent evaluates: balance_sufficient=✓ coverage_maintained=✓ rag_confidence=0.94≥0.80 → DECISION: APPROVE</div>
+
+        <div class="seq-divider"></div>
+        <div class="seq-phase-label">Audit + notification · 9–11s</div>
+
+        <!-- Leave Agent → Firestore (write) -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:62.5%;width:12.5%;height:1px;background:#00a884;transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:75%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid #00a884;"></div>
+          <div style="position:absolute;top:2px;left:63%;font-family:var(--mono);font-size:10px;color:#00a884;">write_leave_record(APPROVED) · write_audit_log(clause_id, confidence)</div>
+        </div>
+
+        <!-- Leave Agent → WA API (notify) -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:12.5%;width:50%;height:1px;background:#00a884;transform:translateY(-50%);border-top:1px solid #00a884;"></div>
+          <div style="position:absolute;top:50%;left:12.5%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-right:6px solid #00a884;"></div>
+          <div style="position:absolute;top:2px;left:28%;font-family:var(--mono);font-size:10px;color:#00a884;">send_whatsapp_message(employee_id, confirmation_text, language)</div>
+        </div>
+
+        <!-- WA API → Worker (confirmation) -->
+        <div style="position:relative;height:36px;margin:2px 0;">
+          <div style="position:absolute;top:50%;left:0.5%;width:11.5%;height:1px;background:#00a884;transform:translateY(-50%);"></div>
+          <div style="position:absolute;top:50%;left:0.5%;transform:translate(-6px,-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-right:6px solid #00a884;"></div>
+          <div style="position:absolute;top:2px;left:2%;font-family:var(--mono);font-size:10px;color:#00a884;">"✓ Leave approved. 5 days remaining."  · Total: ~11s</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: TOOL MANIFEST -->
+<div class="sec tinted" id="tools">
+  <div class="sec-label reveal">04 — Leave Agent tool manifest</div>
+  <div class="sec-title reveal reveal-delay-1">Every tool.<br><em>Every contract.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Each tool in the Leave Agent's manifest has a defined input schema, output schema, and failure behaviour. The agent cannot call an undocumented tool. Every tool call is logged to the audit trail.</div>
+
+  <div class="tool-manifest reveal">
+    <div class="tool-row">
+      <div class="tool-name-cell"><div class="tool-name">get_leave_balance</div><div class="tool-type">Firestore read</div></div>
+      <div class="tool-schema-cell"><div class="tool-schema">IN: employee_id<br>OUT: balance_object</div></div>
+      <div class="tool-desc-cell"><div class="tool-desc">Returns casual, sick, and earned leave balances for the employee. On Firestore read failure: emit error event, transition to HITL_PENDING. Never return a cached or assumed balance.</div></div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name-cell"><div class="tool-name">check_team_coverage</div><div class="tool-type">Firestore read</div></div>
+      <div class="tool-schema-cell"><div class="tool-schema">IN: dept_id, date<br>OUT: coverage_status</div></div>
+      <div class="tool-desc-cell"><div class="tool-desc">Returns count of approved leave for the department on the requested date. Compares against policy minimum coverage. Returns: { on_leave: N, min_required: M, coverage_maintained: bool }.</div></div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name-cell"><div class="tool-name">query_policy_rag</div><div class="tool-type">pgvector semantic search</div></div>
+      <div class="tool-schema-cell"><div class="tool-schema">IN: query_text<br>OUT: clause_result</div></div>
+      <div class="tool-desc-cell"><div class="tool-desc">Performs semantic similarity search against the HR Policy PDF vector store. Returns: { clause_text, clause_id, page, confidence }. If confidence &lt; 0.80: agent must not auto-decide — HITL trigger is mandatory.</div></div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name-cell"><div class="tool-name">write_leave_record</div><div class="tool-type">Firestore write</div></div>
+      <div class="tool-schema-cell"><div class="tool-schema">IN: leave_request<br>OUT: record_id</div></div>
+      <div class="tool-desc-cell"><div class="tool-desc">Writes approved or denied leave to Firestore /leave_requests. Always called before send_notification — never send a confirmation without a committed record. On write failure: halt and emit error to HITL queue.</div></div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name-cell"><div class="tool-name">write_audit_log</div><div class="tool-type">Firestore append-only</div></div>
+      <div class="tool-schema-cell"><div class="tool-schema">IN: audit_entry<br>OUT: log_id</div></div>
+      <div class="tool-desc-cell"><div class="tool-desc">Appends immutable record to /audit_log. Fields: timestamp, decision, decision_by (AI|HUMAN), policy_clause_ids[], rag_confidence, employee_id. Firestore security rules deny update/delete on this collection — no service account can overwrite.</div></div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name-cell"><div class="tool-name">trigger_hitl</div><div class="tool-type">Pub/Sub publish</div></div>
+      <div class="tool-schema-cell"><div class="tool-schema">IN: hitl_brief<br>OUT: queue_id</div></div>
+      <div class="tool-desc-cell"><div class="tool-desc">Publishes escalation event to HITL Manager. Brief includes: request context, employee record, AI recommendation, policy clause, confidence score, trigger reason. HITL Manager owns the subsequent flow — Leave Agent suspends.</div></div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name-cell"><div class="tool-name">send_notification</div><div class="tool-type">WhatsApp API</div></div>
+      <div class="tool-schema-cell"><div class="tool-schema">IN: message_payload<br>OUT: delivery_status</div></div>
+      <div class="tool-desc-cell"><div class="tool-desc">Sends WhatsApp message to employee in their detected language. Message text is generated by Gemini Flash with the decision, reason, remaining balance, and policy clause reference. Always the last tool called — never before write_audit_log.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: HITL SPECIFICATION -->
+<div class="sec dark" id="hitl">
+  <div class="sec-label reveal">05 — HITL specification</div>
+  <div class="sec-title reveal reveal-delay-1">Human oversight is<br><em>a designed state — not a fallback.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Every HITL checkpoint is a formal state machine node with defined entry conditions, a presentation contract, a decision interface, a timeout behaviour, and an immutable audit record. It is not a bug report. It is the system working as designed.</div>
+
+  <div class="hitl-grid reveal">
+    <div class="hitl-card">
+      <div class="hitl-card-label">Entry conditions — when HITL fires</div>
+      <div class="hitl-card-title">Four triggers. Any one fires the escalation.</div>
+      <div class="hitl-card-body">The HITL path is not a catch-all for errors. It has <strong>four precisely defined trigger conditions</strong>. Each trigger produces a different brief to the owner, with different contextual information and a different AI recommendation.</div>
+      <div class="hitl-trigger-list">
+        <div class="hitl-trigger">Policy RAG confidence &lt; 0.80 — clause is ambiguous</div>
+        <div class="hitl-trigger">All leave balances = 0 and unpaid leave policy is ambiguous</div>
+        <div class="hitl-trigger">Statutory minimum coverage would be breached (Shops Act / Factories Act)</div>
+        <div class="hitl-trigger">Firestore read or write failure on any critical path call</div>
+      </div>
+    </div>
+    <div class="hitl-card">
+      <div class="hitl-card-label">Presentation contract — what the owner sees</div>
+      <div class="hitl-card-title">One WhatsApp message. All context. One decision.</div>
+      <div class="hitl-card-body">The owner receives a single structured WhatsApp message containing: <strong>employee name and department, the exact request, the balance state, the policy clause retrieved, the confidence score, the AI recommendation, and the trigger reason.</strong> Then two buttons: Approve / Deny. No portal login. No context switching.</div>
+    </div>
+    <div class="hitl-card">
+      <div class="hitl-card-label">Timeout behaviour — what happens if the owner doesn't respond</div>
+      <div class="hitl-card-title">4 hours: re-escalate. 24 hours: auto-deny.</div>
+      <div class="hitl-card-body">No HITL escalation is left open indefinitely. At <strong>4 hours</strong> without a response: re-escalation with an URGENT flag and a reminder of the pending request. At <strong>24 hours</strong>: the request is automatically denied with an audit note stating the reason. The worker is notified. The policy for timeout behaviour is itself configurable in the HR Policy PDF.</div>
+    </div>
+    <div class="hitl-card">
+      <div class="hitl-card-label">Audit contract — what gets written regardless of outcome</div>
+      <div class="hitl-card-title">Every HITL event is fully immutable.</div>
+      <div class="hitl-card-body">The audit log records: <strong>escalation trigger reason, the full AI brief as presented to the owner, the owner's decision and timestamp, and the final outcome</strong>. In a labour dispute, this record demonstrates that the owner was given full context and made an informed decision. It is the system's compliance artefact — not a side effect.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: GUARDRAILS -->
+<div class="sec" id="guardrails">
+  <div class="sec-label reveal">06 — Agent guardrails</div>
+  <div class="sec-title reveal reveal-delay-1">What the agents<br><em>will never do.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">An agent's autonomy boundary is defined not just by what it can do, but by what it is architecturally prevented from doing. These guardrails are enforced at the infrastructure layer — not by agent instructions alone.</div>
+
+  <div class="guardrails">
+    <div class="gr-card reveal">
+      <div class="gr-label">Guardrail 01</div>
+      <div class="gr-title">No agent can overwrite the audit log</div>
+      <div class="gr-body">Firestore security rules grant append-only access to /audit_log for all service accounts. <strong>No update or delete permission is granted to any identity in the system.</strong> An agent that attempts to modify a past record will receive a permission denied error. The log is tamper-proof by infrastructure design, not by trust.</div>
+    </div>
+    <div class="gr-card reveal reveal-delay-1">
+      <div class="gr-label">Guardrail 02</div>
+      <div class="gr-title">No notification before an audit record is written</div>
+      <div class="gr-body">The Leave Agent's state machine enforces a strict ordering: <strong>write_audit_log must succeed before send_notification is called.</strong> A confirmation message cannot be sent without a committed, timestamped record of the decision. If the audit write fails, the notification is not sent and the error is escalated to HITL.</div>
+    </div>
+    <div class="gr-card reveal reveal-delay-2">
+      <div class="gr-label">Guardrail 03</div>
+      <div class="gr-title">No autonomous decision on confidence &lt; 0.80</div>
+      <div class="gr-body">The policy RAG confidence threshold is a hard architectural constraint — not a soft preference in the agent prompt. <strong>If the RAG returns confidence &lt; 0.80, the HITL transition fires unconditionally.</strong> There is no prompt instruction that can override this. The threshold is evaluated in the state machine guard, not in the LLM.</div>
+    </div>
+    <div class="gr-card reveal">
+      <div class="gr-label">Guardrail 04</div>
+      <div class="gr-title">No agent crosses its domain boundary</div>
+      <div class="gr-body">The Leave Agent cannot access grievance records. The Policy Q&A Agent cannot write leave decisions. <strong>IAM service account permissions are scoped per agent</strong> — each service account has read/write access only to the Firestore collections relevant to its domain. Cross-domain access is a permission denied error, not a policy violation.</div>
+    </div>
+    <div class="gr-card reveal reveal-delay-1">
+      <div class="gr-label">Guardrail 05</div>
+      <div class="gr-title">No credentials in agent code or environment variables</div>
+      <div class="gr-body">All secrets (WhatsApp API token, Supabase connection string, Exotel credentials) are stored in GCP Secret Manager. <strong>No credential appears in source code, Dockerfiles, or environment variable configuration.</strong> Each Cloud Run service retrieves secrets at runtime via its IAM service account. Secret rotation requires no code change.</div>
+    </div>
+    <div class="gr-card reveal reveal-delay-2">
+      <div class="gr-label">Guardrail 06</div>
+      <div class="gr-title">Grievance agent: mandatory HITL on wage and discrimination claims</div>
+      <div class="gr-body">Certain grievance categories carry legal implications that no autonomous system should resolve. <strong>Wage disputes, discrimination claims, and safety violations trigger mandatory HITL regardless of policy RAG confidence.</strong> The state machine transition to HITL_PENDING fires unconditionally on these categories — confidence score is irrelevant.</div>
+    </div>
+  </div>
+</div>
+
+<!-- POLICY PDF CTA -->
+<div class="policy-cta reveal">
+  <div>
+    <div class="policy-cta-label">The document that governs everything above</div>
+    <div class="policy-cta-title">The HR Policy PDF.<br>The RAG source document.</div>
+    <div class="policy-cta-body">Every agent decision above traces to a clause in the HR Policy PDF. This is the document Priya uploads. This is what the pgvector RAG store indexes. This is what the Leave Agent queries before every approval or denial. The sample document for Rathi Textiles is available to download — structured for RAG indexing, compliant with the Shops & Establishments Act (Maharashtra), and editable for any small business context.</div>
+  </div>
+  <a href="docs/hr-policy-rathi-textiles.pdf" class="policy-cta-btn" download>↓ Download sample policy PDF</a>
+</div>
+
+<div class="page-nav">
+  <a href="page-06.html" class="page-nav-item">
+    <span class="pn-dir">← Previous</span>
+    <span class="pn-title">TOGAF ADM</span>
+  </a>
+  <a href="page-08.html" class="page-nav-item" style="text-align:right;">
+    <span class="pn-dir">Next →</span>
+    <span class="pn-title">Platform & Infrastructure</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 07 · Agent Architecture · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06, rootMargin: '0px 0px -28px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

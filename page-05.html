@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Client Brief — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:#1a1612; --ink-mid:#3d3830; --ink-light:#7a7268;
+  --paper:#f5f0e8; --paper-2:#ede8df; --paper-3:#e4ddd2;
+  --saffron:#c4620a; --saffron-2:#e07520; --saffron-light:#fdf0e4;
+  --rule:#c8bfb0;
+  --mono:'DM Mono',monospace; --serif:'Fraunces',serif; --display:'Instrument Serif',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+/* HERO */
+.hero{padding:112px 48px 72px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:20px;right:32px;font-family:var(--display);font-size:260px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,76px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:20px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:600px;}
+
+/* SECTION */
+section{padding:88px 48px;position:relative;}
+section+section{border-top:1px solid var(--rule);}
+.sec-label{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;}
+.sec-title{font-family:var(--display);font-size:clamp(30px,3.8vw,54px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:var(--ink);margin-bottom:16px;}
+.sec-title em{font-style:italic;color:var(--saffron);}
+.sec-lead{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.7;color:var(--ink-mid);max-width:660px;margin-bottom:56px;}
+
+/* CLIENT PROFILE */
+.client-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.client-hero{background:var(--ink);padding:56px 48px;grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;}
+.client-name{font-family:var(--display);font-size:clamp(32px,4vw,56px);font-weight:400;color:var(--paper);line-height:1.1;margin-bottom:8px;}
+.client-sub{font-family:var(--mono);font-size:12px;font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:0.06em;margin-bottom:28px;}
+.client-desc{font-family:var(--serif);font-size:15px;font-weight:300;color:rgba(245,240,232,0.6);line-height:1.75;}
+.client-stats{display:flex;flex-direction:column;gap:0;}
+.cstat{display:grid;grid-template-columns:1fr auto;align-items:baseline;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.07);}
+.cstat:first-child{border-top:1px solid rgba(255,255,255,0.07);}
+.cstat-label{font-family:var(--serif);font-size:14px;font-weight:300;color:rgba(245,240,232,0.45);}
+.cstat-val{font-family:var(--mono);font-size:14px;font-weight:400;color:var(--saffron-2);}
+.pain-card{background:var(--paper-2);padding:40px 36px;transition:background 0.2s;}
+.pain-card:hover{background:var(--paper-3);}
+.pain-num{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:14px;}
+.pain-title{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--ink);margin-bottom:10px;line-height:1.35;}
+.pain-body{font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);line-height:1.7;}
+.pain-body strong{font-weight:400;color:var(--ink);}
+.pain-metric{margin-top:16px;padding:12px 16px;background:var(--saffron-light);border-left:2px solid var(--saffron);font-family:var(--mono);font-size:11px;color:var(--saffron);line-height:1.6;}
+
+/* OWNER PROFILE */
+.owner-grid{display:grid;grid-template-columns:360px 1fr;gap:0;}
+.owner-card{background:var(--ink);padding:48px 40px;}
+.owner-initial{width:72px;height:72px;border-radius:50%;background:var(--saffron);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:28px;font-style:italic;color:var(--paper);margin-bottom:24px;}
+.owner-name{font-family:var(--display);font-size:28px;font-weight:400;color:var(--paper);margin-bottom:4px;}
+.owner-role{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:24px;}
+.owner-bio{font-family:var(--serif);font-size:14px;font-weight:300;color:rgba(245,240,232,0.6);line-height:1.75;}
+.owner-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;}
+.owner-tag{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.08);}
+.owner-needs{background:var(--paper-2);padding:48px 40px;display:flex;flex-direction:column;gap:0;}
+.need-row{display:grid;grid-template-columns:32px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--rule);align-items:start;}
+.need-row:first-child{border-top:1px solid var(--rule);}
+.need-icon{font-size:16px;margin-top:2px;}
+.need-text{font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);line-height:1.65;}
+.need-text strong{font-weight:400;color:var(--ink);}
+
+/* PERSONAS */
+.personas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.persona{background:var(--paper-2);padding:40px 32px;position:relative;overflow:hidden;transition:background 0.2s;}
+.persona:hover{background:var(--paper-3);}
+.persona-initial{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:20px;font-style:italic;color:var(--paper);margin-bottom:20px;flex-shrink:0;}
+.persona-name{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--ink);margin-bottom:2px;}
+.persona-role{font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);margin-bottom:16px;}
+.persona-detail{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.65;margin-bottom:16px;}
+.persona-quote{padding:14px 18px;border-left:2px solid var(--saffron);font-family:var(--display);font-size:14px;font-style:italic;color:var(--ink-mid);line-height:1.5;margin-bottom:16px;}
+.persona-goals{display:flex;flex-direction:column;gap:6px;}
+.persona-goal{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-light);padding-left:14px;position:relative;line-height:1.5;}
+.persona-goal::before{content:'→';position:absolute;left:0;color:var(--saffron);font-size:10px;}
+.persona-channel{margin-top:16px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);}
+.persona-channel span{color:var(--saffron);}
+
+/* AI READINESS */
+.readiness-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.readiness-card{padding:36px 32px;background:var(--paper-2);}
+.readiness-card.dark{background:var(--ink);}
+.readiness-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.readiness-card .readiness-label{color:var(--ink-light);}
+.readiness-card.dark .readiness-label{color:rgba(255,255,255,0.3);}
+.readiness-title{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:12px;line-height:1.35;}
+.readiness-card .readiness-title{color:var(--ink);}
+.readiness-card.dark .readiness-title{color:var(--paper);}
+.readiness-body{font-family:var(--serif);font-size:14px;font-weight:300;line-height:1.7;}
+.readiness-card .readiness-body{color:var(--ink-mid);}
+.readiness-card.dark .readiness-body{color:rgba(245,240,232,0.5);}
+.score-bar{margin-top:16px;height:4px;background:rgba(0,0,0,0.08);border-radius:2px;overflow:hidden;}
+.readiness-card.dark .score-bar{background:rgba(255,255,255,0.08);}
+.score-fill{height:100%;border-radius:2px;transition:width 1s ease;}
+
+/* USE CASES */
+.uc-table{width:100%;border-collapse:collapse;}
+.uc-table th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--paper);text-align:left;padding:14px 20px;background:var(--ink);}
+.uc-table td{font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);padding:16px 20px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.5;}
+.uc-table tr:nth-child(even) td{background:var(--paper-2);}
+.uc-table td:first-child{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink);white-space:nowrap;letter-spacing:0.03em;}
+.priority-high{font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 8px;background:#faeeda;color:#854f0b;border:1px solid #f0c090;letter-spacing:0.04em;}
+.priority-med{font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 8px;background:#e6f1fb;color:#185fa5;border:1px solid #b5d4f4;letter-spacing:0.04em;}
+.priority-low{font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 8px;background:var(--paper-3);color:var(--ink-light);border:1px solid var(--rule);letter-spacing:0.04em;}
+.phase-tag{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--ink-light);white-space:nowrap;}
+
+/* STAKEHOLDER MAP */
+.stakeholder-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.sh-card{background:var(--paper-2);padding:32px 28px;transition:background 0.2s;}
+.sh-card:hover{background:var(--paper-3);}
+.sh-role{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;}
+.sh-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--ink);margin-bottom:8px;}
+.sh-channel{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-light);margin-bottom:12px;letter-spacing:0.04em;}
+.sh-concern{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.6;}
+.sh-power{margin-top:14px;display:flex;gap:4px;align-items:center;}
+.sh-power-label{font-family:var(--mono);font-size:10px;color:var(--ink-light);letter-spacing:0.04em;}
+.sh-pip{width:8px;height:8px;border-radius:50%;background:var(--paper-3);}
+.sh-pip.on{background:var(--saffron);}
+
+/* PULLQUOTE */
+.pullquote{padding:56px 48px;background:var(--paper-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+.pullquote blockquote{font-family:var(--display);font-size:clamp(20px,2.5vw,32px);font-style:italic;font-weight:400;line-height:1.4;color:var(--ink);margin-bottom:20px;max-width:760px;}
+.pullquote cite{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);font-style:normal;}
+
+/* PAGE NAV */
+.page-nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.page-nav-item{padding:48px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:8px;}
+.page-nav-item:hover{background:var(--paper-2);}
+.page-nav-item+.page-nav-item{border-left:1px solid var(--rule);}
+.pn-dir{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pn-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--saffron);}
+
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+.reveal-delay-3{transition-delay:0.3s;}
+
+@media(max-width:1100px){
+  .client-hero{grid-template-columns:1fr;gap:40px;}
+  .client-grid{grid-template-columns:1fr;}
+  .owner-grid{grid-template-columns:1fr;}
+  .personas-grid{grid-template-columns:1fr 1fr;}
+  .readiness-grid{grid-template-columns:1fr;}
+  .stakeholder-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  nav{padding:16px 24px;} .nav-links{display:none;}
+  section,.hero,.pullquote{padding-left:24px;padding-right:24px;}
+  .personas-grid,.stakeholder-grid{grid-template-columns:1fr;}
+  .page-nav{grid-template-columns:1fr;}
+  .page-nav-item+.page-nav-item{border-left:none;border-top:1px solid var(--rule);}
+  footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-02.html">The Problem</a></li>
+    <li><a href="page-03.html">Cost Model</a></li>
+    <li><a href="page-04.html">Workflow</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg">05</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Page 05<span>/</span>Client Brief
+  </div>
+  <h1>Rathi Textiles.<br><em>The anchor client.</em></h1>
+  <p class="hero-sub">Every architecture decision in this project traces back to a real business problem faced by a specific kind of employer. This is that employer — a second-generation textile retailer in Nagpur, 52 employees, three retail outlets, and an HR system held together by WhatsApp and a Sunday evening spreadsheet.</p>
+</div>
+
+<!-- SECTION 1: CLIENT PROFILE -->
+<section id="profile">
+  <div class="sec-label reveal">01 — Client profile</div>
+  <h2 class="sec-title reveal reveal-delay-1">Rathi Textiles <em>Pvt. Ltd.</em></h2>
+  <p class="sec-lead reveal reveal-delay-2">A composite profile representing the archetype of the Indian small retail employer — large enough to need HR infrastructure, small enough that every rupee spent on overhead is felt directly in margin.</p>
+
+  <div class="client-grid reveal">
+    <div class="client-hero">
+      <div>
+        <div class="client-name">Rathi Textiles Pvt. Ltd.</div>
+        <div class="client-sub">Nagpur, Maharashtra · Est. 1987 · Second generation</div>
+        <div class="client-desc">Saree and dress material retail with a small in-house weaving unit. Three retail outlets in Nagpur's Itwari and Sitabuldi markets, plus one 18-loom weaving floor on the outskirts. Revenue of ₹2.8 Cr in FY2025-26. The business was built by Priya Rathi's father over 35 years. Priya took over in 2019 and has been pushing it into the next decade ever since — new stock management, digital payments, WhatsApp catalogues. HR is the one thing she hasn't been able to fix.</div>
+      </div>
+      <div class="client-stats">
+        <div class="cstat"><span class="cstat-label">Total employees</span><span class="cstat-val">52</span></div>
+        <div class="cstat"><span class="cstat-label">Floor / production staff</span><span class="cstat-val">38</span></div>
+        <div class="cstat"><span class="cstat-label">Sales staff</span><span class="cstat-val">9</span></div>
+        <div class="cstat"><span class="cstat-label">Back office</span><span class="cstat-val">5</span></div>
+        <div class="cstat"><span class="cstat-label">Languages spoken on floor</span><span class="cstat-val">6</span></div>
+        <div class="cstat"><span class="cstat-label">Annual revenue</span><span class="cstat-val">₹2.8 Cr</span></div>
+        <div class="cstat"><span class="cstat-label">HR software tried</span><span class="cstat-val">Keka (abandoned)</span></div>
+        <div class="cstat"><span class="cstat-label">Current HR system</span><span class="cstat-val">WhatsApp + Excel</span></div>
+        <div class="cstat"><span class="cstat-label">Employees with company email</span><span class="cstat-val">0</span></div>
+        <div class="cstat"><span class="cstat-label">Wage disputes (last 12 months)</span><span class="cstat-val">3</span></div>
+      </div>
+    </div>
+
+    <div class="pain-card">
+      <div class="pain-num">Pain — 01</div>
+      <div class="pain-title">Leave is managed on WhatsApp with no record</div>
+      <div class="pain-body">Workers text Priya or their floor supervisor. Sometimes the supervisor forwards it. Sometimes they don't. Leave is not recorded consistently. When payroll is run at month end, the numbers don't match. <strong>Three wage disputes in the last year trace directly to this gap.</strong> One resulted in a labour court notice.</div>
+      <div class="pain-metric">3 wage disputes · 1 labour notice · ₹40,000 in legal fees</div>
+    </div>
+
+    <div class="pain-card">
+      <div class="pain-num">Pain — 02</div>
+      <div class="pain-title">Payroll takes Priya 4 hours every Sunday</div>
+      <div class="pain-body">Attendance from three outlets plus the weaving floor is collected manually, cross-referenced with WhatsApp messages, and entered into Excel. Deductions are calculated by hand. <strong>This is 4 hours of the owner's time every week</strong> — time that could go to buying, customer relationships, or rest.</div>
+      <div class="pain-metric">4 hrs/week · 208 hrs/year · ₹1.8L in owner time at cost</div>
+    </div>
+
+    <div class="pain-card">
+      <div class="pain-num">Pain — 03</div>
+      <div class="pain-title">ESIC audit flagged incomplete onboarding records</div>
+      <div class="pain-body">Three workers started before their ESIC registration was completed. The documents were collected on paper and filed in a folder that was later misplaced. An audit in Q3 FY25 flagged the gap. <strong>The penalty was ₹12,000</strong> — small financially, but the audit process consumed two full days.</div>
+      <div class="pain-metric">₹12,000 penalty · 2 days audit disruption</div>
+    </div>
+
+    <div class="pain-card">
+      <div class="pain-num">Pain — 04</div>
+      <div class="pain-title">Keka was adopted and abandoned in 6 weeks</div>
+      <div class="pain-body">Priya trialled Keka in 2023. The floor staff couldn't navigate the app. The sales staff found the portal confusing. Three supervisors needed to be trained individually. <strong>Adoption peaked at 11 of 52 employees</strong> and fell to 3 within six weeks. Priya cancelled the subscription. The system was never the problem — the interface was.</div>
+      <div class="pain-metric">11/52 peak adoption · 6-week abandonment · ₹8,400 wasted</div>
+    </div>
+  </div>
+</section>
+
+<!-- PULLQUOTE -->
+<div class="pullquote reveal">
+  <blockquote>"I don't need Workday. I need something that works for Ramu, who speaks Telugu and has never opened a laptop in his life. If it runs on WhatsApp, he'll use it. If it doesn't, he won't."</blockquote>
+  <cite>Priya Rathi · Owner, Rathi Textiles Pvt. Ltd. · Fictional composite profile</cite>
+</div>
+
+<!-- SECTION 2: OWNER PROFILE -->
+<section id="owner">
+  <div class="sec-label reveal">02 — The decision maker</div>
+  <h2 class="sec-title reveal reveal-delay-1">Priya Rathi.<br><em>The buyer and the user.</em></h2>
+  <p class="sec-lead reveal reveal-delay-2">In a 52-person business, the owner is the HR department. Understanding Priya's constraints, goals, and decision-making patterns is what separates an architecture that gets deployed from one that gets demoed and shelved.</p>
+
+  <div class="owner-grid reveal">
+    <div class="owner-card">
+      <div class="owner-initial">P</div>
+      <div class="owner-name">Priya Rathi</div>
+      <div class="owner-role">Owner · Rathi Textiles · Age 34</div>
+      <div class="owner-bio">MBA from Symbiosis Pune, 2014. Joined the family business in 2017, took full ownership in 2019 when her father stepped back. Has systematically modernised the business: introduced digital payments in 2020, WhatsApp catalogues in 2021, inventory management software in 2022. Every technology adoption has followed the same pattern — she researches it, her father is sceptical, she pilots it, it works, they scale it.<br><br>She manages the business entirely from her phone. Tally runs on a desktop her accountant uses. Everything else — orders, payments, supplier communication, staff management — is WhatsApp and Google Sheets.<br><br>She cannot afford a dedicated HR manager. She does not want one. She wants a system that handles HR the way her accounting software handles accounts — quietly, accurately, in the background.</div>
+      <div class="owner-tags">
+        <span class="owner-tag">Tech-forward</span>
+        <span class="owner-tag">Cost-conscious</span>
+        <span class="owner-tag">Mobile-first</span>
+        <span class="owner-tag">Time-poor</span>
+        <span class="owner-tag">Compliance-aware</span>
+        <span class="owner-tag">WhatsApp native</span>
+      </div>
+    </div>
+    <div class="owner-needs">
+      <div class="need-row">
+        <div class="need-icon">⏱</div>
+        <div class="need-text"><strong>Reclaim Sunday evenings.</strong> The 4-hour payroll reconciliation is the single biggest pain point. An automated system that tracks attendance and calculates payroll would give her back 200+ hours a year.</div>
+      </div>
+      <div class="need-row">
+        <div class="need-icon">⚖️</div>
+        <div class="need-text"><strong>Zero labour disputes.</strong> Three wage disputes and one ESIC penalty in a year is three too many. She needs an audit trail that proves consistent, policy-governed decisions on every leave request.</div>
+      </div>
+      <div class="need-row">
+        <div class="need-icon">📱</div>
+        <div class="need-text"><strong>Staff adoption without training.</strong> Keka failed because it required onboarding. Any new system must work for a worker who has never used a business app. If it requires a tutorial, it will fail.</div>
+      </div>
+      <div class="need-row">
+        <div class="need-icon">💬</div>
+        <div class="need-text"><strong>Multi-language without configuration.</strong> Her floor speaks Hindi, Marathi, Telugu, Kannada, Tamil, and English. She cannot configure 6 language packs. The system must detect and respond automatically.</div>
+      </div>
+      <div class="need-row">
+        <div class="need-icon">₹</div>
+        <div class="need-text"><strong>Under ₹2,000/month, no exceptions.</strong> She pays ₹1,800/month for her inventory software and considers that expensive. HR software must cost less. She will not pay for features she doesn't use.</div>
+      </div>
+      <div class="need-row">
+        <div class="need-icon">🔔</div>
+        <div class="need-text"><strong>Control without involvement.</strong> She wants to approve the exceptions, not the routine. If a leave request is straightforward, it should be handled without her. If it's ambiguous, she wants one WhatsApp message with a tap-to-decide button.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: PERSONAS -->
+<section id="personas" style="background:var(--paper-2);">
+  <div class="sec-label reveal">03 — Employee personas</div>
+  <h2 class="sec-title reveal reveal-delay-1">Three workers.<br><em>One system. Any language.</em></h2>
+  <p class="sec-lead reveal reveal-delay-2">The workforce is not monolithic. Three distinct personas represent the range of digital literacy, language, and interaction patterns on the Rathi Textiles floor. The system must serve all three without differentiation.</p>
+
+  <div class="personas-grid">
+    <div class="persona reveal">
+      <div class="persona-initial" style="background:var(--saffron);">R</div>
+      <div class="persona-name">Ramu Kumar</div>
+      <div class="persona-role">Weaver · Weaving Floor · 6 years tenure</div>
+      <div class="persona-detail">Age 28. From Warangal, Telangana. Speaks Telugu primarily, some Hindi. Has never used a laptop. Uses WhatsApp daily — family groups, YouTube, Google Pay, Swiggy. Sends voice notes because typing in Telugu on a keyboard is slow. Has a Redmi Note 13 with the latest MIUI.</div>
+      <div class="persona-quote">"Mee HR system ki nenu call cheyali. Nenu app download cheyanu."<br><span style="font-size:11px;color:var(--ink-light);">"I want to call your HR system. I won't download an app."</span></div>
+      <div class="persona-goals">
+        <div class="persona-goal">Apply for leave in Telugu by voice note</div>
+        <div class="persona-goal">Receive confirmation in Telugu</div>
+        <div class="persona-goal">Check leave balance without calling anyone</div>
+        <div class="persona-goal">Get payslip on WhatsApp every month</div>
+      </div>
+      <div class="persona-channel">Primary channel: <span>WhatsApp voice note</span></div>
+    </div>
+
+    <div class="persona reveal reveal-delay-1">
+      <div class="persona-initial" style="background:#3b5998;">S</div>
+      <div class="persona-name">Sunita Pawar</div>
+      <div class="persona-role">Sales Staff · Sitabuldi Outlet · 3 years tenure</div>
+      <div class="persona-detail">Age 24. From Nagpur. Speaks Marathi and Hindi fluently, basic English. More digitally confident than most floor staff — uses Instagram, does digital banking, fills forms on her phone. Would type a WhatsApp message but prefers voice for speed. Samsung Galaxy A35.</div>
+      <div class="persona-quote">"Mujhe sirf ek message bhejni hai — chutti ka. Itna complicated kyun hai?"<br><span style="font-size:11px;color:var(--ink-light);">"I just want to send one message — about leave. Why is it so complicated?"</span></div>
+      <div class="persona-goals">
+        <div class="persona-goal">Apply for leave in Hindi or Marathi by text</div>
+        <div class="persona-goal">Get instant confirmation without follow-up</div>
+        <div class="persona-goal">Know her leave balance before she applies</div>
+        <div class="persona-goal">Not have to repeat herself if auto-reply fails</div>
+      </div>
+      <div class="persona-channel">Primary channel: <span>WhatsApp text message</span></div>
+    </div>
+
+    <div class="persona reveal reveal-delay-2">
+      <div class="persona-initial" style="background:#2d6b42;">M</div>
+      <div class="persona-name">Mohammed Irfan</div>
+      <div class="persona-role">Floor Supervisor · Weaving Unit · 11 years tenure</div>
+      <div class="persona-detail">Age 41. From Nagpur. Speaks Hindi, Urdu, basic English. Longest-serving employee, de facto people manager for the weaving floor. Currently acts as the informal HR interface — workers tell him about leave, he tells Priya. This costs him time and creates information loss. One smartphone, used mostly for calls and WhatsApp.</div>
+      <div class="persona-quote">"Main Priya madam ko har chutti ke baare mein bata bata ke thak gaya hoon."<br><span style="font-size:11px;color:var(--ink-light);">"I'm tired of telling Priya ma'am about every single leave."</span></div>
+      <div class="persona-goals">
+        <div class="persona-goal">Stop being the manual HR relay for the floor</div>
+        <div class="persona-goal">See team leave calendar before approving shifts</div>
+        <div class="persona-goal">Get notified when team members' leave is approved</div>
+        <div class="persona-goal">Apply for his own leave without paperwork</div>
+      </div>
+      <div class="persona-channel">Primary channel: <span>WhatsApp text + IVR call</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: STAKEHOLDER MAP -->
+<section id="stakeholders">
+  <div class="sec-label reveal">04 — Stakeholder register</div>
+  <h2 class="sec-title reveal reveal-delay-1">Everyone the system<br><em>must satisfy.</em></h2>
+  <p class="sec-lead reveal reveal-delay-2">A system that works for the worker but fails the accountant, or works for Priya but cannot survive a labour inspection, is not production-grade. Every stakeholder's concern is a design constraint.</p>
+
+  <div class="stakeholder-grid">
+    <div class="sh-card reveal">
+      <div class="sh-role">Primary · Decision maker</div>
+      <div class="sh-name">Priya Rathi</div>
+      <div class="sh-channel">Channel: WhatsApp + Dashboard</div>
+      <div class="sh-concern">Cost below ₹2,000/month. Zero labour disputes. No HR staff required. HITL control over exceptions. Payroll automated. Audit-proof.</div>
+      <div class="sh-power">
+        <span class="sh-power-label">Influence</span>
+        <div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div>
+      </div>
+    </div>
+    <div class="sh-card reveal reveal-delay-1">
+      <div class="sh-role">Primary · End user</div>
+      <div class="sh-name">Floor Workers (38)</div>
+      <div class="sh-channel">Channel: WhatsApp voice · IVR</div>
+      <div class="sh-concern">Confirmation in their own language within 60 seconds. No app to install. No form to fill. Same experience whether they speak Telugu, Hindi, or Marathi.</div>
+      <div class="sh-power">
+        <span class="sh-power-label">Influence</span>
+        <div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip"></div>
+      </div>
+    </div>
+    <div class="sh-card reveal reveal-delay-2">
+      <div class="sh-role">Secondary · Compliance</div>
+      <div class="sh-name">CA / Accountant</div>
+      <div class="sh-channel">Channel: Email · GSheet export</div>
+      <div class="sh-concern">Accurate attendance data for payroll. ESIC/EPF compliance documentation. Clean audit trail for labour inspections. Monthly export in a format Tally can consume.</div>
+      <div class="sh-power">
+        <span class="sh-power-label">Influence</span>
+        <div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip"></div><div class="sh-pip"></div>
+      </div>
+    </div>
+    <div class="sh-card reveal reveal-delay-3">
+      <div class="sh-role">Regulatory · External</div>
+      <div class="sh-name">Labour Inspector</div>
+      <div class="sh-channel">Channel: Formal report export</div>
+      <div class="sh-concern">Shops & Establishments Act compliance. Leave register maintained per statute. Wage records consistent and accessible. Evidence of fair and consistent treatment of all employees.</div>
+      <div class="sh-power">
+        <span class="sh-power-label">Influence</span>
+        <div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip on"></div><div class="sh-pip"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: AI READINESS -->
+<section id="readiness" style="background:var(--paper-2);">
+  <div class="sec-label reveal">05 — AI readiness audit</div>
+  <h2 class="sec-title reveal reveal-delay-1">Where Rathi Textiles<br><em>stands today.</em></h2>
+  <p class="sec-lead reveal reveal-delay-2">Before designing an AI system, you audit the client's readiness across four dimensions. Each dimension informs an architectural decision. A low score is not a blocker — it is a design constraint.</p>
+
+  <div class="readiness-grid">
+    <div class="readiness-card dark reveal">
+      <div class="readiness-label">Dimension 01 · Data</div>
+      <div class="readiness-title">Structured data: low. Intent data: high.</div>
+      <div class="readiness-body">Rathi Textiles has no structured HR database. Attendance is in Excel. Leave history is in WhatsApp chats. ESIC records are in paper folders. However — two years of WhatsApp conversation history is rich intent data. The system does not need historical structure. It builds the record from day one.</div>
+      <div class="score-bar"><div class="score-fill" style="width:28%;background:var(--saffron);"></div></div>
+      <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;">Structured data readiness: 2/10 · Architecture response: Build forward, not backward</div>
+    </div>
+    <div class="readiness-card reveal reveal-delay-1">
+      <div class="readiness-label">Dimension 02 · Channel</div>
+      <div class="readiness-title">Channel readiness: very high.</div>
+      <div class="readiness-body">100% of staff are on WhatsApp. The owner manages the business from WhatsApp. Suppliers, customers, and staff all communicate on the same platform. There is no channel adoption problem to solve. The architecture can build directly on existing behaviour.</div>
+      <div class="score-bar"><div class="score-fill" style="width:95%;background:var(--saffron);"></div></div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--ink-light);margin-top:8px;">Channel readiness: 9.5/10 · Architecture response: No new channel required</div>
+    </div>
+    <div class="readiness-card reveal">
+      <div class="readiness-label">Dimension 03 · Process</div>
+      <div class="readiness-title">Processes exist. None are documented.</div>
+      <div class="readiness-body">Rathi Textiles has consistent HR behaviour — leave is always approved or denied, payroll is always run, ESIC is filed. But none of it is written down. The HR Policy PDF does not exist yet. This is solved by the architecture itself: the onboarding flow includes policy document creation as the first step.</div>
+      <div class="score-bar"><div class="score-fill" style="width:35%;background:var(--saffron);"></div></div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--ink-light);margin-top:8px;">Process readiness: 3.5/10 · Architecture response: Policy PDF creation as onboarding step 1</div>
+    </div>
+    <div class="readiness-card dark reveal reveal-delay-1">
+      <div class="readiness-label">Dimension 04 · Tolerance</div>
+      <div class="readiness-title">High tolerance for automation. Zero tolerance for errors.</div>
+      <div class="readiness-body">Priya is not afraid of AI making decisions. She trusts her inventory software to reorder stock automatically. What she cannot tolerate is a wrong decision without a record. The HITL architecture — auto-decide on clarity, escalate on ambiguity — maps precisely to her tolerance profile.</div>
+      <div class="score-bar"><div class="score-fill" style="width:82%;background:var(--saffron-2);"></div></div>
+      <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;">Automation tolerance: 8/10 · Architecture response: HITL on confidence &lt; 0.8</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: USE CASE CATALOGUE -->
+<section id="usecases">
+  <div class="sec-label reveal">06 — Use case catalogue</div>
+  <h2 class="sec-title reveal reveal-delay-1">Everything the system<br><em>will eventually do.</em></h2>
+  <p class="sec-lead reveal reveal-delay-2">Derived directly from the pain points and stakeholder needs above. Prioritised by frequency, compliance risk, and owner time impact. Phase 1 covers the highest-frequency, highest-pain use cases.</p>
+
+  <div class="reveal">
+    <table class="uc-table">
+      <thead>
+        <tr>
+          <th>Use case</th>
+          <th>Actor</th>
+          <th>Frequency</th>
+          <th>Current state</th>
+          <th>Priority</th>
+          <th>Phase</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Leave application (voice or text)</td>
+          <td>Any worker</td>
+          <td>~40 / month</td>
+          <td>WhatsApp to supervisor, unrecorded</td>
+          <td><span class="priority-high">P1 — Critical</span></td>
+          <td><span class="phase-tag">Phase 1</span></td>
+        </tr>
+        <tr>
+          <td>Leave balance query</td>
+          <td>Any worker</td>
+          <td>~25 / month</td>
+          <td>Ask supervisor verbally</td>
+          <td><span class="priority-high">P1 — Critical</span></td>
+          <td><span class="phase-tag">Phase 1</span></td>
+        </tr>
+        <tr>
+          <td>Leave approval / denial with policy cite</td>
+          <td>System → Priya (HITL)</td>
+          <td>~40 / month</td>
+          <td>Priya decides via WhatsApp, no record</td>
+          <td><span class="priority-high">P1 — Critical</span></td>
+          <td><span class="phase-tag">Phase 1</span></td>
+        </tr>
+        <tr>
+          <td>Policy question (entitlements, rules)</td>
+          <td>Any worker</td>
+          <td>~15 / month</td>
+          <td>Ask supervisor, often wrong answer</td>
+          <td><span class="priority-high">P1 — High</span></td>
+          <td><span class="phase-tag">Phase 1</span></td>
+        </tr>
+        <tr>
+          <td>Employee onboarding (doc collection)</td>
+          <td>New joinee</td>
+          <td>~3 / month</td>
+          <td>Paper forms, frequently incomplete</td>
+          <td><span class="priority-high">P1 — High</span></td>
+          <td><span class="phase-tag">Phase 2</span></td>
+        </tr>
+        <tr>
+          <td>ESIC / EPF registration trigger</td>
+          <td>System → CA</td>
+          <td>~3 / month</td>
+          <td>Manual, frequently delayed</td>
+          <td><span class="priority-high">P1 — High</span></td>
+          <td><span class="phase-tag">Phase 2</span></td>
+        </tr>
+        <tr>
+          <td>Attendance check-in / check-out</td>
+          <td>Any worker</td>
+          <td>~1,100 / month</td>
+          <td>Register sign-in, often missed</td>
+          <td><span class="priority-med">P2 — Medium</span></td>
+          <td><span class="phase-tag">Phase 3</span></td>
+        </tr>
+        <tr>
+          <td>Payroll calculation</td>
+          <td>System → Priya → CA</td>
+          <td>1 / month</td>
+          <td>4-hour Sunday manual process</td>
+          <td><span class="priority-med">P2 — Medium</span></td>
+          <td><span class="phase-tag">Phase 3</span></td>
+        </tr>
+        <tr>
+          <td>Payslip delivery via WhatsApp</td>
+          <td>System → Worker</td>
+          <td>52 / month</td>
+          <td>Not done — workers don't receive payslips</td>
+          <td><span class="priority-med">P2 — Medium</span></td>
+          <td><span class="phase-tag">Phase 3</span></td>
+        </tr>
+        <tr>
+          <td>Grievance logging and tracking</td>
+          <td>Any worker</td>
+          <td>~2 / month</td>
+          <td>Verbal, unrecorded, unresolved</td>
+          <td><span class="priority-med">P2 — Medium</span></td>
+          <td><span class="phase-tag">Phase 4</span></td>
+        </tr>
+        <tr>
+          <td>Labour inspection report export</td>
+          <td>Priya → CA → Inspector</td>
+          <td>1–2 / year</td>
+          <td>Manual compilation, error-prone</td>
+          <td><span class="priority-med">P2 — Medium</span></td>
+          <td><span class="phase-tag">Phase 4</span></td>
+        </tr>
+        <tr>
+          <td>Attrition risk scoring</td>
+          <td>System → Priya</td>
+          <td>1 / month</td>
+          <td>Not done</td>
+          <td><span class="priority-low">P3 — Future</span></td>
+          <td><span class="phase-tag">Phase 5</span></td>
+        </tr>
+        <tr>
+          <td>Leave pattern anomaly detection</td>
+          <td>System → Priya</td>
+          <td>Continuous</td>
+          <td>Not done</td>
+          <td><span class="priority-low">P3 — Future</span></td>
+          <td><span class="phase-tag">Phase 5</span></td>
+        </tr>
+        <tr>
+          <td>Workforce demand forecasting</td>
+          <td>System → Priya</td>
+          <td>Weekly</td>
+          <td>Priya's intuition</td>
+          <td><span class="priority-low">P3 — Future</span></td>
+          <td><span class="phase-tag">Phase 5</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="page-nav">
+  <a href="page-04.html" class="page-nav-item">
+    <span class="pn-dir">← Previous</span>
+    <span class="pn-title">The Workflow</span>
+  </a>
+  <a href="page-06.html" class="page-nav-item" style="text-align:right;">
+    <span class="pn-dir">Next →</span>
+    <span class="pn-title">TOGAF ADM</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 05 · Client Brief · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.07, rootMargin: '0px 0px -32px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Animate score bars when visible
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.score-fill').forEach(f => {
+        const w = f.style.width;
+        f.style.width = '0%';
+        setTimeout(() => { f.style.width = w; }, 100);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.readiness-grid').forEach(g => barObserver.observe(g));
+</script>
+</body>
+</html>

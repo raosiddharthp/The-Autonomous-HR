@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MLOps — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:#1a1612;--ink-mid:#3d3830;--ink-light:#7a7268;
+  --paper:#f5f0e8;--paper-2:#ede8df;--paper-3:#e4ddd2;
+  --saffron:#c4620a;--saffron-2:#e07520;--saffron-light:#fdf0e4;
+  --rule:#c8bfb0;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--display:'Instrument Serif',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+/* HERO */
+.hero{padding:112px 48px 72px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:10px;right:24px;font-family:var(--display);font-size:200px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,76px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:20px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:600px;}
+
+/* MODEL INVENTORY STRIP */
+.model-strip{background:var(--ink);border-bottom:1px solid rgba(255,255,255,0.06);display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.model-item{padding:28px 32px;border-right:1px solid rgba(255,255,255,0.06);}
+.model-item:last-child{border-right:none;}
+.model-role{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:8px;}
+.model-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--paper);margin-bottom:4px;line-height:1.3;}
+.model-version{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--saffron-2);margin-bottom:8px;letter-spacing:0.04em;}
+.model-host{font-family:var(--mono);font-size:10px;font-weight:400;color:rgba(255,255,255,0.25);letter-spacing:0.04em;}
+.model-tag{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:500;padding:2px 7px;letter-spacing:0.06em;text-transform:uppercase;margin-top:6px;}
+.tag-managed{background:rgba(26,115,232,0.2);color:#8ab4f8;border:1px solid rgba(26,115,232,0.3);}
+.tag-oss{background:rgba(196,98,10,0.2);color:var(--saffron-2);border:1px solid rgba(196,98,10,0.3);}
+
+/* SECTION */
+.sec{padding:88px 48px;border-top:1px solid var(--rule);}
+.sec.dark{background:var(--ink);}
+.sec.tinted{background:var(--paper-2);}
+.sec-label{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;}
+.sec.dark .sec-label{color:rgba(255,255,255,0.3);}
+.sec-title{font-family:var(--display);font-size:clamp(28px,3.8vw,52px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:var(--ink);margin-bottom:16px;}
+.sec-title em{font-style:italic;color:var(--saffron);}
+.sec.dark .sec-title{color:var(--paper);}
+.sec.dark .sec-title em{color:var(--saffron-2);}
+.sec-lead{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.7;color:var(--ink-mid);max-width:680px;margin-bottom:48px;}
+.sec.dark .sec-lead{color:rgba(245,240,232,0.5);}
+
+/* DECISION BLOCK — the core pattern for this page */
+.decision{margin-bottom:2px;}
+.decision-header{display:grid;grid-template-columns:56px 1fr auto;gap:20px;align-items:center;padding:28px 32px;background:var(--paper-2);cursor:pointer;transition:background 0.2s;border:none;width:100%;text-align:left;}
+.decision-header:hover{background:var(--paper-3);}
+.decision-header.open{background:var(--ink);}
+.decision-num{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-light);letter-spacing:0.06em;}
+.decision-header.open .decision-num{color:rgba(255,255,255,0.3);}
+.decision-title-wrap{display:flex;flex-direction:column;gap:4px;}
+.decision-title{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--ink);}
+.decision-header.open .decision-title{color:var(--paper);}
+.decision-subtitle{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--ink-light);letter-spacing:0.04em;}
+.decision-header.open .decision-subtitle{color:rgba(255,255,255,0.3);}
+.decision-verdict{font-family:var(--mono);font-size:10px;font-weight:500;padding:4px 10px;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;}
+.verdict-keep{background:#e8f4ec;color:#2d6b42;border:1px solid #b8dfc4;}
+.verdict-oss{background:var(--saffron-light);color:var(--saffron);border:1px solid #f0c090;}
+.verdict-hybrid{background:#e6f1fb;color:#185fa5;border:1px solid #b5d4f4;}
+.decision-header.open .verdict-keep,.decision-header.open .verdict-oss,.decision-header.open .verdict-hybrid{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.1);}
+.decision-body{display:none;background:var(--ink);padding:0 32px 36px;}
+.decision-body.open{display:block;}
+.decision-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding-top:2px;}
+.decision-col{padding:28px 24px;background:rgba(255,255,255,0.03);}
+.dcol-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px;}
+.dcol-body{font-family:var(--serif);font-size:14px;font-weight:300;color:rgba(245,240,232,0.55);line-height:1.75;}
+.dcol-body strong{color:rgba(245,240,232,0.9);font-weight:400;}
+.dcol-body code{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,0.06);padding:1px 5px;color:var(--saffron-2);}
+.rebuttal-box{margin-top:14px;padding:14px 18px;background:rgba(196,98,10,0.1);border-left:2px solid var(--saffron);}
+.rebuttal-q{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--saffron-2);margin-bottom:6px;letter-spacing:0.03em;}
+.rebuttal-a{font-family:var(--serif);font-size:13px;font-weight:300;color:rgba(245,240,232,0.6);line-height:1.65;}
+.rebuttal-a strong{color:rgba(245,240,232,0.9);font-weight:400;}
+
+/* MONITORING DASHBOARD */
+.monitor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.monitor-card{background:var(--paper-2);padding:36px 28px;transition:background 0.2s;}
+.monitor-card:hover{background:var(--paper-3);}
+.monitor-card.alert{background:var(--ink);}
+.monitor-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;}
+.monitor-card.alert .monitor-label{color:var(--saffron-2);}
+.monitor-metric{font-family:var(--mono);font-size:36px;font-weight:300;color:var(--ink);letter-spacing:-0.02em;line-height:1;margin-bottom:6px;}
+.monitor-card.alert .monitor-metric{color:var(--saffron-2);}
+.monitor-name{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--ink);margin-bottom:8px;}
+.monitor-card.alert .monitor-name{color:var(--paper);}
+.monitor-body{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.65;}
+.monitor-card.alert .monitor-body{color:rgba(245,240,232,0.5);}
+.monitor-threshold{margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--saffron);padding:8px 12px;background:var(--saffron-light);border-left:2px solid var(--saffron);}
+.monitor-card.alert .monitor-threshold{background:rgba(196,98,10,0.15);color:var(--saffron-2);}
+
+/* RAG PIPELINE */
+.rag-pipeline{display:flex;flex-direction:column;gap:2px;}
+.rag-step{display:grid;grid-template-columns:200px 1fr auto;gap:0;background:var(--paper-2);overflow:hidden;transition:background 0.2s;}
+.rag-step:hover{background:var(--paper-3);}
+.rag-step-label{background:var(--ink);padding:22px 20px;display:flex;flex-direction:column;justify-content:center;}
+.rag-step-num{font-family:var(--mono);font-size:10px;font-weight:400;color:rgba(255,255,255,0.25);letter-spacing:0.1em;margin-bottom:4px;}
+.rag-step-name{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--paper);letter-spacing:0.04em;text-transform:uppercase;line-height:1.4;}
+.rag-step-content{padding:20px 28px;}
+.rag-step-title{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--ink);margin-bottom:4px;}
+.rag-step-detail{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--ink-light);line-height:1.7;letter-spacing:0.02em;}
+.rag-step-detail span{color:var(--saffron);}
+.rag-step-meta{padding:20px 20px;display:flex;align-items:center;justify-content:flex-end;}
+.rag-step-sla{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--saffron);white-space:nowrap;}
+
+/* CODE BLOCK */
+.code-block{background:#0d1117;padding:28px 32px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.75;color:rgba(255,255,255,0.7);}
+.code-block .cm{color:rgba(255,255,255,0.25);font-style:italic;}
+.code-block .kw{color:#79c0ff;}
+.code-block .str{color:#a5d6ff;}
+.code-block .num{color:#f2cc60;}
+.code-block .fn{color:var(--saffron-2);}
+.code-block .var{color:#d2a8ff;}
+.code-block .op{color:rgba(255,255,255,0.5);}
+
+/* DRIFT SECTION */
+.drift-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.drift-card{padding:36px 32px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
+.drift-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;}
+.drift-title{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--paper);margin-bottom:10px;line-height:1.35;}
+.drift-body{font-family:var(--serif);font-size:14px;font-weight:300;color:rgba(245,240,232,0.5);line-height:1.7;}
+.drift-body strong{color:rgba(245,240,232,0.85);font-weight:400;}
+.drift-response{margin-top:16px;padding:14px 18px;background:rgba(0,168,132,0.1);border-left:2px solid #00a884;font-family:var(--mono);font-size:11px;font-weight:300;color:#00a884;line-height:1.6;}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+
+/* PAGE NAV */
+.page-nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.page-nav-item{padding:48px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:8px;}
+.page-nav-item:hover{background:var(--paper-2);}
+.page-nav-item+.page-nav-item{border-left:1px solid var(--rule);}
+.pn-dir{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pn-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--saffron);}
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+
+@media(max-width:1100px){
+  .model-strip{grid-template-columns:1fr 1fr;}
+  .decision-inner{grid-template-columns:1fr;}
+  .monitor-grid{grid-template-columns:1fr 1fr;}
+  .drift-grid{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  nav{padding:16px 24px;}.nav-links{display:none;}
+  .sec,.hero{padding-left:24px;padding-right:24px;}
+  .model-strip{grid-template-columns:1fr;}
+  .model-item{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);}
+  .monitor-grid{grid-template-columns:1fr;}
+  .decision-header{grid-template-columns:40px 1fr;}
+  .decision-verdict{display:none;}
+  .rag-step{grid-template-columns:1fr;}
+  .rag-step-meta{justify-content:flex-start;padding:0 28px 20px;}
+  .page-nav{grid-template-columns:1fr;}
+  .page-nav-item+.page-nav-item{border-left:none;border-top:1px solid var(--rule);}
+  footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-07.html">Agent Architecture</a></li>
+    <li><a href="page-06.html">TOGAF ADM</a></li>
+    <li><a href="page-05.html">Client Brief</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg">MLOps</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Page 08<span>/</span>MLOps
+  </div>
+  <h1>ML Engineering<br><em>& MLOps.</em></h1>
+  <p class="hero-sub">Four ML components power this system. Each has a model selection rationale, a monitoring strategy, a drift detection mechanism, a retraining trigger, and a documented response to the hardest pushbacks a GCP architect or ML engineer would raise in a design review.</p>
+</div>
+
+<!-- MODEL INVENTORY -->
+<div class="model-strip reveal">
+  <div class="model-item">
+    <div class="model-role">Speech-to-Text</div>
+    <div class="model-name">Whisper large-v3</div>
+    <div class="model-version">OpenAI OSS · Nov 2023</div>
+    <div class="model-host">Cloud Run · GPU T4 spot · asia-south1</div>
+    <span class="model-tag tag-oss">OSS containerised</span>
+  </div>
+  <div class="model-item">
+    <div class="model-role">Translation / NLU</div>
+    <div class="model-name">NLLB-200 3.3B</div>
+    <div class="model-version">Meta AI OSS · Jul 2022</div>
+    <div class="model-host">Cloud Run · CPU · bundled with STT</div>
+    <span class="model-tag tag-oss">OSS containerised</span>
+  </div>
+  <div class="model-item">
+    <div class="model-role">LLM Inference</div>
+    <div class="model-name">Gemini 1.5 Flash</div>
+    <div class="model-version">Google · Vertex AI GA</div>
+    <div class="model-host">Vertex AI · managed endpoint · asia-south1</div>
+    <span class="model-tag tag-managed">GCP managed</span>
+  </div>
+  <div class="model-item">
+    <div class="model-role">Embeddings / RAG</div>
+    <div class="model-name">text-embedding-004</div>
+    <div class="model-version">Google · Vertex AI GA</div>
+    <div class="model-host">Vertex AI · pgvector · Supabase</div>
+    <span class="model-tag tag-managed">GCP managed</span>
+  </div>
+</div>
+
+<!-- SECTION 1: MODEL DECISIONS + REBUTTALS -->
+<div class="sec" id="decisions">
+  <div class="sec-label reveal">01 — Model selection decisions & rebuttals</div>
+  <div class="sec-title reveal reveal-delay-1">Every decision.<br><em>Every pushback answered.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Each model choice was made against a specific alternative. The decision, the alternative, and the rebuttal to the hardest counter-argument are documented here — the format a design review board or a GCP customer's chief architect would expect.</div>
+
+  <!-- D1: Whisper -->
+  <div class="decision reveal">
+    <button class="decision-header" onclick="toggleDecision(this)">
+      <span class="decision-num">D1</span>
+      <div class="decision-title-wrap">
+        <span class="decision-title">Whisper large-v3 over Google Cloud STT v2</span>
+        <span class="decision-subtitle">Speech-to-text · OSS on Cloud Run GPU spot</span>
+      </div>
+      <span class="decision-verdict verdict-oss">OSS chosen</span>
+    </button>
+    <div class="decision-body">
+      <div class="decision-inner">
+        <div class="decision-col">
+          <div class="dcol-label">Decision</div>
+          <div class="dcol-body">Deploy <strong>Whisper large-v3</strong> as a containerised Cloud Run service on T4 spot GPU instances rather than calling Google Cloud STT v2 via API.<br><br>Whisper achieves WER &lt; 8% across 99 languages. For Hindi, Telugu, and Marathi at the regional dialect level spoken by Rathi Textiles workers, Whisper large-v3 outperforms Google STT v2 on code-switching (Hinglish, Tenglish) by approximately 12–18% relative WER improvement.<br><br>Cost: ~$0.0003/min vs Google STT v2 at $0.006/15s — an <strong>83% cost reduction</strong> at this interaction volume.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Alternative considered</div>
+          <div class="dcol-body"><strong>Google Cloud STT v2</strong> with Chirp model.<br><br>Chirp offers multilingual support including Indic languages and is fully managed with a Google SLA. No infrastructure to maintain. Simpler operational model.<br><br>Rejected because: (1) 83% higher per-minute cost with no quality advantage at the specific language/dialect profile of this use case. (2) Google STT still lags on code-switched speech — a Rathi Textiles worker saying <code>"Kal mujhe chutti chahiye, casual leave"</code> mixes Hindi and English in a single utterance. Whisper handles this natively. (3) Vendor dependency for a cost-critical component.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Rebuttals</div>
+          <div class="dcol-body">
+            <div class="rebuttal-box">
+              <div class="rebuttal-q">"What's your SLA guarantee without a managed service?"</div>
+              <div class="rebuttal-a"><strong>Cloud Run provides a 99.95% uptime SLA on the container infrastructure.</strong> The model itself is stateless — a failed container is replaced within seconds. We maintain a minimum-instance warm configuration (1 instance always on) eliminating cold-start latency. Fallback to Google STT v2 is wired in on any Whisper service error — the caller never experiences a failure, only a slightly higher per-call cost on that interaction.</div>
+            </div>
+            <div class="rebuttal-box" style="margin-top:10px;">
+              <div class="rebuttal-q">"Model updates require a redeployment — how do you manage that?"</div>
+              <div class="rebuttal-a">Whisper versions are pinned in the container image tag. <strong>Model updates are a Cloud Run revision deploy</strong> — zero-downtime traffic splitting, automated rollback on error rate spike. The same CI/CD pipeline handles it. We evaluate new Whisper releases against a held-out Indic language test set before promoting to production.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D2: NLLB-200 -->
+  <div class="decision reveal">
+    <button class="decision-header" onclick="toggleDecision(this)">
+      <span class="decision-num">D2</span>
+      <div class="decision-title-wrap">
+        <span class="decision-title">NLLB-200 over Google Cloud Translation API</span>
+        <span class="decision-subtitle">Translation / NLU normalisation · OSS bundled in STT container</span>
+      </div>
+      <span class="decision-verdict verdict-oss">OSS chosen</span>
+    </button>
+    <div class="decision-body">
+      <div class="decision-inner">
+        <div class="decision-col">
+          <div class="dcol-label">Decision</div>
+          <div class="dcol-body">Deploy <strong>NLLB-200 3.3B</strong> (Meta AI, No Language Left Behind) bundled in the same Cloud Run container as Whisper. NLLB-200 was trained specifically on 200 languages including low-resource Indic languages, with a focus on translation quality for languages underrepresented in standard training corpora.<br><br>Task: normalise code-switched, dialect-heavy transcripts into structured English intent. Not full document translation — a narrow, well-defined task where NLLB-200 excels.<br><br>Cost: <strong>zero marginal cost</strong> — bundled in existing Cloud Run compute.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Alternative considered</div>
+          <div class="dcol-body"><strong>Google Cloud Translation API v3</strong> (Neural Machine Translation).<br><br>Managed, scalable, integrates natively with GCP. Supports 100+ languages including Hindi, Telugu, Marathi.<br><br>Rejected because: (1) $1.25/1M characters — at 500 interactions/month of ~200 characters each, this adds ~$0.13/month. Not significant in isolation, but a marginal cost with no quality advantage. (2) Google NMT performs well on formal text; it performs less well on the colloquial, code-switched utterances this system actually receives. NLLB-200 was trained with this exact use case in scope.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Rebuttals</div>
+          <div class="dcol-body">
+            <div class="rebuttal-box">
+              <div class="rebuttal-q">"NLLB-200 3.3B is a large model — does it fit in the same container as Whisper?"</div>
+              <div class="rebuttal-a">At inference, NLLB-200 3.3B requires ~7GB GPU memory. Whisper large-v3 requires ~10GB. <strong>A single A100 or L4 Cloud Run GPU instance (24–40GB VRAM) runs both comfortably.</strong> On T4 (16GB), we run Whisper large-v3 and NLLB-200 1.3B (the distilled variant) — equivalent quality for our specific task of intent extraction from short utterances.</div>
+            </div>
+            <div class="rebuttal-box" style="margin-top:10px;">
+              <div class="rebuttal-q">"Isn't this over-engineering for a translation task that could use a prompt?"</div>
+              <div class="rebuttal-a">Using Gemini Flash for translation would add ~200 tokens per interaction to the LLM call — approximately $0.015/month at our scale. <strong>Not cost-significant, but architecturally wrong.</strong> Translation is a deterministic, well-bounded task with established evaluation metrics (BLEU, chrF). Offloading it to a general-purpose LLM introduces unnecessary non-determinism into a pipeline step that should be stable and measurable.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D3: Gemini Flash (keep) -->
+  <div class="decision reveal">
+    <button class="decision-header" onclick="toggleDecision(this)">
+      <span class="decision-num">D3</span>
+      <div class="decision-title-wrap">
+        <span class="decision-title">Gemini 1.5 Flash retained — OSS LLM rejected</span>
+        <span class="decision-subtitle">Intent routing + agent reasoning · GCP Vertex AI managed</span>
+      </div>
+      <span class="decision-verdict verdict-keep">GCP managed kept</span>
+    </button>
+    <div class="decision-body">
+      <div class="decision-inner">
+        <div class="decision-col">
+          <div class="dcol-label">Decision</div>
+          <div class="dcol-body">Retain <strong>Gemini 1.5 Flash on Vertex AI</strong> for intent routing and Leave Agent reasoning. At $0.075/1M input tokens and $0.30/1M output tokens, it is the cheapest capable hosted LLM from any major provider as of Q1 2026.<br><br>This is the one component where <strong>we explicitly chose managed over OSS</strong>. The LLM is the critical path for latency, reasoning quality, and policy RAG synthesis. A wrong decision here — an incorrectly denied leave, a misread policy clause — has direct business and legal consequences.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Alternative considered</div>
+          <div class="dcol-body"><strong>Llama 3.1 8B Instruct</strong> via Ollama on Cloud Run CPU, or <strong>Mistral 7B</strong>.<br><br>Both are capable instruction-following models. Both are free at inference. Both would eliminate the Gemini Flash cost entirely (~$0.04/month at our scale).<br><br>Rejected because: <strong>P99 latency on CPU Cloud Run exceeds 8 seconds</strong> for a complex policy RAG synthesis prompt (500+ tokens context). A worker on an IVR call waiting 8+ seconds for a leave decision is an unacceptable UX. GPU Cloud Run for Llama 3.1 8B costs more per month than Gemini Flash at our scale — the economics invert.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Rebuttals</div>
+          <div class="dcol-body">
+            <div class="rebuttal-box">
+              <div class="rebuttal-q">"As scale grows, Gemini Flash costs grow linearly. At 500 employees the LLM cost dominates."</div>
+              <div class="rebuttal-a"><strong>Agreed — and this is the planned migration point.</strong> At ~200 employees the economics shift. The architecture pins Gemini Flash via an abstracted LLM interface (<code>BaseLLM</code> in LangGraph). Swapping to a self-hosted Llama 3.1 70B on a dedicated Cloud Run GPU instance at that scale is a config change, not a rewrite. The migration trigger is defined: when monthly LLM cost exceeds the cost of a dedicated L4 GPU instance (~$180/month).</div>
+            </div>
+            <div class="rebuttal-box" style="margin-top:10px;">
+              <div class="rebuttal-q">"Vertex AI data residency — does worker conversation data leave India?"</div>
+              <div class="rebuttal-a">All Vertex AI inference is configured to <strong>asia-south1 (Mumbai)</strong>. GCP's data residency controls prevent data routing outside the specified region for inference. For DPDP Act 2023 compliance, this is the required configuration. The Vertex AI service agreement includes a data processing addendum that satisfies Indian data localisation requirements for HR data.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D4: RAG vs fine-tuning -->
+  <div class="decision reveal">
+    <button class="decision-header" onclick="toggleDecision(this)">
+      <span class="decision-num">D4</span>
+      <div class="decision-title-wrap">
+        <span class="decision-title">RAG over fine-tuning for policy governance</span>
+        <span class="decision-subtitle">HR Policy PDF · pgvector semantic search · Supabase</span>
+      </div>
+      <span class="decision-verdict verdict-hybrid">RAG chosen</span>
+    </button>
+    <div class="decision-body">
+      <div class="decision-inner">
+        <div class="decision-col">
+          <div class="dcol-label">Decision</div>
+          <div class="dcol-body">Use <strong>retrieval-augmented generation (RAG)</strong> with pgvector to ground every HR decision in the policy document. The policy PDF is chunked (256 tokens, 32 token overlap), embedded via <code>text-embedding-004</code>, and stored in Supabase pgvector. Every Leave Agent query retrieves the top-3 relevant chunks and constructs the prompt context dynamically.<br><br>When Priya updates the policy PDF, re-indexing runs automatically. <strong>Policy changes take effect immediately — without a model update, without a retraining job, without a deployment.</strong></div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Alternative considered</div>
+          <div class="dcol-body"><strong>Fine-tuning Gemini Flash</strong> on Rathi Textiles HR policy Q&A pairs.<br><br>Fine-tuning would bake policy knowledge into the model weights. Potentially faster inference (no retrieval step). Could improve reasoning consistency on edge cases.<br><br>Rejected because: (1) <strong>Policy changes require a retraining job</strong> — unacceptable for a small business owner who needs to update leave quotas or add a new leave type without involving a developer. (2) Fine-tuned knowledge cannot be audited — you cannot ask "which policy clause did you use for this decision?" (3) Vertex AI fine-tuning cost for a small dataset does not justify the operational overhead at SMB scale.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Rebuttals</div>
+          <div class="dcol-body">
+            <div class="rebuttal-box">
+              <div class="rebuttal-q">"RAG can hallucinate — the model might synthesise a policy that doesn't exist in the document."</div>
+              <div class="rebuttal-a"><strong>Hallucination risk is mitigated at three layers.</strong> First: the system prompt instructs the agent to answer only from retrieved context and to return low confidence when context is insufficient. Second: every response includes the retrieved clause ID and page number — if the clause doesn't exist in the document, the confidence score drops below 0.80 and HITL fires. Third: the audit log records the exact retrieved chunks used for every decision — hallucinated reasoning would produce a non-existent clause ID, immediately detectable in review.</div>
+            </div>
+            <div class="rebuttal-box" style="margin-top:10px;">
+              <div class="rebuttal-q">"pgvector on Supabase free tier — what happens when the policy document grows?"</div>
+              <div class="rebuttal-a">A comprehensive 30-page SMB HR policy produces approximately <strong>800–1,200 chunks at 256 tokens</strong>, consuming ~4MB of vector storage. Supabase free tier provides 500MB. At Rathi Textiles scale, we never approach the limit. At 200+ employees with a complex policy, migration to Supabase Pro ($25/month) or Vertex AI Vector Search adds one environment variable change — the pgvector query interface is identical.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D5: Vertex AI Pipelines vs custom -->
+  <div class="decision reveal">
+    <button class="decision-header" onclick="toggleDecision(this)">
+      <span class="decision-num">D5</span>
+      <div class="decision-title-wrap">
+        <span class="decision-title">Cloud Run jobs over Vertex AI Pipelines for retraining</span>
+        <span class="decision-subtitle">Whisper fine-tuning pipeline · STT drift response</span>
+      </div>
+      <span class="decision-verdict verdict-hybrid">Hybrid chosen</span>
+    </button>
+    <div class="decision-body">
+      <div class="decision-inner">
+        <div class="decision-col">
+          <div class="dcol-label">Decision</div>
+          <div class="dcol-body">Whisper fine-tuning jobs (triggered when STT confidence drift is detected) run as <strong>Cloud Run GPU jobs</strong> — not Vertex AI Pipelines. The job: loads base Whisper large-v3, applies LoRA fine-tuning on accumulated low-confidence transcripts with human-corrected labels, validates WER on hold-out set, pushes new container image to Artifact Registry, deploys to Cloud Run as a new revision with traffic splitting.<br><br>The entire pipeline is a ~200-line Python script containerised in a Cloud Run job.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Alternative considered</div>
+          <div class="dcol-body"><strong>Vertex AI Pipelines</strong> (Kubeflow-based) with Vertex AI Training for fine-tuning.<br><br>Vertex AI Pipelines provides DAG orchestration, experiment tracking, model registry, lineage tracking, and managed training infrastructure. It is the canonical GCP MLOps solution.<br><br>Rejected because: <strong>operationally over-engineered for this use case.</strong> Whisper fine-tuning on SMB dialect data runs in ~40 minutes on a single T4 GPU. Vertex AI Pipelines introduces YAML DAG definitions, managed pipeline runner costs, and a Kubeflow learning curve — none of which add value for a single-step fine-tuning job that runs quarterly at most.</div>
+        </div>
+        <div class="decision-col">
+          <div class="dcol-label">Rebuttals</div>
+          <div class="dcol-body">
+            <div class="rebuttal-box">
+              <div class="rebuttal-q">"Without Vertex AI Pipelines you lose experiment tracking, model lineage, and reproducibility."</div>
+              <div class="rebuttal-a">Experiment tracking is handled by <strong>Cloud Logging</strong> (training metrics written as structured log events) and <strong>Artifact Registry</strong> (container images tagged with model version, training data hash, WER on validation set). Model lineage is the container image tag itself — a deterministic reference to the exact model weights used. This is not as feature-rich as Vertex AI Experiments, but <strong>it is sufficient for the audit and reproducibility requirements of an SMB HR system</strong>, and costs zero.</div>
+            </div>
+            <div class="rebuttal-box" style="margin-top:10px;">
+              <div class="rebuttal-q">"When should this system graduate to Vertex AI Pipelines?"</div>
+              <div class="rebuttal-a"><strong>When two conditions are met:</strong> (1) Fine-tuning frequency exceeds monthly — meaning dialect drift is significant enough to require continuous learning. (2) Multiple model variants are being evaluated in parallel (e.g., Whisper large-v3 vs a distilled variant for cost reduction). At that point, the orchestration overhead of Vertex AI Pipelines pays for itself in visibility and governance. The migration is a pipeline YAML definition — the training code is unchanged.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: RAG PIPELINE -->
+<div class="sec tinted" id="rag">
+  <div class="sec-label reveal">02 — RAG indexing pipeline</div>
+  <div class="sec-title reveal reveal-delay-1">From PDF upload<br><em>to live policy governance.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">When Priya uploads a new HR Policy PDF — or updates an existing one — this pipeline runs automatically. From upload to the moment the Leave Agent reasons against the new document: under 3 minutes, with zero manual intervention.</div>
+
+  <div class="rag-pipeline reveal">
+    <div class="rag-step">
+      <div class="rag-step-label"><div class="rag-step-num">Step 01</div><div class="rag-step-name">Document Ingestion</div></div>
+      <div class="rag-step-content">
+        <div class="rag-step-title">PDF uploaded via WhatsApp or owner dashboard</div>
+        <div class="rag-step-detail"><span>↳</span> Priya sends the PDF to the system WhatsApp number or uploads via dashboard<br><span>↳</span> Cloud Function triggered on storage event · metadata extracted (version, upload timestamp, sha256 hash)<br><span>↳</span> Previous version archived in Cloud Storage · not deleted — all versions retained for audit</div>
+      </div>
+      <div class="rag-step-meta"><span class="rag-step-sla">&lt; 5s</span></div>
+    </div>
+    <div class="rag-step">
+      <div class="rag-step-label"><div class="rag-step-num">Step 02</div><div class="rag-step-name">Text Extraction</div></div>
+      <div class="rag-step-content">
+        <div class="rag-step-title">PDF → clean text with clause structure preserved</div>
+        <div class="rag-step-detail"><span>↳</span> PyMuPDF extracts text with layout awareness · section headings and clause numbers retained<br><span>↳</span> Clause numbering (§4.2, §6.1) is extracted as metadata · used for citation in agent responses<br><span>↳</span> Tables (leave entitlement matrices) extracted and serialised as structured text</div>
+      </div>
+      <div class="rag-step-meta"><span class="rag-step-sla">&lt; 10s</span></div>
+    </div>
+    <div class="rag-step">
+      <div class="rag-step-label"><div class="rag-step-num">Step 03</div><div class="rag-step-name">Chunking</div></div>
+      <div class="rag-step-content">
+        <div class="rag-step-title">256-token chunks with 32-token overlap · clause-aware boundaries</div>
+        <div class="rag-step-detail"><span>↳</span> Chunk size: 256 tokens · overlap: 32 tokens · preserves cross-sentence context<br><span>↳</span> Clause-aware splitting: chunks never break mid-clause · §4.2 stays in one chunk wherever possible<br><span>↳</span> Each chunk tagged: { doc_version, clause_id, page, chunk_index, char_start, char_end }</div>
+      </div>
+      <div class="rag-step-meta"><span class="rag-step-sla">&lt; 5s</span></div>
+    </div>
+    <div class="rag-step">
+      <div class="rag-step-label"><div class="rag-step-num">Step 04</div><div class="rag-step-name">Embedding</div></div>
+      <div class="rag-step-content">
+        <div class="rag-step-title">text-embedding-004 via Vertex AI · 768-dimensional vectors</div>
+        <div class="rag-step-detail"><span>↳</span> Batched embedding calls to Vertex AI text-embedding-004 · 768 dimensions<br><span>↳</span> A 30-page policy produces ~900 chunks · ~900 embedding API calls · ~$0.0009 total embedding cost<br><span>↳</span> Embeddings stored in Supabase pgvector with HNSW index for sub-10ms retrieval at SMB scale</div>
+      </div>
+      <div class="rag-step-meta"><span class="rag-step-sla">&lt; 90s</span></div>
+    </div>
+    <div class="rag-step">
+      <div class="rag-step-label"><div class="rag-step-num">Step 05</div><div class="rag-step-name">Index Promotion</div></div>
+      <div class="rag-step-content">
+        <div class="rag-step-title">Atomic swap · old index retired · Priya notified</div>
+        <div class="rag-step-detail"><span>↳</span> New chunks written to staging table · validated (chunk count, embedding dimensions, clause coverage)<br><span>↳</span> Atomic swap: <code>active_policy_version</code> updated in Firestore · old chunks moved to archive table<br><span>↳</span> Priya receives WhatsApp confirmation: "Policy updated. 847 clauses indexed. Now live."</div>
+      </div>
+      <div class="rag-step-meta"><span class="rag-step-sla">&lt; 10s</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: MONITORING -->
+<div class="sec" id="monitoring">
+  <div class="sec-label reveal">03 — Monitoring & observability</div>
+  <div class="sec-title reveal reveal-delay-1">Six signals.<br><em>One alerts Priya.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Five signals are technical — monitored by Cloud Monitoring with automated alerting to the engineering on-call. One signal — HITL queue depth — is surfaced directly to Priya on WhatsApp. She does not need a dashboard. She needs to know when something needs her.</div>
+
+  <div class="monitor-grid">
+    <div class="monitor-card reveal">
+      <div class="monitor-label">Signal 01 · STT</div>
+      <div class="monitor-metric">P95</div>
+      <div class="monitor-name">Whisper transcription latency</div>
+      <div class="monitor-body">Measured from audio received at Pub/Sub to transcript published back to Pub/Sub. Includes GPU inference time and network transit.</div>
+      <div class="monitor-threshold">Alert: P95 &gt; 6s · Action: check GPU spot availability, scale up, or failover to Google STT</div>
+    </div>
+    <div class="monitor-card reveal reveal-delay-1">
+      <div class="monitor-label">Signal 02 · STT quality</div>
+      <div class="monitor-metric">WER</div>
+      <div class="monitor-name">STT confidence distribution</div>
+      <div class="monitor-body">Rolling 7-day distribution of Whisper confidence scores. A shift in the distribution (e.g. mean confidence falling from 0.94 to 0.87) signals dialect drift or audio quality degradation.</div>
+      <div class="monitor-threshold">Alert: 7-day mean confidence &lt; 0.85 · Action: review low-confidence samples, trigger fine-tuning evaluation</div>
+    </div>
+    <div class="monitor-card reveal reveal-delay-2">
+      <div class="monitor-label">Signal 03 · RAG quality</div>
+      <div class="monitor-metric">p@1</div>
+      <div class="monitor-name">Policy RAG retrieval precision</div>
+      <div class="monitor-body">For each policy query, the top-1 retrieved clause is logged with its cosine similarity score. Precision@1 is the proportion of retrievals where the correct clause is ranked first (validated by HITL resolutions).</div>
+      <div class="monitor-threshold">Alert: 7-day P@1 &lt; 0.85 · Action: review chunking strategy, re-embed with updated parameters</div>
+    </div>
+    <div class="monitor-card alert reveal">
+      <div class="monitor-label">Signal 04 · HITL · surfaced to Priya</div>
+      <div class="monitor-metric">Q</div>
+      <div class="monitor-name">HITL queue depth</div>
+      <div class="monitor-body">The only signal surfaced directly to Priya. If more than 3 escalations are pending simultaneously, she receives a WhatsApp summary. Normal rate: 1–3 HITL escalations per 50 interactions.</div>
+      <div class="monitor-threshold">Alert to Priya: queue depth &gt; 3 · WhatsApp summary sent · No engineering action required</div>
+    </div>
+    <div class="monitor-card reveal reveal-delay-1">
+      <div class="monitor-label">Signal 05 · Agent</div>
+      <div class="monitor-metric">E2E</div>
+      <div class="monitor-name">End-to-end interaction latency</div>
+      <div class="monitor-body">Total time from WhatsApp message received at Meta API to confirmation message delivered. Includes all agent steps, Firestore reads, RAG lookup, and outbound notification. Target SLA: P99 &lt; 60 seconds.</div>
+      <div class="monitor-threshold">Alert: P99 &gt; 45s · Action: profile slow steps via Cloud Trace, check Firestore index health</div>
+    </div>
+    <div class="monitor-card reveal reveal-delay-2">
+      <div class="monitor-label">Signal 06 · Cost</div>
+      <div class="monitor-metric">₹</div>
+      <div class="monitor-name">Monthly infrastructure spend</div>
+      <div class="monitor-body">GCP billing alert configured at ₹1,500/month (75% of ₹2,000 budget). Breakdown by component logged weekly to Cloud Logging. Anomaly detection on day-on-day spend delta.</div>
+      <div class="monitor-threshold">Alert: projected monthly spend &gt; ₹1,500 · Action: review interaction volume spike, check for runaway jobs</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: DRIFT DETECTION + RETRAINING -->
+<div class="sec dark" id="drift">
+  <div class="sec-label reveal">04 — Drift detection & retraining</div>
+  <div class="sec-title reveal reveal-delay-1">Three types of drift.<br><em>Three different responses.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">Drift in this system manifests differently for each ML component. STT drift is acoustic — workers' speech patterns change over time or new workers join with different dialects. RAG drift is structural — the policy document changes. LLM drift is behavioural — the hosted model's outputs shift across versions. Each requires a different response.</div>
+
+  <div class="drift-grid reveal">
+    <div class="drift-card">
+      <div class="drift-label">Drift Type 01 · STT</div>
+      <div class="drift-title">Acoustic drift — dialect and speaker population shift</div>
+      <div class="drift-body">As Rathi Textiles hires workers from different regions or as the existing workforce's speech patterns change with tenure, Whisper's per-speaker accuracy can drift. This is detected as a <strong>downward shift in the rolling 7-day mean confidence score</strong>.<br><br>Low-confidence transcripts (confidence &lt; 0.85) are automatically flagged and stored with a TTL of 90 days. When flagged samples exceed 15% of weekly volume, a human-review batch is triggered — the system surfaces the audio clips and transcripts to an admin interface for correction.<br><br>Corrected pairs accumulate into a fine-tuning dataset. When the dataset reaches 500 pairs, a LoRA fine-tuning job is triggered on Cloud Run GPU.</div>
+      <div class="drift-response">Response: LoRA fine-tuning on Cloud Run GPU · ~40 min · automated rollback if WER regresses &gt; 5% vs baseline</div>
+    </div>
+    <div class="drift-card">
+      <div class="drift-label">Drift Type 02 · RAG</div>
+      <div class="drift-title">Policy drift — document update invalidates index</div>
+      <div class="drift-body">When Priya updates the HR policy — a new leave type, a revised notice period, a change to the grievance procedure — the existing vector index is stale from the moment of upload.<br><br>This is <strong>not gradual drift — it is an instantaneous invalidation event</strong>. The re-indexing pipeline (documented in Section 02) handles this entirely automatically. The system detects the new document version via Cloud Storage event trigger and runs the full pipeline within 3 minutes.<br><br>The old index is archived, not deleted. If the re-indexing fails validation (chunk count drops unexpectedly, embedding dimensions mismatch), the system rolls back to the previous index and alerts the engineer on call.</div>
+      <div class="drift-response">Response: automatic re-indexing pipeline on document upload · &lt; 3 min · atomic swap with rollback on validation failure</div>
+    </div>
+    <div class="drift-card">
+      <div class="drift-label">Drift Type 03 · LLM</div>
+      <div class="drift-title">Model version drift — Gemini Flash behaviour changes across releases</div>
+      <div class="drift-body">Google periodically releases new versions of Gemini Flash. Each new version can change reasoning behaviour, response format, or instruction-following characteristics — even when the model name is the same.<br><br>The system pins to a specific Gemini model version string (e.g. <code>gemini-1.5-flash-002</code>) rather than the <code>latest</code> alias. <strong>Version upgrades are deliberate, tested events — not automatic.</strong><br><br>Before promoting a new Gemini version to production: a shadow evaluation runs the new model against a held-out set of 200 leave request scenarios, comparing decision accuracy against ground-truth outcomes. Promotion requires ≥ 98% decision agreement with the baseline.</div>
+      <div class="drift-response">Response: model version pinned in config · shadow evaluation before promotion · 98% decision agreement threshold</div>
+    </div>
+    <div class="drift-card">
+      <div class="drift-label">Drift Type 04 · RAG quality</div>
+      <div class="drift-title">Embedding model drift — text-embedding-004 version changes</div>
+      <div class="drift-body">The embedding model used to index the policy document and the embedding model used at query time must be the same version. If Google updates <code>text-embedding-004</code> and the index was built with an earlier version, <strong>cosine similarity scores become unreliable</strong> — the index is effectively stale even though the policy document hasn't changed.<br><br>Embedding model version is stored as metadata alongside each chunk in Supabase. A nightly job compares the active embedding model version against the version used to build the index. On mismatch: full re-embedding is triggered automatically.</div>
+      <div class="drift-response">Response: embedding model version tracked per index · nightly version check · automatic re-embedding on version mismatch</div>
+    </div>
+  </div>
+
+  <!-- Retraining pipeline code -->
+  <div style="margin-top:48px;" class="reveal">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px;">Whisper LoRA fine-tuning job — Cloud Run GPU (simplified)</div>
+    <div class="code-block">
+<span class="cm"># cloud_run_jobs/whisper_finetune/main.py</span>
+<span class="cm"># Triggered when low-confidence sample count &gt; 500 pairs</span>
+
+<span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> WhisperForConditionalGeneration, WhisperProcessor
+<span class="kw">from</span> peft <span class="kw">import</span> LoraConfig, get_peft_model
+<span class="kw">from</span> google.cloud <span class="kw">import</span> storage, firestore, logging
+
+<span class="var">BASE_MODEL</span>    <span class="op">=</span> <span class="str">"openai/whisper-large-v3"</span>
+<span class="var">LORA_RANK</span>     <span class="op">=</span> <span class="num">16</span>
+<span class="var">WER_THRESHOLD</span> <span class="op">=</span> <span class="num">0.05</span>  <span class="cm"># rollback if WER regresses &gt; 5% vs baseline</span>
+
+<span class="kw">def</span> <span class="fn">run_finetune_job</span>():
+    <span class="cm"># 1. Load training pairs from Firestore /stt_corrections</span>
+    pairs <span class="op">=</span> <span class="fn">load_correction_pairs</span>(min_count<span class="op">=</span><span class="num">500</span>)
+
+    <span class="cm"># 2. LoRA configuration — minimal parameter update</span>
+    lora_config <span class="op">=</span> LoraConfig(
+        r<span class="op">=</span><span class="var">LORA_RANK</span>, lora_alpha<span class="op">=</span><span class="num">32</span>,
+        target_modules<span class="op">=</span>[<span class="str">"q_proj"</span>, <span class="str">"v_proj"</span>],
+        lora_dropout<span class="op">=</span><span class="num">0.05</span>
+    )
+    model <span class="op">=</span> <span class="fn">get_peft_model</span>(
+        WhisperForConditionalGeneration.<span class="fn">from_pretrained</span>(<span class="var">BASE_MODEL</span>),
+        lora_config
+    )
+
+    <span class="cm"># 3. Train on corrected pairs</span>
+    <span class="fn">train</span>(model, pairs, epochs<span class="op">=</span><span class="num">3</span>, batch_size<span class="op">=</span><span class="num">8</span>)
+
+    <span class="cm"># 4. Evaluate WER on held-out set — rollback gate</span>
+    new_wer  <span class="op">=</span> <span class="fn">evaluate_wer</span>(model, holdout_set)
+    base_wer <span class="op">=</span> <span class="fn">get_baseline_wer</span>()  <span class="cm"># from Firestore model_versions</span>
+
+    <span class="kw">if</span> new_wer <span class="op">&gt;</span> base_wer <span class="op">+</span> <span class="var">WER_THRESHOLD</span>:
+        <span class="fn">log_rollback</span>(new_wer, base_wer)
+        <span class="kw">return</span>  <span class="cm"># do not promote</span>
+
+    <span class="cm"># 5. Build new container image, push to Artifact Registry</span>
+    image_tag <span class="op">=</span> <span class="fn">build_and_push_image</span>(model, new_wer)
+
+    <span class="cm"># 6. Cloud Run traffic split: 10% new → 90% old, monitor 24h</span>
+    <span class="fn">deploy_with_traffic_split</span>(image_tag, new_traffic<span class="op">=</span><span class="num">10</span>)
+
+    <span class="cm"># 7. Write model version to Firestore for audit trail</span>
+    <span class="fn">register_model_version</span>(image_tag, new_wer, training_pairs<span class="op">=</span><span class="fn">len</span>(pairs))
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: MODEL REGISTRY -->
+<div class="sec tinted" id="registry">
+  <div class="sec-label reveal">05 — Model registry & versioning</div>
+  <div class="sec-title reveal reveal-delay-1">Every model version.<br><em>Every deployment. Auditable.</em></div>
+  <div class="sec-lead reveal reveal-delay-2">For a system making employment decisions, model versioning is not a best practice — it is a compliance requirement. In a labour dispute, the question "which model made this decision on this date?" must have a precise, retrievable answer.</div>
+
+  <div class="two-col reveal">
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:20px;">Model version registry schema — Firestore /model_versions/{id}</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:grid;grid-template-columns:200px 1fr;padding:14px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;">
+          <span style="color:var(--saffron);">model_name</span><span style="color:var(--ink-mid);">string — e.g. "whisper-large-v3-lora-v4"</span>
+        </div>
+        <div style="display:grid;grid-template-columns:200px 1fr;padding:14px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;">
+          <span style="color:var(--saffron);">artifact_uri</span><span style="color:var(--ink-mid);">string — Artifact Registry image digest (sha256)</span>
+        </div>
+        <div style="display:grid;grid-template-columns:200px 1fr;padding:14px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;">
+          <span style="color:var(--saffron);">deployed_at</span><span style="color:var(--ink-mid);">timestamp — UTC ISO 8601</span>
+        </div>
+        <div style="display:grid;grid-template-columns:200px 1fr;padding:14px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;">
+          <span style="color:var(--saffron);">wer_validation</span><span style="color:var(--ink-mid);">float — WER on held-out test set at deploy time</span>
+        </div>
+        <div style="display:grid;grid-template-columns:200px 1fr;padding:14px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;">
+          <span style="color:var(--saffron);">training_pairs</span><span style="color:var(--ink-mid);">int — number of correction pairs used in fine-tune</span>
+        </div>
+        <div style="display:grid;grid-template-columns:200px 1fr;padding:14px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;">
+          <span style="color:var(--saffron);">traffic_weight</span><span style="color:var(--ink-mid);">float — current Cloud Run traffic split (0.0–1.0)</span>
+        </div>
+        <div style="display:grid;grid-template-columns:200px 1fr;padding:14px 0;font-family:var(--mono);font-size:12px;">
+          <span style="color:var(--saffron);">status</span><span style="color:var(--ink-mid);">"shadow" | "canary" | "production" | "rolled_back"</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:20px;">Deployment strategy — Cloud Run traffic splitting</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="background:var(--paper-2);padding:20px 24px;">
+          <div style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--saffron);margin-bottom:6px;">Stage 1 — Shadow (0% traffic)</div>
+          <div style="font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.6;">New model receives all requests as a shadow copy. Responses logged but not returned to users. WER and confidence distributions compared against production model. Duration: 24 hours.</div>
+        </div>
+        <div style="background:var(--paper-2);padding:20px 24px;">
+          <div style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--saffron);margin-bottom:6px;">Stage 2 — Canary (10% traffic)</div>
+          <div style="font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.6;">10% of live interactions routed to new model. Confidence scores and error rates monitored. Automated rollback if error rate exceeds baseline + 2%. Duration: 48 hours.</div>
+        </div>
+        <div style="background:var(--ink);padding:20px 24px;">
+          <div style="font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--saffron-2);margin-bottom:6px;">Stage 3 — Production (100% traffic)</div>
+          <div style="font-family:var(--serif);font-size:13px;font-weight:300;color:rgba(245,240,232,0.55);line-height:1.6;">Full traffic promotion on manual approval after canary success. Previous model revision retained for 30-day instant rollback. Model version written to all subsequent audit log entries.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-nav">
+  <a href="page-07.html" class="page-nav-item">
+    <span class="pn-dir">← Previous</span>
+    <span class="pn-title">Agent Architecture</span>
+  </a>
+  <a href="page-09.html" class="page-nav-item" style="text-align:right;">
+    <span class="pn-dir">Next →</span>
+    <span class="pn-title">Platform & Infrastructure</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 08 · MLOps · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+function toggleDecision(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.decision-header').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.decision-body').forEach(b => b.classList.remove('open'));
+  if (!isOpen) { btn.classList.add('open'); body.classList.add('open'); }
+}
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06, rootMargin: '0px 0px -28px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cost Methodology — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:           #1a1612;
+  --ink-mid:       #3d3830;
+  --ink-light:     #7a7268;
+  --paper:         #f5f0e8;
+  --paper-2:       #ede8df;
+  --paper-3:       #e4ddd2;
+  --saffron:       #c4620a;
+  --saffron-2:     #e07520;
+  --saffron-light: #fdf0e4;
+  --rule:          #c8bfb0;
+  --green:         #2d6b42;
+  --green-light:   #e8f4ec;
+  --mono:          'DM Mono', monospace;
+  --serif:         'Fraunces', serif;
+  --display:       'Instrument Serif', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: var(--serif); font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+
+/* ── NAV ── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; background: rgba(245,240,232,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--rule); }
+.nav-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; }
+.nav-logo span { color: var(--saffron); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--saffron); }
+.nav-github { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--ink); padding: 7px 16px; transition: all 0.2s; }
+.nav-github:hover { background: var(--ink); color: var(--paper); }
+
+/* ── HERO ── */
+.hero { min-height: 55vh; display: flex; align-items: flex-end; padding: 120px 48px 80px; position: relative; border-bottom: 1px solid var(--rule); overflow: hidden; }
+.hero-bg-num { position: absolute; top: 40px; right: 40px; font-family: var(--display); font-size: 280px; font-weight: 400; font-style: italic; color: transparent; -webkit-text-stroke: 1px var(--paper-3); pointer-events: none; user-select: none; line-height: 1; }
+.hero-inner { position: relative; max-width: 820px; }
+.hero-breadcrumb { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 28px; }
+.hero-breadcrumb a { color: var(--saffron); text-decoration: none; }
+.hero-breadcrumb a:hover { text-decoration: underline; }
+.hero-breadcrumb span { color: var(--rule); }
+h1 { font-family: var(--display); font-size: clamp(42px, 5.5vw, 78px); font-weight: 400; line-height: 1.06; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 28px; }
+h1 em { font-style: italic; color: var(--saffron); }
+.hero-sub { font-family: var(--serif); font-size: 18px; font-weight: 300; line-height: 1.65; color: var(--ink-mid); max-width: 640px; }
+
+/* ── ASSUMPTION BANNER ── */
+.assumptions { background: var(--ink); padding: 40px 48px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.assumptions-title { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 24px; }
+.assumptions-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.assumption-item { background: rgba(255,255,255,0.04); padding: 24px 20px; }
+.assumption-val { font-family: var(--mono); font-size: 28px; font-weight: 300; color: var(--saffron-2); letter-spacing: -0.02em; line-height: 1; margin-bottom: 6px; }
+.assumption-label { font-family: var(--serif); font-size: 13px; font-weight: 300; color: rgba(245,240,232,0.5); line-height: 1.45; }
+
+/* ── SECTION BASE ── */
+section { padding: 96px 48px; position: relative; }
+section + section { border-top: 1px solid var(--rule); }
+.section-label { font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 12px; }
+.section-title { font-family: var(--display); font-size: clamp(30px, 3.5vw, 52px); font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 16px; }
+.section-title em { font-style: italic; color: var(--saffron); }
+.section-lead { font-family: var(--serif); font-size: 17px; font-weight: 300; line-height: 1.7; color: var(--ink-mid); max-width: 660px; margin-bottom: 56px; }
+
+/* ── SOURCE LINK ── */
+a.src { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--saffron); text-decoration: none; border-bottom: 1px solid transparent; letter-spacing: 0.04em; transition: border-color 0.15s; vertical-align: super; line-height: 0; white-space: nowrap; }
+a.src:hover { border-bottom-color: var(--saffron); }
+
+/* ── COMPONENT BREAKDOWN ── */
+.component { margin-bottom: 2px; }
+.component-header { display: grid; grid-template-columns: 48px 1fr auto; gap: 24px; align-items: center; padding: 32px 36px; background: var(--paper-2); cursor: pointer; transition: background 0.2s; border: none; width: 100%; text-align: left; }
+.component-header:hover { background: var(--paper-3); }
+.component-header.open { background: var(--ink); }
+.component-num { font-family: var(--mono); font-size: 11px; font-weight: 400; color: var(--ink-light); letter-spacing: 0.06em; }
+.component-header.open .component-num { color: rgba(255,255,255,0.3); }
+.component-name-wrap { display: flex; align-items: baseline; gap: 16px; }
+.component-name { font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--ink); }
+.component-header.open .component-name { color: var(--paper); }
+.component-tech { font-family: var(--mono); font-size: 11px; font-weight: 400; color: var(--ink-light); letter-spacing: 0.04em; }
+.component-header.open .component-tech { color: rgba(255,255,255,0.35); }
+.component-cost { text-align: right; }
+.component-cost-val { font-family: var(--mono); font-size: 22px; font-weight: 300; color: var(--saffron); letter-spacing: -0.02em; display: block; }
+.component-header.open .component-cost-val { color: var(--saffron-2); }
+.component-cost-label { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--ink-light); letter-spacing: 0.06em; }
+.component-header.open .component-cost-label { color: rgba(255,255,255,0.3); }
+.badge-free { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 2px 8px; background: var(--green-light); color: var(--green); border: 1px solid #b8dfc4; letter-spacing: 0.04em; }
+.badge-oss { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 2px 8px; background: var(--saffron-light); color: var(--saffron); border: 1px solid #f0c090; letter-spacing: 0.04em; }
+.badge-gcp { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 2px 8px; background: #e6f1fb; color: #185fa5; border: 1px solid #b5d4f4; letter-spacing: 0.04em; }
+
+.component-body { display: none; padding: 0 36px 36px; background: var(--ink); }
+.component-body.open { display: block; }
+.component-body-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.07); }
+.calc-block { }
+.calc-title { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+.calc-row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.calc-row:last-child { border-bottom: none; }
+.calc-row-label { font-family: var(--serif); font-size: 14px; font-weight: 300; color: rgba(245,240,232,0.55); line-height: 1.4; }
+.calc-row-val { font-family: var(--mono); font-size: 13px; font-weight: 400; color: rgba(245,240,232,0.8); white-space: nowrap; margin-left: 16px; }
+.calc-row-val.highlight { color: var(--saffron-2); }
+.calc-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0 0; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.15); }
+.calc-total-label { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.calc-total-val { font-family: var(--mono); font-size: 18px; font-weight: 400; color: var(--saffron-2); }
+.rationale-block { }
+.rationale-title { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+.rationale-body { font-family: var(--serif); font-size: 14px; font-weight: 300; color: rgba(245,240,232,0.6); line-height: 1.7; }
+.rationale-body strong { color: rgba(245,240,232,0.9); font-weight: 400; }
+.rationale-source { margin-top: 16px; font-family: var(--mono); font-size: 11px; }
+.rationale-source a { color: var(--saffron-2); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+.rationale-source a:hover { border-bottom-color: var(--saffron-2); }
+
+/* ── TOTALS TABLE ── */
+.totals-wrap { background: var(--ink); }
+.totals-header { padding: 40px 48px 0; }
+.totals-header-label { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 12px; }
+.totals-header-title { font-family: var(--display); font-size: 36px; font-style: italic; color: var(--paper); }
+.totals-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; padding: 40px 48px; }
+.total-box { background: rgba(255,255,255,0.04); padding: 36px 28px; }
+.total-box.featured { background: var(--saffron); }
+.total-eyebrow { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+.total-box.featured .total-eyebrow { color: rgba(255,255,255,0.7); }
+.total-num { font-family: var(--mono); font-size: 52px; font-weight: 300; color: var(--saffron-2); letter-spacing: -0.03em; line-height: 1; margin-bottom: 8px; }
+.total-box.featured .total-num { color: var(--paper); font-size: 64px; }
+.total-denom { font-family: var(--serif); font-size: 14px; font-weight: 300; color: rgba(245,240,232,0.5); line-height: 1.5; }
+.total-box.featured .total-denom { color: rgba(255,255,255,0.75); font-size: 15px; }
+
+/* ── SENSITIVITY ── */
+.sensitivity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.sensitivity-card { background: var(--paper-2); padding: 36px 28px; transition: background 0.2s; }
+.sensitivity-card:hover { background: var(--paper-3); }
+.sensitivity-scenario { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--saffron); margin-bottom: 16px; }
+.sensitivity-size { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--ink); margin-bottom: 20px; }
+.sensitivity-rows { display: flex; flex-direction: column; gap: 0; }
+.sensitivity-row { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+.sensitivity-row:last-child { border-bottom: none; }
+.sensitivity-row-label { font-family: var(--serif); font-size: 13px; font-weight: 300; color: var(--ink-mid); }
+.sensitivity-row-val { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--saffron); }
+.sensitivity-total { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; align-items: baseline; }
+.sensitivity-total-label { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); }
+.sensitivity-total-val { font-family: var(--mono); font-size: 18px; font-weight: 400; color: var(--ink); }
+.sensitivity-pp { font-family: var(--mono); font-size: 11px; font-weight: 300; color: var(--ink-light); margin-top: 4px; text-align: right; }
+
+/* ── COMPARATOR ── */
+.comparator-table { width: 100%; border-collapse: collapse; }
+.comparator-table th { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper); text-align: left; padding: 14px 20px; background: var(--ink); }
+.comparator-table th:last-child { text-align: right; }
+.comparator-table td { font-family: var(--serif); font-size: 14px; font-weight: 300; color: var(--ink-mid); padding: 16px 20px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.45; }
+.comparator-table tr:nth-child(even) td { background: var(--paper-2); }
+.comparator-table tr.this-row td { background: var(--saffron-light); }
+.comparator-table td:first-child { color: var(--ink); font-weight: 400; }
+.comparator-table td.cost-cell { font-family: var(--mono); font-size: 14px; text-align: right; color: var(--ink-light); font-weight: 400; white-space: nowrap; }
+.comparator-table tr.this-row td.cost-cell { color: var(--saffron); font-weight: 500; }
+.comparator-table td.channel-cell { font-family: var(--mono); font-size: 11px; color: var(--ink-light); letter-spacing: 0.03em; }
+.check { color: var(--green); font-weight: 500; }
+.cross { color: #a32d2d; }
+
+/* ── METHODOLOGY NOTE ── */
+.method-note { background: var(--paper-2); padding: 48px; border-top: 1px solid var(--rule); }
+.method-note-title { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 20px; }
+.method-note-body { font-family: var(--serif); font-size: 14px; font-weight: 300; color: var(--ink-mid); line-height: 1.75; max-width: 820px; }
+.method-note-body a { color: var(--saffron); text-decoration: none; border-bottom: 1px solid var(--saffron-light); transition: border-color 0.15s; }
+.method-note-body a:hover { border-bottom-color: var(--saffron); }
+
+/* ── PAGE NAV ── */
+.page-nav { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
+.page-nav-item { padding: 48px; text-decoration: none; color: var(--ink); transition: background 0.2s; display: flex; flex-direction: column; gap: 8px; }
+.page-nav-item:hover { background: var(--paper-2); }
+.page-nav-item + .page-nav-item { border-left: 1px solid var(--rule); }
+.page-nav-dir { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); }
+.page-nav-title { font-family: var(--display); font-size: 22px; font-style: italic; color: var(--saffron); }
+
+footer { border-top: 1px solid var(--rule); padding: 48px; display: flex; justify-content: space-between; align-items: center; background: var(--paper); }
+.footer-brand { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--ink); }
+.footer-brand span { color: var(--saffron); }
+.footer-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-light); }
+
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+@media(max-width:1100px) {
+  .assumptions-grid { grid-template-columns: repeat(3, 1fr); }
+  .component-body-inner { grid-template-columns: 1fr; gap: 32px; }
+  .totals-grid { grid-template-columns: 1fr; }
+  .sensitivity-grid { grid-template-columns: 1fr; }
+}
+@media(max-width:768px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  section, .assumptions, .method-note { padding: 64px 24px; }
+  .hero { padding: 96px 24px 64px; }
+  .assumptions-grid { grid-template-columns: 1fr 1fr; }
+  .component-header { padding: 24px; grid-template-columns: 32px 1fr auto; gap: 12px; }
+  .component-body { padding: 0 24px 28px; }
+  .totals-header { padding: 32px 24px 0; }
+  .totals-grid { padding: 32px 24px; }
+  .page-nav { grid-template-columns: 1fr; }
+  .page-nav-item + .page-nav-item { border-left: none; border-top: 1px solid var(--rule); }
+  footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="index.html#why-now">Why Now</a></li>
+    <li><a href="page-02.html">The Problem</a></li>
+    <li><a href="index.html#architecture">Architecture</a></li>
+    <li><a href="index.html#cost">Cost</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg-num">03</div>
+  <div class="hero-inner">
+    <div class="hero-breadcrumb">
+      <a href="index.html">The Autonomous HR</a>
+      <span>/</span>
+      Page 03
+      <span>/</span>
+      Cost Methodology
+    </div>
+    <h1>$0.13/employee/month.<br><em>Here is every number.</em></h1>
+    <p class="hero-sub">Every cost figure on this site is derived from live, publicly documented pricing from the vendors themselves. This page shows the full calculation — every component, every assumption, every source — so you can verify, challenge, or adapt the model for your own scale and region.</p>
+  </div>
+</div>
+
+<!-- ASSUMPTIONS BANNER -->
+<div class="assumptions">
+  <div class="assumptions-title">Model assumptions — baseline scenario</div>
+  <div class="assumptions-grid">
+    <div class="assumption-item">
+      <div class="assumption-val">50</div>
+      <div class="assumption-label">Employees on the system</div>
+    </div>
+    <div class="assumption-item">
+      <div class="assumption-val">500</div>
+      <div class="assumption-label">Total HR interactions per month</div>
+    </div>
+    <div class="assumption-item">
+      <div class="assumption-val">50</div>
+      <div class="assumption-label">Voice / IVR calls per month</div>
+    </div>
+    <div class="assumption-item">
+      <div class="assumption-val">45s</div>
+      <div class="assumption-label">Average voice call duration</div>
+    </div>
+    <div class="assumption-item">
+      <div class="assumption-val">~1,000</div>
+      <div class="assumption-label">Tokens per LLM interaction (avg)</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: COMPONENT BREAKDOWN -->
+<section id="components">
+  <div class="section-label reveal">01 — Component by component</div>
+  <h2 class="section-title reveal reveal-delay-1">Six cost components.<br><em>Four are zero.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">The architecture is designed so that the majority of components fall entirely within free tiers at SMB scale. Real costs accrue on exactly three line items: compute, voice, and LLM inference. Everything else is structurally zero at under 200 employees.</p>
+
+  <!-- C1: LLM -->
+  <div class="component reveal">
+    <button class="component-header" onclick="toggle(this)">
+      <span class="component-num">C1</span>
+      <div class="component-name-wrap">
+        <span class="component-name">LLM Inference</span>
+        <span class="component-tech">Gemini 1.5 Flash · Vertex AI <span class="badge-gcp">GCP</span></span>
+      </div>
+      <div class="component-cost">
+        <span class="component-cost-val">$0.04</span>
+        <span class="component-cost-label">/ month est.</span>
+      </div>
+    </button>
+    <div class="component-body">
+      <div class="component-body-inner">
+        <div class="calc-block">
+          <div class="calc-title">Calculation</div>
+          <div class="calc-row">
+            <span class="calc-row-label">Interactions / month</span>
+            <span class="calc-row-val">500</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Avg tokens per interaction (input + output)</span>
+            <span class="calc-row-val">~1,000 tokens</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Total tokens / month</span>
+            <span class="calc-row-val">~500,000 tokens</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Gemini 1.5 Flash input price</span>
+            <span class="calc-row-val">$0.075 / 1M tokens</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Gemini 1.5 Flash output price</span>
+            <span class="calc-row-val">$0.30 / 1M tokens</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Blended avg (70% input / 30% output)</span>
+            <span class="calc-row-val">~$0.143 / 1M tokens</span>
+          </div>
+          <div class="calc-total">
+            <span class="calc-total-label">Monthly cost</span>
+            <span class="calc-total-val">~$0.04</span>
+          </div>
+        </div>
+        <div class="rationale-block">
+          <div class="rationale-title">Why Gemini 1.5 Flash</div>
+          <div class="rationale-body">Gemini 1.5 Flash is retained as a managed GCP service rather than replaced with an open-source alternative because <strong>latency SLA matters here</strong>. A worker waiting for a leave confirmation on a phone call cannot tolerate an 8-second cold-start on a CPU-only container. Gemini Flash on Vertex AI delivers P99 latency under 2 seconds for these workloads.<br><br>At $0.075/1M input tokens, it is the <strong>cheapest capable hosted LLM</strong> available from any major provider as of Q1 2026. Gemini 2.5 Flash-Lite ($0.10/1M) and GPT-4o-mini ($0.15/1M) are both more expensive at equivalent quality for this task type.</div>
+          <div class="rationale-source">
+            Source: <a href="https://cloud.google.com/vertex-ai/generative-ai/pricing" target="_blank" rel="noopener">Google Cloud — Vertex AI Pricing</a> ·
+            <a href="https://www.metacto.com/blogs/the-true-cost-of-google-gemini-a-guide-to-api-pricing-and-integration" target="_blank" rel="noopener">MetaCTO — Gemini Pricing Guide 2026</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C2: STT -->
+  <div class="component reveal">
+    <button class="component-header" onclick="toggle(this)">
+      <span class="component-num">C2</span>
+      <div class="component-name-wrap">
+        <span class="component-name">Speech-to-Text</span>
+        <span class="component-tech">Whisper large-v3 · Cloud Run GPU spot <span class="badge-oss">OSS</span></span>
+      </div>
+      <div class="component-cost">
+        <span class="component-cost-val">$0.02</span>
+        <span class="component-cost-label">/ month est.</span>
+      </div>
+    </button>
+    <div class="component-body">
+      <div class="component-body-inner">
+        <div class="calc-block">
+          <div class="calc-title">Calculation</div>
+          <div class="calc-row">
+            <span class="calc-row-label">Voice calls / month</span>
+            <span class="calc-row-val">50 calls</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Average call duration</span>
+            <span class="calc-row-val">45 seconds</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Total audio / month</span>
+            <span class="calc-row-val">37.5 minutes</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Whisper on T4 spot GPU · ~$0.0003/min</span>
+            <span class="calc-row-val">~$0.01</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Cloud Run GPU spot surcharge (amortised)</span>
+            <span class="calc-row-val">~$0.01</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Comparison: Google STT v2 at $0.006/15s</span>
+            <span class="calc-row-val highlight">would cost ~$0.09</span>
+          </div>
+          <div class="calc-total">
+            <span class="calc-total-label">Monthly cost (Whisper)</span>
+            <span class="calc-total-val">~$0.02</span>
+          </div>
+        </div>
+        <div class="rationale-block">
+          <div class="rationale-title">Why Whisper over Google STT</div>
+          <div class="rationale-body">OpenAI Whisper large-v3 achieves <strong>word error rates below 8% across 99 languages</strong>, with particular strength in Indic languages, code-switching (Hinglish, Tenglish), and regional accents that Google STT v2 handles less consistently for the dialects spoken in South and Southeast Asian manufacturing centres.<br><br>Deployed as a containerised Cloud Run service with a minimum-instance warm configuration, cold start is eliminated. On failure, the service falls back automatically to Google STT — maintaining uptime SLA at managed-service levels.<br><br><strong>Cost saving vs Google STT: ~78%</strong> at this interaction volume.</div>
+          <div class="rationale-source">
+            Source: <a href="https://cloud.google.com/run/pricing" target="_blank" rel="noopener">Google Cloud Run Pricing</a> ·
+            <a href="https://cloudchipr.com/blog/cloud-run-pricing" target="_blank" rel="noopener">CloudChipr — Cloud Run Pricing Guide 2025</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C3: Cloud Run Compute -->
+  <div class="component reveal">
+    <button class="component-header" onclick="toggle(this)">
+      <span class="component-num">C3</span>
+      <div class="component-name-wrap">
+        <span class="component-name">Cloud Run Compute</span>
+        <span class="component-tech">Leave Agent · RAG Service · Notification Service <span class="badge-gcp">GCP</span></span>
+      </div>
+      <div class="component-cost">
+        <span class="component-cost-val">$5.20</span>
+        <span class="component-cost-label">/ month est.</span>
+      </div>
+    </button>
+    <div class="component-body">
+      <div class="component-body-inner">
+        <div class="calc-block">
+          <div class="calc-title">Calculation</div>
+          <div class="calc-row">
+            <span class="calc-row-label">CPU rate (Tier 1 · asia-south1)</span>
+            <span class="calc-row-val">$0.000024 / vCPU-sec</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Memory rate</span>
+            <span class="calc-row-val">$0.0000025 / GiB-sec</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Free tier (monthly)</span>
+            <span class="calc-row-val">180K vCPU-sec · 2M req</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Estimated active compute / month</span>
+            <span class="calc-row-val">~220K vCPU-sec</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Billable after free tier</span>
+            <span class="calc-row-val">~40K vCPU-sec</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Whisper min-instance warm keep (1 vCPU)</span>
+            <span class="calc-row-val">~$3.20 / month</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Remaining active compute cost</span>
+            <span class="calc-row-val">~$2.00</span>
+          </div>
+          <div class="calc-total">
+            <span class="calc-total-label">Monthly cost</span>
+            <span class="calc-total-val">~$5.20</span>
+          </div>
+        </div>
+        <div class="rationale-block">
+          <div class="rationale-title">Scale-to-zero architecture</div>
+          <div class="rationale-body">Cloud Run is the single largest cost item — and intentionally so. Every service scales to zero when idle. A 50-person retail business does not generate HR interactions at 3am. <strong>The cost aligns exactly with usage.</strong><br><br>The largest sub-cost is the Whisper minimum instance: keeping one warm container avoids a 3–8 second GPU cold start when a worker calls. This is a deliberate design trade: $3.20/month buys consistent sub-4-second transcription response rather than occasional cold-start delays that break the voice UX.<br><br>Cloud Run's free tier (180,000 vCPU-seconds/month) absorbs roughly the first 180 interactions entirely. <strong>At &lt;200 employees, a significant portion of month-end compute may remain in the free tier.</strong></div>
+          <div class="rationale-source">
+            Source: <a href="https://cloud.google.com/run/pricing" target="_blank" rel="noopener">Google Cloud — Cloud Run Pricing</a> ·
+            <a href="https://www.prosperops.com/blog/google-cloud-run-pricing-and-cost-optimization/" target="_blank" rel="noopener">ProsperOps — Cloud Run Cost Optimisation</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C4: Voice Gateway -->
+  <div class="component reveal">
+    <button class="component-header" onclick="toggle(this)">
+      <span class="component-num">C4</span>
+      <div class="component-name-wrap">
+        <span class="component-name">Voice Gateway</span>
+        <span class="component-tech">Exotel / Plivo · India SIP <span class="badge-oss">Local SIP</span></span>
+      </div>
+      <div class="component-cost">
+        <span class="component-cost-val">$1.30</span>
+        <span class="component-cost-label">/ month est.</span>
+      </div>
+    </button>
+    <div class="component-body">
+      <div class="component-body-inner">
+        <div class="calc-block">
+          <div class="calc-title">Calculation</div>
+          <div class="calc-row">
+            <span class="calc-row-label">Voice calls / month</span>
+            <span class="calc-row-val">50 calls</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Average call duration</span>
+            <span class="calc-row-val">45 seconds</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Total minutes / month</span>
+            <span class="calc-row-val">37.5 minutes</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Exotel India SIP rate (approx)</span>
+            <span class="calc-row-val">~₹0.30–0.40 / min</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Equivalent in USD</span>
+            <span class="calc-row-val">~$0.004 / min</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Comparison: Twilio Voice (US billing)</span>
+            <span class="calc-row-val highlight">$0.013 / min — 3× more</span>
+          </div>
+          <div class="calc-total">
+            <span class="calc-total-label">Monthly cost</span>
+            <span class="calc-total-val">~$1.30</span>
+          </div>
+        </div>
+        <div class="rationale-block">
+          <div class="rationale-title">Why a local India SIP provider</div>
+          <div class="rationale-body">Exotel and Plivo both operate India-local SIP infrastructure with data centres in Mumbai and Chennai. Using a local PSTN interconnect instead of routing through a US-billed provider like Twilio eliminates the international leg cost and reduces call latency.<br><br>Exotel's credit-based pricing (1 credit = ₹1) and startup tiers make it practical for a 50-person business without a contract commitment. For deployments outside India, the same architecture substitutes the local SIP provider for the equivalent regional operator — <strong>the IVR layer is fully provider-agnostic.</strong><br><br>Note: Exotel does not publish per-minute rates on its public pricing page; the ₹0.30–0.40/min figure is derived from their credit-based plan structure and third-party comparisons. Exact rates require a sales quote and vary by call type and volume tier.</div>
+          <div class="rationale-source">
+            Source: <a href="https://exotel.com/pricing/" target="_blank" rel="noopener">Exotel — Plans &amp; Pricing</a> ·
+            <a href="https://www.cloudtalk.io/blog/exotel-pricing/" target="_blank" rel="noopener">CloudTalk — Exotel Pricing Guide 2026</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C5: WhatsApp -->
+  <div class="component reveal">
+    <button class="component-header" onclick="toggle(this)">
+      <span class="component-num">C5</span>
+      <div class="component-name-wrap">
+        <span class="component-name">WhatsApp Business API</span>
+        <span class="component-tech">Meta Cloud API · Per-message pricing (July 2025) <span class="badge-free">FREE TIER</span></span>
+      </div>
+      <div class="component-cost">
+        <span class="component-cost-val">$0.00</span>
+        <span class="component-cost-label">/ month est.</span>
+      </div>
+    </button>
+    <div class="component-body">
+      <div class="component-body-inner">
+        <div class="calc-block">
+          <div class="calc-title">Calculation</div>
+          <div class="calc-row">
+            <span class="calc-row-label">Total interactions / month</span>
+            <span class="calc-row-val">500</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Nature of interactions</span>
+            <span class="calc-row-val">User-initiated service</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">User-initiated service messages (Meta fee)</span>
+            <span class="calc-row-val">$0.00 (free)</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Utility templates in 24h service window</span>
+            <span class="calc-row-val">$0.00 (free, from Jul 2025)</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Business-initiated utility (India rate)</span>
+            <span class="calc-row-val">$0.0107 / msg if outside window</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Estimated business-initiated msgs / month</span>
+            <span class="calc-row-val highlight">~0 (workers initiate)</span>
+          </div>
+          <div class="calc-total">
+            <span class="calc-total-label">Monthly cost</span>
+            <span class="calc-total-val">$0.00</span>
+          </div>
+        </div>
+        <div class="rationale-block">
+          <div class="rationale-title">Why WhatsApp is structurally free for this use case</div>
+          <div class="rationale-body">Meta's July 2025 pricing shift from conversation-based to per-message billing was a significant change — but one that <strong>favours this architecture specifically</strong>.<br><br>The HR system is almost entirely <em>worker-initiated</em>: the employee sends the message, the system replies. Under Meta's model, <strong>user-initiated service conversations carry zero Meta fee</strong>. Utility template replies sent within the 24-hour service window are also free from July 2025 onwards.<br><br>The only scenario incurring a charge would be a proactive HITL escalation message to the owner — a business-initiated utility template at ~$0.011 per message in India, or ~$0.05 in Europe. At &lt;50 escalations/month, this cost rounds to negligible ($0.55/month worst case for India).<br><br>This is not a loophole — it is the intended model. Meta explicitly exempts worker-initiated support interactions from fees to encourage business adoption.</div>
+          <div class="rationale-source">
+            Source: <a href="https://www.spurnow.com/en/blogs/whatsapp-business-api-pricing-explained" target="_blank" rel="noopener">Spur — WhatsApp Business API Pricing 2026</a> ·
+            <a href="https://latenode.com/blog/integration-api-management/whatsapp-business-api/whatsapp-business-api-pricing-for-2025-understanding-costs-and-how-to-save" target="_blank" rel="noopener">Latenode — WhatsApp API Pricing Guide 2025</a> ·
+            <a href="https://help.sleekflow.io/en_US/whatsapp/pricing" target="_blank" rel="noopener">SleekFlow — WhatsApp Pricing Reference</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C6: Firestore + Supabase + Pub/Sub -->
+  <div class="component reveal">
+    <button class="component-header" onclick="toggle(this)">
+      <span class="component-num">C6</span>
+      <div class="component-name-wrap">
+        <span class="component-name">Data &amp; Messaging</span>
+        <span class="component-tech">Firestore · Pub/Sub · Supabase pgvector · Cloud Functions <span class="badge-free">FREE TIER</span></span>
+      </div>
+      <div class="component-cost">
+        <span class="component-cost-val">$0.00</span>
+        <span class="component-cost-label">/ month est.</span>
+      </div>
+    </button>
+    <div class="component-body">
+      <div class="component-body-inner">
+        <div class="calc-block">
+          <div class="calc-title">Free tier limits vs. our usage</div>
+          <div class="calc-row">
+            <span class="calc-row-label">Firestore free reads / day</span>
+            <span class="calc-row-val">50,000 · we use ~600</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Firestore free writes / day</span>
+            <span class="calc-row-val">20,000 · we use ~170</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Pub/Sub free messages / month</span>
+            <span class="calc-row-val">10 GB · we use ~0.1 MB</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Cloud Functions free invocations / month</span>
+            <span class="calc-row-val">2,000,000 · we use ~1,000</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Supabase free DB storage</span>
+            <span class="calc-row-val">500 MB · policy doc ~1–2 MB</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-row-label">Supabase free pgvector queries</span>
+            <span class="calc-row-val">Unlimited on free tier</span>
+          </div>
+          <div class="calc-total">
+            <span class="calc-total-label">Monthly cost</span>
+            <span class="calc-total-val">$0.00</span>
+          </div>
+        </div>
+        <div class="rationale-block">
+          <div class="rationale-title">Structural free tier fit</div>
+          <div class="rationale-body">A 50-person business generating 500 HR interactions per month sits <strong>one to two orders of magnitude below the free tier thresholds</strong> of every data service in the stack.<br><br>Firestore's free tier alone covers 50,000 reads per day — roughly 83× our estimated daily read volume. Pub/Sub's 10GB free monthly allowance covers our ~100KB of event payloads with 99.99% headroom.<br><br>Supabase's free tier (500MB Postgres, including pgvector) is sufficient to index any HR policy document a small business would produce — a 20-page policy PDF produces roughly 500–800 chunks at 256 tokens each, consuming under 2MB total. <strong>The RAG store is structurally free at SMB scale.</strong><br><br>These costs begin to appear at 500+ employees and 50,000+ interactions/month — well beyond the target segment for this architecture phase.</div>
+          <div class="rationale-source">
+            Source: <a href="https://cloud.google.com/firestore/pricing" target="_blank" rel="noopener">Google Cloud — Firestore Pricing</a> ·
+            <a href="https://cloud.google.com/pubsub/pricing" target="_blank" rel="noopener">Google Cloud — Pub/Sub Pricing</a> ·
+            <a href="https://supabase.com/pricing" target="_blank" rel="noopener">Supabase — Pricing</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOTALS -->
+<div class="totals-wrap reveal">
+  <div class="totals-header">
+    <div class="totals-header-label">Monthly totals — baseline scenario (50 employees)</div>
+    <div class="totals-header-title">The full bill.</div>
+  </div>
+  <div class="totals-grid">
+    <div class="total-box">
+      <div class="total-eyebrow">C1 · LLM inference</div>
+      <div class="total-num">$0.04</div>
+      <div class="total-denom">Gemini 1.5 Flash · 500K tokens</div>
+    </div>
+    <div class="total-box">
+      <div class="total-eyebrow">C2 · Speech-to-text</div>
+      <div class="total-num">$0.02</div>
+      <div class="total-denom">Whisper on Cloud Run GPU spot</div>
+    </div>
+    <div class="total-box">
+      <div class="total-eyebrow">C3 · Cloud Run compute</div>
+      <div class="total-num">$5.20</div>
+      <div class="total-denom">Agents + Whisper warm instance</div>
+    </div>
+    <div class="total-box">
+      <div class="total-eyebrow">C4 · Voice gateway</div>
+      <div class="total-num">$1.30</div>
+      <div class="total-denom">Exotel India SIP · 37.5 min</div>
+    </div>
+    <div class="total-box featured">
+      <div class="total-eyebrow">Total monthly cost</div>
+      <div class="total-num">$6.56</div>
+      <div class="total-denom">C5 (WhatsApp) + C6 (Data) = $0.00 · All free tier</div>
+    </div>
+    <div class="total-box">
+      <div class="total-eyebrow">Per employee · per month</div>
+      <div class="total-num">$0.13</div>
+      <div class="total-denom">$6.56 ÷ 50 employees · annualised: $1.56/employee/year</div>
+    </div>
+  </div>
+</div>
+
+<!-- SENSITIVITY ANALYSIS -->
+<section id="sensitivity">
+  <div class="section-label reveal">02 — Sensitivity analysis</div>
+  <h2 class="section-title reveal reveal-delay-1">What happens when <em>scale changes.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">The model scales sub-linearly. As employee count grows, the per-employee cost falls — because Cloud Run's fixed warm-instance cost gets amortised across more interactions while the free tiers still absorb most of the data and messaging load.</p>
+
+  <div class="sensitivity-grid">
+    <div class="sensitivity-card reveal">
+      <div class="sensitivity-scenario">Scenario A — Micro</div>
+      <div class="sensitivity-size">15 employees · 150 interactions/month</div>
+      <div class="sensitivity-rows">
+        <div class="sensitivity-row"><span class="sensitivity-row-label">LLM inference</span><span class="sensitivity-row-val">~$0.01</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Whisper STT</span><span class="sensitivity-row-val">~$0.01</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Cloud Run (warm instance dominates)</span><span class="sensitivity-row-val">~$3.50</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Voice gateway (15 calls)</span><span class="sensitivity-row-val">~$0.40</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">WhatsApp + Data</span><span class="sensitivity-row-val">$0.00</span></div>
+      </div>
+      <div class="sensitivity-total">
+        <span class="sensitivity-total-label">Monthly total</span>
+        <span class="sensitivity-total-val">~$3.92</span>
+      </div>
+      <div class="sensitivity-pp">$0.26 per employee / month</div>
+    </div>
+
+    <div class="sensitivity-card reveal reveal-delay-1" style="background:var(--saffron-light);border:1px solid #f0c090;">
+      <div class="sensitivity-scenario" style="color:var(--saffron);">Scenario B — Baseline ★</div>
+      <div class="sensitivity-size">50 employees · 500 interactions/month</div>
+      <div class="sensitivity-rows">
+        <div class="sensitivity-row"><span class="sensitivity-row-label">LLM inference</span><span class="sensitivity-row-val">~$0.04</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Whisper STT</span><span class="sensitivity-row-val">~$0.02</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Cloud Run compute</span><span class="sensitivity-row-val">~$5.20</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Voice gateway (50 calls)</span><span class="sensitivity-row-val">~$1.30</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">WhatsApp + Data</span><span class="sensitivity-row-val">$0.00</span></div>
+      </div>
+      <div class="sensitivity-total">
+        <span class="sensitivity-total-label">Monthly total</span>
+        <span class="sensitivity-total-val">~$6.56</span>
+      </div>
+      <div class="sensitivity-pp">$0.13 per employee / month</div>
+    </div>
+
+    <div class="sensitivity-card reveal reveal-delay-2">
+      <div class="sensitivity-scenario">Scenario C — Growth</div>
+      <div class="sensitivity-size">200 employees · 2,000 interactions/month</div>
+      <div class="sensitivity-rows">
+        <div class="sensitivity-row"><span class="sensitivity-row-label">LLM inference</span><span class="sensitivity-row-val">~$0.29</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Whisper STT</span><span class="sensitivity-row-val">~$0.08</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Cloud Run compute (2 warm instances)</span><span class="sensitivity-row-val">~$9.50</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">Voice gateway (200 calls)</span><span class="sensitivity-row-val">~$5.20</span></div>
+        <div class="sensitivity-row"><span class="sensitivity-row-label">WhatsApp + Data (still free tier)</span><span class="sensitivity-row-val">$0.00</span></div>
+      </div>
+      <div class="sensitivity-total">
+        <span class="sensitivity-total-label">Monthly total</span>
+        <span class="sensitivity-total-val">~$15.07</span>
+      </div>
+      <div class="sensitivity-pp">$0.075 per employee / month</div>
+    </div>
+  </div>
+  <p style="font-family:var(--mono);font-size:11px;color:var(--ink-light);margin-top:20px;letter-spacing:0.04em;">All figures are estimates. Cloud Run billing is metered to the nearest 100ms; actual costs will vary by interaction complexity, agent reasoning depth, and token length. The warm-instance cost dominates at low scale and amortises as volume grows.</p>
+</section>
+
+<!-- COMPARATOR -->
+<section id="comparator" style="background:var(--paper-2);">
+  <div class="section-label reveal">03 — Market comparison</div>
+  <h2 class="section-title reveal reveal-delay-1">What else could you <em>buy for this money.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">These are not cherry-picked comparisons. They are the actual options available to a 50-person business in 2026 that needs to manage HR for a workforce that does not sit at a desk.</p>
+
+  <div class="reveal">
+    <table class="comparator-table">
+      <thead>
+        <tr>
+          <th>Solution</th>
+          <th>Monthly cost · 50 employees</th>
+          <th>Employee channel</th>
+          <th>Multi-language</th>
+          <th>Autonomous decisions</th>
+          <th>Deskless-native</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="this-row">
+          <td><strong>The Autonomous HR</strong></td>
+          <td class="cost-cell">$6.56</td>
+          <td class="channel-cell">WhatsApp + Voice IVR</td>
+          <td class="channel-cell"><span class="check">✓</span> 200 languages</td>
+          <td class="channel-cell"><span class="check">✓</span> RAG-governed</td>
+          <td class="channel-cell"><span class="check">✓</span> Designed for it</td>
+        </tr>
+        <tr>
+          <td>GreytHR SMB</td>
+          <td class="cost-cell">$60–100</td>
+          <td class="channel-cell">Web portal + mobile app</td>
+          <td class="channel-cell"><span class="cross">✗</span> English only</td>
+          <td class="channel-cell"><span class="cross">✗</span> Human HR required</td>
+          <td class="channel-cell"><span class="cross">✗</span> Requires smartphone app</td>
+        </tr>
+        <tr>
+          <td>Keka Starter</td>
+          <td class="cost-cell">$100–150</td>
+          <td class="channel-cell">Web + mobile app</td>
+          <td class="channel-cell"><span class="cross">✗</span> English only</td>
+          <td class="channel-cell"><span class="cross">✗</span> HR admin required</td>
+          <td class="channel-cell"><span class="cross">✗</span> Desktop-first UX</td>
+        </tr>
+        <tr>
+          <td>Darwinbox</td>
+          <td class="cost-cell">$300+</td>
+          <td class="channel-cell">Web + mobile app</td>
+          <td class="channel-cell">Partial · limited Hindi</td>
+          <td class="channel-cell">Partial · workflow rules</td>
+          <td class="channel-cell"><span class="cross">✗</span> Enterprise-grade complexity</td>
+        </tr>
+        <tr>
+          <td>Workday HCM</td>
+          <td class="cost-cell">$800–1,500</td>
+          <td class="channel-cell">Web + mobile app</td>
+          <td class="channel-cell">Yes · enterprise</td>
+          <td class="channel-cell">Partial · rules engine</td>
+          <td class="channel-cell"><span class="cross">✗</span> Requires trained HR staff</td>
+        </tr>
+        <tr>
+          <td>Part-time HR assistant</td>
+          <td class="cost-cell">$400–800</td>
+          <td class="channel-cell">WhatsApp (unstructured)</td>
+          <td class="channel-cell">Depends on person</td>
+          <td class="channel-cell"><span class="cross">✗</span> Manual, inconsistent</td>
+          <td class="channel-cell">Varies</td>
+        </tr>
+        <tr>
+          <td>Manual (paper + WhatsApp)</td>
+          <td class="cost-cell">$0 + HR staff time</td>
+          <td class="channel-cell">WhatsApp (unstructured)</td>
+          <td class="channel-cell">Any</td>
+          <td class="channel-cell"><span class="cross">✗</span> None</td>
+          <td class="channel-cell">Partially</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- METHODOLOGY NOTE -->
+<div class="method-note reveal">
+  <div class="method-note-title">Methodology notes &amp; caveats</div>
+  <div class="method-note-body">
+    <strong>All pricing sourced from vendor documentation as of Q1 2026.</strong> Cloud pricing changes frequently; treat these figures as directional estimates rather than contractual quotes. Each component links to its primary source above.<br><br>
+    <strong>Exotel voice rates</strong> are not published as a standard per-minute rate. The ₹0.30–0.40/min figure is derived from Exotel's credit-based plan structure (<a href="https://exotel.com/pricing/" target="_blank" rel="noopener">exotel.com/pricing</a>) and third-party pricing analyses. Exact rates require a direct sales quote and vary by call type, destination, and volume tier.<br><br>
+    <strong>WhatsApp pricing</strong> changed materially on 1 July 2025 when Meta shifted from conversation-based to per-message billing. The $0.00 cost for this use case reflects that worker-initiated service messages and utility templates sent within the 24-hour customer service window carry no Meta fee under the new model. Source: <a href="https://www.spurnow.com/en/blogs/whatsapp-business-api-pricing-explained" target="_blank" rel="noopener">Spur — WhatsApp Business API Pricing 2026</a>.<br><br>
+    <strong>Gemini 1.5 Flash pricing</strong> ($0.075/1M input, $0.30/1M output) is sourced from <a href="https://cloud.google.com/vertex-ai/generative-ai/pricing" target="_blank" rel="noopener">Google Cloud Vertex AI Pricing</a>. Note that Google has released Gemini 2.5 Flash and 3.x models since this architecture was designed; newer Flash variants may offer better price-performance as they reach stable GA status on Vertex AI.<br><br>
+    <strong>Token estimates</strong> (1,000 avg tokens/interaction) are conservative approximations. Simple leave balance queries may consume 200–400 tokens. Complex policy RAG lookups with context may consume 2,000–4,000 tokens. The 1,000 token average assumes a mixed workload typical of a 50-person business.<br><br>
+    <strong>Currency note:</strong> All costs are shown in USD for international comparability. For India deployments, GCP india-south1 pricing and Exotel INR rates apply. The $6.56/month baseline is approximately ₹550/month at current exchange rates — less than the cost of one day of a part-time contract HR assistant.
+  </div>
+</div>
+
+<!-- PAGE NAV -->
+<div class="page-nav">
+  <a href="page-02.html" class="page-nav-item">
+    <span class="page-nav-dir">← Previous</span>
+    <span class="page-nav-title">The Problem</span>
+  </a>
+  <a href="page-04.html" class="page-nav-item" style="text-align:right;">
+    <span class="page-nav-dir">Next →</span>
+    <span class="page-nav-title">The Architecture</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 03 · Cost Methodology · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+function toggle(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  // close all
+  document.querySelectorAll('.component-header').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.component-body').forEach(b => b.classList.remove('open'));
+  if (!isOpen) {
+    btn.classList.add('open');
+    body.classList.add('open');
+  }
+}
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Glossary — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#1a1612;--ink-mid:#3d3830;--ink-light:#7a7268;--paper:#f5f0e8;--paper-2:#ede8df;--paper-3:#e4ddd2;--saffron:#c4620a;--saffron-2:#e07520;--saffron-light:#fdf0e4;--rule:#c8bfb0;--mono:'DM Mono',monospace;--serif:'Fraunces',serif;--display:'Instrument Serif',serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+.hero{padding:112px 48px 64px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:10px;right:24px;font-family:var(--display);font-size:220px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,72px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:16px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:16px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:560px;}
+
+/* ALPHA NAV */
+.alpha-nav{padding:24px 48px;background:var(--paper-2);border-bottom:1px solid var(--rule);display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:57px;z-index:90;backdrop-filter:blur(8px);}
+.alpha-link{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink-light);text-decoration:none;padding:4px 10px;border:1px solid var(--rule);transition:all 0.15s;letter-spacing:0.04em;}
+.alpha-link:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* GLOSSARY BODY */
+.glossary-body{padding:0 48px 80px;}
+.glossary-section{padding-top:48px;}
+.section-letter{font-family:var(--display);font-size:64px;font-weight:400;font-style:italic;color:var(--paper-3);line-height:1;margin-bottom:8px;}
+.section-rule{height:1px;background:var(--rule);margin-bottom:32px;}
+.term-list{display:flex;flex-direction:column;gap:0;}
+.term-entry{display:grid;grid-template-columns:240px 1fr;gap:0;border-bottom:1px solid var(--paper-3);transition:background 0.15s;}
+.term-entry:hover{background:var(--paper-2);}
+.term-entry:first-child{border-top:1px solid var(--paper-3);}
+.term-name{padding:18px 20px 18px 0;font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);letter-spacing:0.02em;line-height:1.4;}
+.term-name .cat{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:500;padding:2px 6px;letter-spacing:0.06em;text-transform:uppercase;margin-left:6px;vertical-align:middle;}
+.cat-ml{background:var(--saffron-light);color:var(--saffron);border:1px solid #f0c090;}
+.cat-infra{background:#e6f1fb;color:#185fa5;border:1px solid #b5d4f4;}
+.cat-agent{background:#ede8df;color:#3d3830;border:1px solid #c8bfb0;}
+.cat-hr{background:#e8f4ec;color:#2d6b42;border:1px solid #b8dfc4;}
+.cat-biz{background:#fdf0e4;color:#c4620a;border:1px solid #f0c090;}
+.term-def{padding:18px 0 18px 24px;border-left:1px solid var(--paper-3);}
+.term-plain{font-family:var(--serif);font-size:14px;font-weight:400;color:var(--ink);margin-bottom:4px;line-height:1.5;}
+.term-technical{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.65;}
+.term-ref{margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--saffron);letter-spacing:0.04em;}
+.term-ref a{color:var(--saffron);text-decoration:none;}
+.term-ref a:hover{text-decoration:underline;}
+
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+@media(max-width:768px){nav{padding:16px 24px;}.nav-links{display:none;}.hero,.glossary-body,.alpha-nav{padding-left:24px;padding-right:24px;}.term-entry{grid-template-columns:1fr;}.term-def{border-left:none;padding:0 0 16px 0;border-top:1px solid var(--paper-3);}.term-name{padding-bottom:8px;}footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-11.html">HR Policy PDF</a></li>
+    <li><a href="page-10.html">ADRs</a></li>
+    <li><a href="index.html">Home</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg">A–Z</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Glossary
+  </div>
+  <h1>Every term.<br><em>Plain English first.</em></h1>
+  <p class="hero-sub">Every technical term used across this portfolio, defined in plain English followed by the precise technical definition. Useful for non-technical stakeholders reviewing the architecture — and for ensuring consistency of usage across all 11 pages.</p>
+</div>
+
+<div class="alpha-nav">
+  <a href="#A" class="alpha-link">A</a>
+  <a href="#C" class="alpha-link">C</a>
+  <a href="#D" class="alpha-link">D</a>
+  <a href="#E" class="alpha-link">E</a>
+  <a href="#F" class="alpha-link">F</a>
+  <a href="#G" class="alpha-link">G</a>
+  <a href="#H" class="alpha-link">H</a>
+  <a href="#I" class="alpha-link">I</a>
+  <a href="#L" class="alpha-link">L</a>
+  <a href="#M" class="alpha-link">M</a>
+  <a href="#N" class="alpha-link">N</a>
+  <a href="#O" class="alpha-link">O</a>
+  <a href="#P" class="alpha-link">P</a>
+  <a href="#R" class="alpha-link">R</a>
+  <a href="#S" class="alpha-link">S</a>
+  <a href="#T" class="alpha-link">T</a>
+  <a href="#V" class="alpha-link">V</a>
+  <a href="#W" class="alpha-link">W</a>
+</div>
+
+<div class="glossary-body">
+
+  <div class="glossary-section" id="A">
+    <div class="section-letter">A</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">A2A Protocol <span class="cat cat-agent">Agent</span></div>
+        <div class="term-def">
+          <div class="term-plain">A way for AI agents to talk to each other.</div>
+          <div class="term-technical">Agent-to-Agent communication protocol. Defines the message format, contract, and routing mechanism by which specialist agents in a multi-agent system exchange structured data. In this system, A2A happens via Cloud Pub/Sub topics — each agent publishes events that other agents subscribe to.</div>
+          <div class="term-ref">→ See: <a href="page-07.html">Agent Architecture</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">ADK (Agent Development Kit) <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">Google's toolkit for building AI agents on GCP.</div>
+          <div class="term-technical">Google's open-source framework for building multi-agent systems on Google Cloud. Provides agent lifecycle management, tool calling abstractions, and native GCP service bindings. This system uses LangGraph instead of ADK — see ADR-003 for the rationale.</div>
+          <div class="term-ref">→ See: <a href="page-10.html#adr-003">ADR-003</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">ADR (Architecture Decision Record) <span class="cat cat-agent">Process</span></div>
+        <div class="term-def">
+          <div class="term-plain">A document recording why a major technical decision was made.</div>
+          <div class="term-technical">A lightweight document format for recording significant architecture decisions. Each ADR captures: the context that required a decision, the decision made, alternatives considered, consequences (positive and negative), and responses to anticipated pushbacks. This portfolio contains 8 ADRs plus 5 MLOps decision records.</div>
+          <div class="term-ref">→ See: <a href="page-10.html">Page 10 — ADRs</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Artifact Registry <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">GCP's container image storage service.</div>
+          <div class="term-technical">Google Cloud's managed container registry. Stores Docker images for all Cloud Run services. Provides vulnerability scanning on push and version retention policies. Images are tagged with the git SHA at build time — providing a deterministic link between source code and deployed container.</div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Audit Log <span class="cat cat-hr">HR</span></div>
+        <div class="term-def">
+          <div class="term-plain">A permanent, tamper-proof record of every HR decision the system has ever made.</div>
+          <div class="term-technical">An append-only Firestore collection (/audit_log) where every agent action, policy lookup, HITL escalation, and decision outcome is recorded before any outbound notification is sent. Firestore security rules deny update and delete on this collection for all identities — making it immutable at the infrastructure layer. Retained 7 years for labour law compliance.</div>
+          <div class="term-ref">→ See: <a href="page-07.html#guardrails">Agent Guardrails</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="C">
+    <div class="section-letter">C</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Canary Deployment <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">Releasing a new version to a small percentage of users first to check for problems.</div>
+          <div class="term-technical">A deployment strategy where a new Cloud Run revision receives a small percentage of live traffic (10% in this system) while the previous version handles the rest. Error rates are monitored for a defined period; if they exceed baseline + 2%, the deployment is automatically rolled back. Full promotion to 100% is triggered manually after canary success.</div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Casual Leave (CL) <span class="cat cat-hr">HR</span></div>
+        <div class="term-def">
+          <div class="term-plain">Short-notice leave for personal matters — typically 1 or 2 days.</div>
+          <div class="term-technical">A leave type with an annual entitlement of 12 days, credited on 1 April each year. Subject to a maximum of 2 consecutive days without Managing Director approval. AutoHR approval conditions defined in §4.2.1 of the HR Policy PDF. Does not carry over or encash.</div>
+          <div class="term-ref">→ See: <a href="page-11.html">HR Policy PDF §4.2</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Cloud Run <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">GCP's serverless compute service that runs containers and charges only when they're processing requests.</div>
+          <div class="term-technical">Google Cloud's fully managed container execution environment. Scales to zero when idle (no idle cost) and scales automatically under load. Supports GPU instances for ML workloads (used for Whisper STT). All compute in this system runs on Cloud Run — no GKE cluster. 99.95% SLA. Free tier: 180,000 vCPU-seconds/month.</div>
+          <div class="term-ref">→ See: <a href="page-09.html#services">Service Catalogue</a> · <a href="page-10.html#adr-005">ADR-005</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Confidence Score <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">A number between 0 and 1 that tells the system how certain it is about its answer.</div>
+          <div class="term-technical">A scalar value (0.0–1.0) produced by the Policy RAG retrieval step representing the cosine similarity between the query embedding and the retrieved policy chunk embedding. Used as the primary HITL trigger: if confidence &lt; 0.80, the Leave Agent transitions unconditionally to HITL_PENDING regardless of other conditions. This threshold is a graph edge condition, not a prompt instruction.</div>
+          <div class="term-ref">→ See: <a href="page-07.html#statemachine">Leave Agent State Machine</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="D">
+    <div class="section-letter">D</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Deskless Workforce <span class="cat cat-biz">Business</span></div>
+        <div class="term-def">
+          <div class="term-plain">Workers who do their jobs without a desk, laptop, or company email — the majority of the world's workforce.</div>
+          <div class="term-technical">2.7 billion workers globally (80% of the total workforce) employed in industries including manufacturing, agriculture, retail, construction, healthcare, and hospitality. They have no access to company email, limited computer access during the workday, and have been systematically excluded from enterprise HR software. Source: Emergence Capital / Deskless Workforce Report.</div>
+          <div class="term-ref">→ See: <a href="page-02.html">Page 02 — The Problem</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">DPDP Act 2023 <span class="cat cat-hr">Compliance</span></div>
+        <div class="term-def">
+          <div class="term-plain">India's new data privacy law that governs how personal data must be handled.</div>
+          <div class="term-technical">The Digital Personal Data Protection Act, 2023. India's primary data protection legislation. Requires explicit consent for processing personal data, restricts cross-border data transfers, and mandates data retention limits. This system is compliant: all GCP resources in asia-south1 (Mumbai), Supabase on AWS ap-south-1 (Mumbai), and explicit consent collected during AutoHR onboarding.</div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Drift (Model) <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">When an AI model's accuracy gradually gets worse because the real world has changed.</div>
+          <div class="term-technical">The degradation of ML model performance over time due to changes in the input data distribution, the environment, or the model's external dependencies. This system monitors four drift types: acoustic drift (Whisper STT), policy drift (RAG document update), LLM version drift (Gemini Flash release), and embedding model drift (text-embedding-004 version change). Each has a distinct detection mechanism and automated response.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#drift">MLOps — Drift Detection</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="E">
+    <div class="section-letter">E</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Earned Leave (EL) <span class="cat cat-hr">HR</span></div>
+        <div class="term-def">
+          <div class="term-plain">Leave that builds up over time the longer you work — can be saved up and paid out when you leave.</div>
+          <div class="term-technical">Leave that accrues at 1.25 days per month of completed service (15 days/year). Begins accruing after the 90-day probation period. Can be carried over up to 30 days maximum. EL exceeding 30 days at year-end is automatically encashed at the basic daily rate. Applications require 5 working days' advance notice. See HR Policy §4.4.</div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Embedding <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">Converting text into a list of numbers that captures its meaning — so similar texts produce similar number lists.</div>
+          <div class="term-technical">A dense vector representation of text produced by a neural network (text-embedding-004 in this system). Vectors are 768-dimensional. Semantically similar texts produce vectors with high cosine similarity. Used in the RAG pipeline to index HR policy chunks and to find the most relevant chunk for any worker query. Stored in Supabase pgvector with HNSW indexing for sub-10ms retrieval.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#rag">MLOps — RAG Pipeline</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">ESIC <span class="cat cat-hr">Compliance</span></div>
+        <div class="term-def">
+          <div class="term-plain">India's employee health insurance scheme — mandatory for eligible workers.</div>
+          <div class="term-technical">Employees' State Insurance Corporation. A statutory social security scheme under the ESI Act, 1948 providing medical, sickness, maternity, and disability benefits. Applicable to employees earning below the wage ceiling. Employee contribution: 0.75% of gross salary. Employer contribution: 3.25%. Registration required within 10 days of joining.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="F">
+    <div class="section-letter">F</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Firestore <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">GCP's serverless database — no server to manage, pays only for what you use.</div>
+          <div class="term-technical">Google Cloud Firestore in Native mode. A serverless NoSQL document database. Used as the primary operational database: employee records, leave requests, HITL queue, conversation sessions, and the audit log. Free tier: 50,000 reads/day and 20,000 writes/day — comfortably covers SMB workloads. Append-only security rules on /audit_log enforced at database layer.</div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Fine-tuning (LoRA) <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">Training an existing AI model to be better at a specific task, without retraining the whole thing.</div>
+          <div class="term-technical">Low-Rank Adaptation — a parameter-efficient fine-tuning technique that trains a small set of adapter weights rather than the full model. Used to adapt Whisper large-v3 for regional dialect accuracy. Training targets the query and value projection matrices (q_proj, v_proj). LoRA rank: 16, alpha: 32. Training runs on Cloud Run GPU in approximately 40 minutes when triggered by drift detection.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#drift">MLOps — Drift and Retraining</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="G">
+    <div class="section-letter">G</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Gemini 1.5 Flash <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">Google's fast, affordable AI model used for intent classification and agent reasoning in this system.</div>
+          <div class="term-technical">A production-grade LLM from Google, available via Vertex AI. Input: $0.075/1M tokens. Output: $0.30/1M tokens — the most cost-effective capable hosted LLM as of Q1 2026. Used for intent routing and Leave Agent reasoning. Model version pinned at gemini-1.5-flash-002 (not 'latest'). Region: asia-south1 for data residency.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#decisions">MLOps Decision D3</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Guardrail <span class="cat cat-agent">Agent</span></div>
+        <div class="term-def">
+          <div class="term-plain">A hard limit on what an AI agent is allowed to do — enforced by the infrastructure, not just instructions.</div>
+          <div class="term-technical">An architectural constraint preventing an agent from taking certain actions, enforced at the infrastructure layer rather than via prompt instructions. Examples: the audit log is append-only via Firestore security rules (not a prompt), the HITL trigger on confidence &lt; 0.80 is a state machine guard condition (not a prompt), per-agent IAM prevents cross-domain access. Prompt-only guardrails can be argued around by the LLM; infrastructure guardrails cannot.</div>
+          <div class="term-ref">→ See: <a href="page-07.html#guardrails">Agent Guardrails</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="H">
+    <div class="section-letter">H</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">HITL (Human-in-the-Loop) <span class="cat cat-agent">Agent</span></div>
+        <div class="term-def">
+          <div class="term-plain">A designed checkpoint where a human must review and decide before the system continues.</div>
+          <div class="term-technical">A first-class architectural state in the Leave Agent state machine (not a fallback). Triggered by four conditions: RAG confidence &lt; 0.80, all leave balances exhausted, statutory coverage threshold breach, or DB read failure. The HITL Manager composes a structured brief and sends it to the owner via WhatsApp. 4-hour re-escalation, 24-hour auto-deny. Every HITL event is written to the audit log.</div>
+          <div class="term-ref">→ See: <a href="page-07.html#hitl">HITL Specification</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">HNSW (Hierarchical Navigable Small World) <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">An index structure that makes searching through millions of vectors fast.</div>
+          <div class="term-technical">An approximate nearest neighbour algorithm used to index vector embeddings in pgvector. HNSW builds a layered graph structure enabling sub-10ms similarity search at SMB scale (under 5,000 vectors). Configuration: ef_construction=128, m=16. Alternative to IVF-Flat which requires a training step. Preferred for the policy RAG store because it supports online inserts (no re-training on policy update).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="I">
+    <div class="section-letter">I</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">IAM (Identity and Access Management) <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">GCP's system for controlling who (or what service) can access which resources.</div>
+          <div class="term-technical">GCP's access control system. Each Cloud Run service in this system has a dedicated Service Account with minimum permissions scoped to exactly the resources it needs. The STT service cannot read Firestore. The Leave Agent cannot access grievance records. All IAM bindings are defined in Terraform — no manual console grants. The absence of a permission is as deliberate as its presence.</div>
+          <div class="term-ref">→ See: <a href="page-09.html#iam">IAM Matrix</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">IVR (Interactive Voice Response) <span class="cat cat-infra">Channel</span></div>
+        <div class="term-def">
+          <div class="term-plain">A phone system that lets workers call a number and speak naturally to apply for leave or ask questions.</div>
+          <div class="term-technical">A telephony gateway that accepts inbound calls, streams audio to the Whisper STT service via WebSocket, and returns TTS audio responses to the caller. Implemented via Exotel (India) or Plivo. The IVR provides feature parity with the WhatsApp channel — all agent flows support both channels identically. Acts as a fallback for workers who prefer calling over messaging.</div>
+          <div class="term-ref">→ See: <a href="page-10.html#adr-001">ADR-001</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="L">
+    <div class="section-letter">L</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">LangGraph <span class="cat cat-agent">Agent</span></div>
+        <div class="term-def">
+          <div class="term-plain">The framework used to build the AI agents in this system — it defines exactly what each agent can do and when it must ask a human.</div>
+          <div class="term-technical">An open-source Python framework by LangChain Inc. for building stateful, graph-based agent workflows. Provides explicit state machine primitives: nodes (states), edges (transitions), conditional routing, and persistent state via checkpointers (Firestore in this system). Used because it enforces HITL as a graph edge condition rather than a prompt instruction — a critical distinction for employment decision systems.</div>
+          <div class="term-ref">→ See: <a href="page-10.html#adr-003">ADR-003</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">LOP (Loss of Pay) <span class="cat cat-hr">HR</span></div>
+        <div class="term-def">
+          <div class="term-plain">A salary deduction for days absent without approved leave.</div>
+          <div class="term-technical">A payroll deduction applied for: absence without leave approval, leave taken beyond sanctioned entitlement, and accumulated late arrivals (per §2.3). Daily rate: Gross Monthly Salary ÷ Working Days in Month. Calculated automatically by the Payroll Agent from attendance records. Half-day LOP = 50% of daily rate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="M">
+    <div class="section-letter">M</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">MLOps <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">The engineering practices for keeping AI models working correctly in production over time.</div>
+          <div class="term-technical">Machine Learning Operations — the discipline of deploying, monitoring, and maintaining ML models in production. Covers model versioning, drift detection, retraining pipelines, A/B testing, rollback mechanisms, and observability. In this system: model registry in Firestore, drift detection via Cloud Monitoring, LoRA retraining on Cloud Run GPU, canary deployment via Cloud Run traffic splitting.</div>
+          <div class="term-ref">→ See: <a href="page-08.html">Page 08 — MLOps</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="N">
+    <div class="section-letter">N</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">NLLB-200 <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">Meta's open-source translation model that supports 200 languages, including all major Indian languages.</div>
+          <div class="term-technical">No Language Left Behind — a 3.3B parameter multilingual translation model released by Meta AI. Purpose-built for low-resource languages underrepresented in standard training corpora. Used to normalise code-switched speech (Hinglish, Tenglish) to structured English intent before LLM processing. Bundled in the STT Cloud Run container — zero marginal cost. Replaces Google Cloud Translation API.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#decisions">MLOps Decision D2</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="O">
+    <div class="section-letter">O</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Orchestrator (Agent) <span class="cat cat-agent">Agent</span></div>
+        <div class="term-def">
+          <div class="term-plain">The agent that receives every message first and decides which specialist agent should handle it.</div>
+          <div class="term-technical">The Intent Router — a stateless Gemini Flash agent that is the sole entry point for all inbound interactions. Classifies intent across 6 categories (leave request, balance query, policy question, grievance, onboarding, general). Extracts entities. Routes to the appropriate specialist agent via Pub/Sub event publish. Never makes decisions — only routes.</div>
+          <div class="term-ref">→ See: <a href="page-07.html#topology">Agent Topology</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="P">
+    <div class="section-letter">P</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">pgvector <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">A Postgres extension that lets the database store and search through AI vectors.</div>
+          <div class="term-technical">An open-source extension for PostgreSQL that adds vector data types and similarity search operators. Used via Supabase to store HR Policy PDF embeddings (768-dimensional vectors from text-embedding-004) and perform cosine similarity search at query time. HNSW index enables sub-10ms retrieval. Supabase free tier (500MB) is sufficient for any SMB policy document.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#rag">RAG Pipeline</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Pub/Sub <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">GCP's messaging system — services publish messages to topics, and other services receive them without needing to talk to each other directly.</div>
+          <div class="term-technical">Google Cloud Pub/Sub — a managed asynchronous messaging service. This system uses 5 topics: INBOUND_MSG, STT_RESULT, AGENT_EVENT, HITL_ESCALATION, NOTIFICATION_OUT. Push subscriptions deliver messages to Cloud Run services. 7-day message retention. Dead-letter topics on all critical subscriptions. Free tier covers entire SMB message volume. The event fabric that decouples all services.</div>
+          <div class="term-ref">→ See: <a href="page-10.html#adr-004">ADR-004</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="R">
+    <div class="section-letter">R</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">RAG (Retrieval-Augmented Generation) <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">Making an AI answer questions based on a specific document, rather than just its general training.</div>
+          <div class="term-technical">A technique that augments LLM generation with information retrieved from a document store at inference time. In this system: the HR Policy PDF is chunked (256 tokens, 32 overlap), embedded, and stored in pgvector. At query time, the worker's question is embedded and the most relevant policy chunks (top-3 by cosine similarity) are inserted into the LLM prompt as context. The LLM reasons against the retrieved chunks — not its training data.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#rag">RAG Pipeline</a> · <a href="page-11.html">HR Policy PDF</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Rathi Textiles Pvt. Ltd. <span class="cat cat-biz">Business</span></div>
+        <div class="term-def">
+          <div class="term-plain">The fictional anchor client used to ground every architecture decision in a real business context.</div>
+          <div class="term-technical">A composite fictional profile representing the archetype of the Indian small retail/manufacturing employer. Nagpur, Maharashtra. 52 employees across 3 retail outlets and 1 weaving unit. ₹2.8 Cr annual revenue. Owner: Priya Rathi. 6 languages spoken on the floor. Zero company email addresses. Previously attempted Keka — abandoned in 6 weeks. All architecture decisions in this portfolio are grounded in Rathi Textiles' specific constraints.</div>
+          <div class="term-ref">→ See: <a href="page-05.html">Page 05 — Client Brief</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="S">
+    <div class="section-letter">S</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Scale-to-zero <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">The system shuts down when nobody is using it and starts up again when needed — so you pay nothing when it's idle.</div>
+          <div class="term-technical">A Cloud Run billing behaviour where instances are terminated when there are no active requests, incurring zero compute cost during idle periods. A 50-person business generates HR interactions in bursts (morning check-ins, lunch-time leave requests) rather than continuously. Scale-to-zero aligns cost with actual usage — the most important infrastructure decision for SMB deployments. Mitigated cold starts via min-instances: 1 on the STT service.</div>
+          <div class="term-ref">→ See: <a href="page-10.html#adr-005">ADR-005</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Secret Manager <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">GCP's secure vault for storing API keys and passwords — so they never appear in code.</div>
+          <div class="term-technical">Google Cloud Secret Manager. All credentials (WhatsApp API token, Exotel key, Supabase connection string, Gemini API key) are stored here and injected into Cloud Run services at runtime via IAM-authenticated API calls. No credential appears in source code, Dockerfiles, environment variable defaults, or CI/CD configuration. Automated 90-day rotation on WhatsApp token.</div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">State Machine <span class="cat cat-agent">Agent</span></div>
+        <div class="term-def">
+          <div class="term-plain">A formal description of every possible state an agent can be in and every condition that moves it from one state to another.</div>
+          <div class="term-technical">A formal model where an agent exists in exactly one of a finite set of states at any time, transitions between states are triggered by events and evaluated by guard conditions, and entry/exit actions are defined for each state. The Leave Agent has 7 states: IDLE, FETCHING, RAG_LOOKUP, EVALUATING, APPROVED, DENIED, HITL_PENDING. Implemented in LangGraph. Every transition is logged to the audit trail.</div>
+          <div class="term-ref">→ See: <a href="page-07.html#statemachine">Leave Agent State Machine</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">STT (Speech-to-Text) <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">Converting a worker's spoken voice note into written text the system can understand.</div>
+          <div class="term-technical">The process of transcribing audio to text. Implemented via Whisper large-v3 (OSS) on Cloud Run GPU T4 spot. Produces transcript, detected language, and confidence score. P99 latency with min-instance warm: &lt;4 seconds. Fallback to Google Cloud STT v2 on service error. 83% cheaper than Google STT v2 at SMB interaction volumes.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#decisions">MLOps Decision D1</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="T">
+    <div class="section-letter">T</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Terraform <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">Code that describes exactly what cloud infrastructure should exist — so it can be built automatically and repeatably.</div>
+          <div class="term-technical">An open-source Infrastructure as Code (IaC) tool by HashiCorp. Every GCP resource in this system is defined in .tf files: Cloud Run services, Firestore security rules, IAM bindings, Pub/Sub topics, Secret Manager secrets, Cloud Monitoring alerts, and billing budgets. State stored in GCS. Plan runs on PR; apply on merge to main after manual promotion gate.</div>
+          <div class="term-ref">→ See: <a href="page-09.html#terraform">Terraform IaC</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">TOGAF ADM <span class="cat cat-biz">Architecture</span></div>
+        <div class="term-def">
+          <div class="term-plain">A formal method for designing enterprise architecture in phases — used to ensure nothing important is missed.</div>
+          <div class="term-technical">The Open Group Architecture Framework Architecture Development Method. A structured approach to enterprise architecture covering: Phase A (Vision), Phase B (Business Architecture), Phase C (Information Systems Architecture), Phase D (Technology Architecture), Phase E (Migration Planning). This portfolio documents Phases A–E for The Autonomous HR, grounding every technology decision in business requirements.</div>
+          <div class="term-ref">→ See: <a href="page-06.html">Page 06 — TOGAF ADM</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="V">
+    <div class="section-letter">V</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">Vertex AI <span class="cat cat-infra">Infra</span></div>
+        <div class="term-def">
+          <div class="term-plain">GCP's managed AI platform — provides access to Gemini models and embedding APIs with enterprise SLAs.</div>
+          <div class="term-technical">Google Cloud's unified ML platform. Used in this system for: Gemini 1.5 Flash inference (intent routing, agent reasoning), text-embedding-004 (HR policy chunk embeddings). Region locked to asia-south1 for DPDP Act 2023 data residency. Model version pinned (gemini-1.5-flash-002) — not using 'latest' alias to prevent unexpected behaviour changes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossary-section" id="W">
+    <div class="section-letter">W</div>
+    <div class="section-rule"></div>
+    <div class="term-list">
+      <div class="term-entry">
+        <div class="term-name">WER (Word Error Rate) <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">A measure of how many words the speech-to-text system gets wrong — lower is better.</div>
+          <div class="term-technical">The primary evaluation metric for STT models. Calculated as: (Substitutions + Deletions + Insertions) / Total Words in Reference. Expressed as a percentage. Whisper large-v3 achieves &lt;8% WER across 99 languages. The retraining trigger fires when rolling 7-day mean confidence drops below 0.85, which correlates with WER regression. The fine-tuning job rolls back if new WER exceeds baseline + 5%.</div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">WhatsApp Business API <span class="cat cat-infra">Channel</span></div>
+        <div class="term-def">
+          <div class="term-plain">Meta's official way for businesses to send and receive WhatsApp messages at scale.</div>
+          <div class="term-technical">Meta's Cloud API for enterprise WhatsApp messaging. Enables programmatic send/receive of text, audio, documents, and template messages. As of July 2025, uses per-message pricing (replacing conversation-based). User-initiated service messages and utility templates within the 24-hour service window: $0.00. Business-initiated HITL alerts (India): ~$0.011/message. ~$0.00 total monthly cost at SMB scale.</div>
+          <div class="term-ref">→ See: <a href="page-03.html">Cost Methodology C5</a> · <a href="page-10.html#adr-001">ADR-001</a></div>
+        </div>
+      </div>
+      <div class="term-entry">
+        <div class="term-name">Whisper large-v3 <span class="cat cat-ml">ML</span></div>
+        <div class="term-def">
+          <div class="term-plain">OpenAI's open-source voice recognition model — used to transcribe workers' voice notes in any language.</div>
+          <div class="term-technical">OpenAI's open-source multilingual ASR model. 1.55B parameters. Achieves WER &lt;8% across 99 languages. Deployed as a containerised Cloud Run service on NVIDIA T4 spot GPU. Min-instances: 1 (warm) to eliminate cold start on IVR calls. Automatic fallback to Google STT v2 on service error. 83% cheaper than Google STT v2 at SMB interaction volumes. Fine-tuned via LoRA when drift is detected.</div>
+          <div class="term-ref">→ See: <a href="page-08.html#decisions">MLOps Decision D1</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Glossary · © 2026 Siddharth Rao</div>
+</footer>
+
+</body>
+</html>

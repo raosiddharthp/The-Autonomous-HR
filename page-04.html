@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Workflow — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:#1a1612;--ink-mid:#3d3830;--ink-light:#7a7268;
+  --paper:#f5f0e8;--paper-2:#ede8df;--paper-3:#e4ddd2;
+  --saffron:#c4620a;--saffron-2:#e07520;--saffron-light:#fdf0e4;
+  --rule:#c8bfb0;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--display:'Instrument Serif',serif;
+  --wa-bg:#0a1628;--wa-bubble:#1f2c38;--wa-sent:#005c4b;--wa-text:#e9edef;--wa-sub:#8696a0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(245,240,232,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--saffron);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--saffron);}
+.nav-github{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:7px 16px;transition:all 0.2s;}
+.nav-github:hover{background:var(--ink);color:var(--paper);}
+
+/* HERO */
+.hero{padding:112px 48px 64px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:20px;right:32px;font-family:var(--display);font-size:260px;font-weight:400;font-style:italic;color:transparent;-webkit-text-stroke:1px var(--paper-3);pointer-events:none;user-select:none;line-height:1;}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:28px;}
+.breadcrumb a{color:var(--saffron);text-decoration:none;}
+.breadcrumb a:hover{text-decoration:underline;}
+.breadcrumb span{color:var(--rule);}
+h1{font-family:var(--display);font-size:clamp(40px,5.5vw,76px);font-weight:400;line-height:1.06;letter-spacing:-0.02em;color:var(--ink);margin-bottom:20px;}
+h1 em{font-style:italic;color:var(--saffron);}
+.hero-sub{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.65;color:var(--ink-mid);max-width:600px;}
+
+/* CONTROLS */
+.controls{padding:40px 48px;background:var(--paper-2);border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:32px;align-items:flex-end;}
+.control-group{display:flex;flex-direction:column;gap:10px;}
+.control-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pill-group{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.04em;padding:8px 16px;border:1px solid var(--rule);background:var(--paper);color:var(--ink-mid);cursor:pointer;transition:all 0.18s;user-select:none;}
+.pill:hover{border-color:var(--saffron);color:var(--saffron);}
+.pill.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.run-btn{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:12px 32px;background:var(--saffron);color:var(--paper);border:none;cursor:pointer;transition:all 0.2s;margin-left:auto;}
+.run-btn:hover{background:var(--saffron-2);}
+.run-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* SIMULATOR STAGE */
+.stage{display:grid;grid-template-columns:380px 1fr;min-height:680px;border-bottom:1px solid var(--rule);}
+
+/* LEFT: PHONE */
+.phone-col{background:var(--wa-bg);padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:0;position:relative;}
+.phone-wrap{width:100%;max-width:320px;background:#111b21;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-height:560px;box-shadow:0 32px 80px rgba(0,0,0,0.6);}
+.phone-header{background:#1f2c38;padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.phone-avatar{width:36px;height:36px;border-radius:50%;background:var(--saffron);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:500;color:var(--paper);flex-shrink:0;}
+.phone-name{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--wa-text);}
+.phone-status{font-family:var(--mono);font-size:10px;color:var(--wa-sub);}
+.phone-messages{flex:1;padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:440px;}
+.msg{max-width:80%;padding:8px 12px;border-radius:8px;font-family:var(--mono);font-size:12px;line-height:1.55;position:relative;animation:msgIn 0.25s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.msg.recv{background:var(--wa-bubble);color:var(--wa-text);align-self:flex-start;border-bottom-left-radius:2px;}
+.msg.sent{background:var(--wa-sent);color:var(--wa-text);align-self:flex-end;border-bottom-right-radius:2px;}
+.msg.system{background:rgba(255,255,255,0.05);color:var(--wa-sub);align-self:center;font-size:10px;text-align:center;border-radius:4px;padding:4px 10px;}
+.msg-time{font-size:10px;color:var(--wa-sub);margin-top:4px;text-align:right;}
+.msg-audio{display:flex;align-items:center;gap:8px;}
+.msg-audio-icon{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.msg-waveform{flex:1;height:20px;display:flex;align-items:center;gap:2px;}
+.msg-waveform span{display:inline-block;width:2px;border-radius:1px;background:rgba(255,255,255,0.3);}
+
+/* HITL phone */
+.owner-phone{width:100%;max-width:320px;background:#111b21;border-radius:16px;overflow:hidden;margin-top:16px;box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+.owner-phone-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--wa-sub);text-align:center;margin-top:16px;}
+.hitl-card{background:#1f2c38;margin:12px;border-radius:8px;overflow:hidden;}
+.hitl-card-header{background:rgba(196,98,10,0.25);padding:10px 14px;border-bottom:1px solid rgba(196,98,10,0.3);}
+.hitl-card-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.08em;color:var(--saffron-2);text-transform:uppercase;}
+.hitl-card-body{padding:12px 14px;font-family:var(--mono);font-size:11px;color:var(--wa-sub);line-height:1.7;}
+.hitl-card-body strong{color:var(--wa-text);}
+.hitl-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 14px;}
+.hitl-btn{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;padding:10px;border:none;cursor:pointer;transition:all 0.2s;}
+.hitl-btn.approve{background:#005c4b;color:#e9edef;}
+.hitl-btn.approve:hover{background:#00755e;}
+.hitl-btn.deny{background:#3b1515;color:#e9edef;}
+.hitl-btn.deny:hover{background:#5c2222;}
+
+/* RIGHT: SYSTEM */
+.system-col{background:#0d1117;display:flex;flex-direction:column;}
+.system-header{padding:20px 28px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:12px;}
+.sys-title{font-family:var(--mono);font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:0.06em;text-transform:uppercase;}
+.sys-clock{font-family:var(--mono);font-size:12px;color:var(--saffron-2);letter-spacing:0.04em;margin-left:auto;}
+
+.pipeline{padding:20px 28px;display:flex;flex-direction:column;gap:3px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.pipe-node{display:grid;grid-template-columns:20px 1fr auto;gap:12px;align-items:center;padding:10px 14px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);transition:all 0.3s;}
+.pipe-node.active{border-color:var(--saffron);background:rgba(196,98,10,0.08);}
+.pipe-node.done{border-color:rgba(0,92,75,0.4);background:rgba(0,92,75,0.06);}
+.pipe-node.error{border-color:rgba(163,45,45,0.4);background:rgba(163,45,45,0.06);}
+.pipe-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.1);transition:all 0.3s;flex-shrink:0;}
+.pipe-node.active .pipe-dot{background:var(--saffron-2);box-shadow:0 0 8px var(--saffron);}
+.pipe-node.done .pipe-dot{background:#00a884;}
+.pipe-node.error .pipe-dot{background:#cf6679;}
+.pipe-name{font-family:var(--mono);font-size:11px;font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:0.04em;transition:color 0.3s;}
+.pipe-node.active .pipe-name{color:var(--saffron-2);}
+.pipe-node.done .pipe-name{color:rgba(255,255,255,0.55);}
+.pipe-sla{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.2);white-space:nowrap;}
+.pipe-node.active .pipe-sla{color:var(--saffron);}
+.pipe-node.done .pipe-sla{color:#00a884;}
+
+.reasoning-area{flex:1;padding:20px 28px;display:flex;flex-direction:column;gap:0;overflow:hidden;}
+.reasoning-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:12px;}
+.reasoning-stream{font-family:var(--mono);font-size:12px;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.75;white-space:pre-wrap;overflow-y:auto;flex:1;max-height:240px;}
+.reasoning-stream .dim{color:rgba(255,255,255,0.2);}
+.reasoning-stream .highlight{color:var(--saffron-2);}
+.reasoning-stream .green{color:#00a884;}
+.reasoning-stream .red{color:#cf6679;}
+.cursor{display:inline-block;width:7px;height:14px;background:var(--saffron-2);animation:blink 0.9s step-end infinite;vertical-align:text-bottom;margin-left:1px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* IDLE STATE */
+.idle-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(13,17,23,0.9);pointer-events:none;transition:opacity 0.4s;}
+.idle-overlay.hidden{opacity:0;}
+.idle-text{font-family:var(--mono);font-size:13px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;text-align:center;}
+.idle-arrow{font-size:24px;color:rgba(196,98,10,0.4);animation:bounce 1.5s ease-in-out infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+
+/* SCENARIO EXPLAINER */
+.explainer{padding:28px 48px;background:var(--ink);display:flex;gap:48px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06);}
+.explainer-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;}
+.explainer-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--paper);}
+.explainer-body{font-family:var(--serif);font-size:14px;font-weight:300;color:rgba(245,240,232,0.5);line-height:1.65;max-width:520px;}
+.explainer-sla{font-family:var(--mono);font-size:13px;font-weight:300;color:var(--saffron-2);white-space:nowrap;}
+.explainer-sla span{font-size:28px;font-weight:300;display:block;letter-spacing:-0.02em;}
+
+/* HOW IT WORKS */
+.how{padding:80px 48px;border-bottom:1px solid var(--rule);}
+.how-label{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;}
+.how-title{font-family:var(--display);font-size:clamp(28px,3.5vw,48px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:var(--ink);margin-bottom:16px;}
+.how-title em{font-style:italic;color:var(--saffron);}
+.how-lead{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.7;color:var(--ink-mid);max-width:640px;margin-bottom:48px;}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.step-card{background:var(--paper-2);padding:36px 28px;position:relative;overflow:hidden;}
+.step-n{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--saffron);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.step-n::after{content:'';flex:1;height:1px;background:var(--rule);}
+.step-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.step-body{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--ink-mid);line-height:1.65;}
+.step-sla{margin-top:14px;font-family:var(--mono);font-size:11px;font-weight:400;color:var(--saffron);}
+.step-bg{position:absolute;bottom:-12px;right:-4px;font-family:var(--mono);font-size:72px;font-weight:300;color:rgba(0,0,0,0.04);line-height:1;pointer-events:none;}
+
+/* PAGE NAV */
+.page-nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.page-nav-item{padding:48px;text-decoration:none;color:var(--ink);transition:background 0.2s;display:flex;flex-direction:column;gap:8px;}
+.page-nav-item:hover{background:var(--paper-2);}
+.page-nav-item+.page-nav-item{border-left:1px solid var(--rule);}
+.pn-dir{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.pn-title{font-family:var(--display);font-size:22px;font-style:italic;color:var(--saffron);}
+footer{border-top:1px solid var(--rule);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink);}
+.footer-brand span{color:var(--saffron);}
+.footer-meta{font-family:var(--mono);font-size:11px;color:var(--ink-light);}
+
+@media(max-width:1100px){.stage{grid-template-columns:1fr;}.phone-col{padding:24px;}.steps-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:768px){nav{padding:16px 24px;}.nav-links{display:none;}.hero,.controls,.how{padding-left:24px;padding-right:24px;}.explainer{flex-direction:column;padding:28px 24px;gap:20px;}.steps-grid{grid-template-columns:1fr;}.page-nav{grid-template-columns:1fr;}.page-nav-item+.page-nav-item{border-left:none;border-top:1px solid var(--rule);}footer{padding:32px 24px;flex-direction:column;gap:12px;text-align:center;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="page-02.html">The Problem</a></li>
+    <li><a href="index.html#architecture">Architecture</a></li>
+    <li><a href="page-03.html">Cost Model</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg">04</div>
+  <div class="breadcrumb">
+    <a href="index.html">The Autonomous HR</a><span>/</span>Page 04<span>/</span>The Workflow
+  </div>
+  <h1>Watch the system<br><em>think in real time.</em></h1>
+  <p class="hero-sub">Select a scenario and a language. Watch the worker's WhatsApp message arrive, the agents fire, the policy get consulted, and the decision land — in under 60 seconds, in any language, without a single human involved.</p>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="control-group">
+    <div class="control-label">Scenario</div>
+    <div class="pill-group" id="scenario-pills">
+      <div class="pill active" data-val="happy">Happy path — approved</div>
+      <div class="pill" data-val="denied">Leave denied</div>
+      <div class="pill" data-val="hitl">HITL escalation</div>
+      <div class="pill" data-val="conflict">Conflicting requests</div>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="control-label">Language</div>
+    <div class="pill-group" id="lang-pills">
+      <div class="pill active" data-val="en">English</div>
+      <div class="pill" data-val="hi">Hindi</div>
+      <div class="pill" data-val="te">Telugu</div>
+    </div>
+  </div>
+  <button class="run-btn" id="run-btn" onclick="runSimulation()">▶ Run simulation</button>
+</div>
+
+<!-- SCENARIO EXPLAINER -->
+<div class="explainer" id="explainer">
+  <div>
+    <div class="explainer-label">Active scenario</div>
+    <div class="explainer-title" id="exp-title">Happy path — autonomous approval</div>
+    <div class="explainer-body" id="exp-body">Employee applies for casual leave via WhatsApp voice note. The system transcribes, classifies intent, checks leave balance and policy, auto-approves, records the decision, and sends a confirmation — all without human involvement.</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0;">
+    <div class="explainer-label">End-to-end SLA</div>
+    <div class="explainer-sla"><span id="exp-sla">&lt; 12s</span>total</div>
+  </div>
+</div>
+
+<!-- SIMULATOR STAGE -->
+<div class="stage">
+  <!-- PHONE COL -->
+  <div class="phone-col" id="phone-col">
+    <div class="phone-wrap">
+      <div class="phone-header">
+        <div class="phone-avatar" id="ph-avatar">HR</div>
+        <div>
+          <div class="phone-name" id="ph-name">AutoHR System</div>
+          <div class="phone-status" id="ph-status">online</div>
+        </div>
+      </div>
+      <div class="phone-messages" id="phone-messages">
+        <div class="msg system">Today</div>
+      </div>
+    </div>
+    <!-- HITL owner phone, hidden initially -->
+    <div id="owner-phone-wrap" style="display:none;width:100%;max-width:320px;">
+      <div class="owner-phone-label">Owner's phone</div>
+      <div class="owner-phone">
+        <div class="phone-header">
+          <div class="phone-avatar" style="background:#3b5998;font-size:11px;">YOU</div>
+          <div>
+            <div class="phone-name">AutoHR — Action Required</div>
+            <div class="phone-status">tap to approve or deny</div>
+          </div>
+        </div>
+        <div class="hitl-card" id="hitl-card">
+          <div class="hitl-card-header"><div class="hitl-card-label">⚠ Leave request — needs your decision</div></div>
+          <div class="hitl-card-body" id="hitl-body">Loading...</div>
+          <div class="hitl-btns">
+            <button class="hitl-btn approve" onclick="hitlResolve('approve')">✓ Approve</button>
+            <button class="hitl-btn deny" onclick="hitlResolve('deny')">✗ Deny</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM COL -->
+  <div class="system-col" style="position:relative;">
+    <div class="idle-overlay" id="idle-overlay">
+      <div class="idle-arrow">↑</div>
+      <div class="idle-text">Select a scenario and language<br>then press Run simulation</div>
+    </div>
+
+    <div class="system-header">
+      <div class="sys-title">System internals</div>
+      <div class="sys-clock" id="sys-clock">00.00s</div>
+    </div>
+
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-node" id="node-wa">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">WhatsApp / IVR Gateway</div>
+        <div class="pipe-sla">—</div>
+      </div>
+      <div class="pipe-node" id="node-stt">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">Whisper STT + NLLB-200 Translation</div>
+        <div class="pipe-sla">—</div>
+      </div>
+      <div class="pipe-node" id="node-router">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">Gemini Flash — Intent Router</div>
+        <div class="pipe-sla">—</div>
+      </div>
+      <div class="pipe-node" id="node-db">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">Firestore — Employee Record + Balance</div>
+        <div class="pipe-sla">—</div>
+      </div>
+      <div class="pipe-node" id="node-rag">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">Policy RAG — pgvector + Gemini Flash</div>
+        <div class="pipe-sla">—</div>
+      </div>
+      <div class="pipe-node" id="node-agent">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">Leave Agent — Decision Engine</div>
+        <div class="pipe-sla">—</div>
+      </div>
+      <div class="pipe-node" id="node-audit">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">Audit Log Writer — Firestore</div>
+        <div class="pipe-sla">—</div>
+      </div>
+      <div class="pipe-node" id="node-notify">
+        <div class="pipe-dot"></div>
+        <div class="pipe-name">Notification — WhatsApp Outbound</div>
+        <div class="pipe-sla">—</div>
+      </div>
+    </div>
+
+    <div class="reasoning-area">
+      <div class="reasoning-label">Agent reasoning stream</div>
+      <div class="reasoning-stream" id="reasoning"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how">
+  <div class="how-label">How it works</div>
+  <h2 class="how-title">Eight steps.<br><em>Under 60 seconds.</em></h2>
+  <p class="how-lead">From the moment a worker sends a WhatsApp voice note to the moment they receive a written confirmation, eight system components fire in sequence. The simulation above shows each one in real time.</p>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-n">01</div>
+      <div class="step-title">Worker sends voice note or calls IVR</div>
+      <div class="step-body">Speaks naturally in any language. No script, no menu navigation. "I need tomorrow off" in English, Hindi, Telugu, or any of 200 languages Whisper supports.</div>
+      <div class="step-sla">Channel: WhatsApp or IVR</div>
+      <div class="step-bg">01</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">02</div>
+      <div class="step-title">Whisper transcribes. NLLB-200 normalises.</div>
+      <div class="step-body">Audio is transcribed by Whisper large-v3 (OSS, Cloud Run). Language is detected. Code-switching — Hinglish, Tenglish — is handled natively. Confidence scored.</div>
+      <div class="step-sla">&lt; 4 seconds</div>
+      <div class="step-bg">02</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">03</div>
+      <div class="step-title">Gemini Flash classifies intent</div>
+      <div class="step-body">The transcript is sent to the Intent Router. Gemini 1.5 Flash identifies: leave request, leave type, dates, employee ID. Routes to the Leave Agent with structured context.</div>
+      <div class="step-sla">&lt; 1 second</div>
+      <div class="step-bg">03</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">04</div>
+      <div class="step-title">Firestore queried for employee record</div>
+      <div class="step-body">Leave balance retrieved. Team headcount on requested date checked. Prior leave history reviewed. All reads happen in a single Firestore transaction.</div>
+      <div class="step-sla">&lt; 1 second</div>
+      <div class="step-bg">04</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">05</div>
+      <div class="step-title">HR Policy PDF consulted via RAG</div>
+      <div class="step-body">The Leave Agent queries the pgvector RAG store. The governing policy clause is retrieved with a confidence score. All conditions evaluated against the document.</div>
+      <div class="step-sla">&lt; 2 seconds</div>
+      <div class="step-bg">05</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">06</div>
+      <div class="step-title">Decision made — or escalated</div>
+      <div class="step-body">If confidence &gt; 0.8 and policy satisfied: auto-approve or auto-deny. If confidence &lt; 0.8 or a threshold is breached: HITL path fires, owner notified via WhatsApp.</div>
+      <div class="step-sla">&lt; 1 second</div>
+      <div class="step-bg">06</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">07</div>
+      <div class="step-title">Audit log written — before notification</div>
+      <div class="step-body">Immutable Firestore record written: timestamp, employee ID, decision, policy clause cited, confidence score, decision path (AI or HUMAN). Written before any outbound message.</div>
+      <div class="step-sla">Synchronous write</div>
+      <div class="step-bg">07</div>
+    </div>
+    <div class="step-card">
+      <div class="step-n">08</div>
+      <div class="step-title">Confirmation sent in worker's language</div>
+      <div class="step-body">WhatsApp message in the detected language. Approval or denial with the policy reason. Remaining leave balance included. The worker receives this within 60 seconds of their original message.</div>
+      <div class="step-sla">&lt; 2 seconds</div>
+      <div class="step-bg">08</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-nav">
+  <a href="page-03.html" class="page-nav-item">
+    <span class="pn-dir">← Previous</span>
+    <span class="pn-title">Cost Methodology</span>
+  </a>
+  <a href="page-05.html" class="page-nav-item" style="text-align:right;">
+    <span class="pn-dir">Next →</span>
+    <span class="pn-title">The Architecture</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 04 · The Workflow · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────
+let scenario = 'happy', lang = 'en';
+let simRunning = false, clockInterval = null, startTime = 0;
+let hitlPending = false;
+
+// ── PILL SELECTION ─────────────────────────────────────────────────
+document.querySelectorAll('#scenario-pills .pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('#scenario-pills .pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    scenario = p.dataset.val;
+    updateExplainer();
+  });
+});
+document.querySelectorAll('#lang-pills .pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('#lang-pills .pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    lang = p.dataset.val;
+  });
+});
+
+// ── SCENARIO DATA ──────────────────────────────────────────────────
+const EXPLAINERS = {
+  happy: { title: 'Happy path — autonomous approval', body: 'Employee applies for casual leave via WhatsApp voice note. The system transcribes, classifies intent, checks leave balance and policy, auto-approves, records the decision, and sends a confirmation — all without human involvement.', sla: '< 12s' },
+  denied: { title: 'Leave denied — quota exhausted', body: 'Employee applies for leave but their casual leave balance is zero for this month. The policy is clear, the confidence is high, and the system auto-denies with the policy clause cited. The worker receives a denial with their balance and a suggestion to request earned leave instead.', sla: '< 12s' },
+  hitl: { title: 'HITL escalation — owner decision required', body: 'Employee requests leave but the balance is zero and the policy is ambiguous on whether unpaid leave is permitted. Confidence drops below 0.8. The system escalates to the owner via WhatsApp with a full brief and one-tap Approve/Deny.', sla: '< 20s + owner' },
+  conflict: { title: 'Conflicting requests — scheduling constraint', body: 'Two workers request the same day off. The first request is auto-approved. The second breaches the minimum-coverage policy (max 2 workers on leave simultaneously). The system auto-denies the second with the exact policy clause and headcount data.', sla: '< 15s' },
+};
+
+function updateExplainer() {
+  const e = EXPLAINERS[scenario];
+  document.getElementById('exp-title').textContent = e.title;
+  document.getElementById('exp-body').textContent = e.body;
+  document.getElementById('exp-sla').textContent = e.sla;
+}
+
+// ── MESSAGES DATA ──────────────────────────────────────────────────
+const WORKER_MSGS = {
+  happy: {
+    en: 'I need tomorrow off, casual leave please',
+    hi: 'कल मुझे छुट्टी चाहिए, casual leave please',
+    te: 'నాకు రేపు సెలవు కావాలి, casual leave please'
+  },
+  denied: {
+    en: 'Can I take casual leave this Friday?',
+    hi: 'क्या मैं इस शुक्रवार को casual leave ले सकता हूँ?',
+    te: 'నేను ఈ శుక్రవారం casual leave తీసుకోవచ్చా?'
+  },
+  hitl: {
+    en: 'I need a day off next week, any leave type is fine',
+    hi: 'मुझे अगले हफ्ते एक दिन की छुट्टी चाहिए',
+    te: 'నాకు వచ్చే వారం ఒక రోజు సెలవు కావాలి'
+  },
+  conflict: {
+    en: 'I would like to take Thursday off please',
+    hi: 'मैं गुरुवार को छुट्टी लेना चाहता हूँ',
+    te: 'నేను గురువారం సెలవు తీసుకోవాలనుకుంటున్నాను'
+  }
+};
+
+const CONFIRM_MSGS = {
+  happy: {
+    en: '✓ Your casual leave for tomorrow has been approved.\n\nRemaining balance: 5 casual days.\n\nPolicy ref: §4.2 — Casual Leave',
+    hi: '✓ कल के लिए आपकी casual leave approved हो गई है।\n\nबाकी balance: 5 casual दिन।\n\nPolicy: §4.2',
+    te: '✓ రేపటికి మీ casual leave approved అయింది.\n\nమిగిలిన balance: 5 casual రోజులు.\n\nPolicy: §4.2'
+  },
+  denied: {
+    en: '✗ Casual leave request denied.\n\nReason: Casual leave quota exhausted for this month (0 days remaining).\n\nYou have 8 earned leave days available. Would you like to use earned leave instead?\n\nPolicy ref: §4.3.1',
+    hi: '✗ Casual leave request denied।\n\nकारण: इस महीने का casual leave quota खत्म हो गया है (0 दिन बचे हैं)।\n\nआपके पास 8 earned leave days उपलब्ध हैं। क्या आप earned leave use करना चाहेंगे?\n\nPolicy: §4.3.1',
+    te: '✗ Casual leave request denied.\n\nకారణం: ఈ నెల casual leave quota అయిపోయింది (0 రోజులు మిగిలాయి).\n\nమీకు 8 earned leave రోజులు అందుబాటులో ఉన్నాయి. Earned leave వాడాలనుకుంటున్నారా?\n\nPolicy: §4.3.1'
+  },
+  hitl: {
+    en: '⏳ Your leave request is with the owner for approval. You will receive a decision shortly.',
+    hi: '⏳ आपकी leave request owner के पास approval के लिए है। आपको जल्द ही जवाब मिलेगा।',
+    te: '⏳ మీ leave request owner దగ్గర approval కోసం ఉంది. మీకు త్వరలో నిర్ణయం తెలుస్తుంది.'
+  },
+  hitl_approved: {
+    en: '✓ Great news — the owner has approved your leave request.\n\nHave a good day off.',
+    hi: '✓ खुशखबरी — owner ने आपकी leave approve कर दी है।\n\nअच्छी छुट्टी बिताएं।',
+    te: '✓ శుభవార్త — owner మీ leave approve చేశారు.\n\nమంచి సెలవు గడపండి.'
+  },
+  hitl_denied: {
+    en: '✗ The owner has reviewed your request and is unable to approve leave at this time due to operational requirements.',
+    hi: '✗ Owner ने आपकी request review की है और operational requirements के कारण अभी leave approve नहीं कर सकते।',
+    te: '✗ Owner మీ request review చేశారు మరియు operational requirements వలన ఇప్పుడు leave approve చేయలేకపోతున్నారు.'
+  },
+  conflict: {
+    en: '✗ Leave request for Thursday cannot be approved.\n\nReason: Maximum concurrent leave limit reached. 2 team members are already approved for that day (policy max: 2).\n\nAlternate dates: Wed or Fri are available.\n\nPolicy ref: §4.5.2 — Minimum Coverage',
+    hi: '✗ गुरुवार के लिए leave request approve नहीं हो सकती।\n\nकारण: Maximum concurrent leave limit पूरी हो गई। उस दिन पहले से 2 team members approved हैं (policy max: 2)।\n\nAlternate dates: बुधवार या शुक्रवार available हैं।\n\nPolicy: §4.5.2',
+    te: '✗ గురువారానికి leave request approve చేయలేము.\n\nకారణం: Maximum concurrent leave limit చేరింది. ఆ రోజు ఇప్పటికే 2 team members approved ఉన్నారు (policy max: 2).\n\nAlternate dates: బుధవారం లేదా శుక్రవారం available.\n\nPolicy: §4.5.2'
+  }
+};
+
+const REASONING_SCRIPTS = {
+  happy: `<span class="dim">// Intent Router — Gemini 1.5 Flash</span>
+Input received: employee voice message
+Language detected: <span class="highlight">{LANG}</span>
+Transcript: "{MSG}"
+Intent classification: <span class="highlight">LEAVE_REQUEST</span>
+Leave type: <span class="highlight">CASUAL</span>
+Requested date: tomorrow ({DATE})
+Employee ID: <span class="highlight">EMP-042</span>
+Confidence: <span class="green">0.97</span>
+
+<span class="dim">// Firestore Query</span>
+Employee: Ramu Kumar · Weaving Dept
+Casual leave balance: <span class="green">6 days</span>
+Team on leave tomorrow: 1 of 8
+Min coverage policy: 3 workers required ✓
+
+<span class="dim">// Policy RAG — pgvector</span>
+Query: "casual leave approval conditions"
+Top clause: §4.2 — Casual Leave Entitlement
+Confidence: <span class="green">0.94</span>
+Clause: "Employees are entitled to 12 casual leave
+days per calendar year..."
+All conditions: <span class="green">SATISFIED</span>
+
+<span class="dim">// Leave Agent — Decision</span>
+Balance sufficient: <span class="green">✓</span>
+Policy satisfied: <span class="green">✓</span>
+Coverage maintained: <span class="green">✓</span>
+HITL threshold: <span class="green">NOT TRIGGERED</span>
+
+Decision: <span class="green">APPROVE</span>
+Writing to Firestore audit log...
+Sending WhatsApp confirmation...`,
+
+  denied: `<span class="dim">// Intent Router — Gemini 1.5 Flash</span>
+Input received: employee message
+Language detected: <span class="highlight">{LANG}</span>
+Transcript: "{MSG}"
+Intent classification: <span class="highlight">LEAVE_REQUEST</span>
+Leave type: <span class="highlight">CASUAL</span>
+Requested date: this Friday
+Employee ID: <span class="highlight">EMP-017</span>
+Confidence: <span class="green">0.96</span>
+
+<span class="dim">// Firestore Query</span>
+Employee: Lakshmi Devi · Finishing Dept
+Casual leave balance: <span class="red">0 days</span> ← quota exhausted
+Earned leave balance: <span class="green">8 days</span> available
+Team on leave Friday: 1 of 8
+
+<span class="dim">// Policy RAG — pgvector</span>
+Query: "casual leave quota exhaustion"
+Top clause: §4.3.1 — Monthly Casual Leave Limit
+Confidence: <span class="green">0.98</span>
+Clause: "Casual leave shall not exceed the
+annual entitlement of 12 days..."
+Condition failed: <span class="red">BALANCE = 0</span>
+
+<span class="dim">// Leave Agent — Decision</span>
+Balance sufficient: <span class="red">✗</span>
+Alternative available: <span class="green">Earned leave (8 days)</span>
+HITL threshold: <span class="green">NOT TRIGGERED</span>
+Reason is unambiguous — auto-deny
+
+Decision: <span class="red">DENY</span>
+Suggesting earned leave alternative...
+Writing to Firestore audit log...`,
+
+  hitl: `<span class="dim">// Intent Router — Gemini 1.5 Flash</span>
+Input received: employee message
+Language detected: <span class="highlight">{LANG}</span>
+Transcript: "{MSG}"
+Intent classification: <span class="highlight">LEAVE_REQUEST</span>
+Leave type: <span class="highlight">UNSPECIFIED</span> ← ambiguous
+Requested date: next week (unspecified day)
+Employee ID: <span class="highlight">EMP-031</span>
+Confidence: <span class="green">0.91</span>
+
+<span class="dim">// Firestore Query</span>
+Employee: Venkat Rao · Assembly Dept
+Casual leave balance: <span class="red">0 days</span>
+Sick leave balance: <span class="red">0 days</span>
+Earned leave balance: <span class="red">0 days</span>
+All standard balances exhausted
+
+<span class="dim">// Policy RAG — pgvector</span>
+Query: "unpaid leave eligibility small business"
+Top clause: §6.1 — Unpaid Leave Provisions
+Confidence: <span class="highlight">0.61</span> ← below threshold
+Multiple clauses ambiguous on approval authority
+Policy: "Unpaid leave at management discretion..."
+
+<span class="dim">// Leave Agent — Decision</span>
+All balances zero: <span class="red">✗</span>
+Policy confidence: <span class="red">0.61 < 0.80</span>
+HITL trigger: <span class="highlight">CONFIDENCE_THRESHOLD</span>
+
+Composing owner brief...
+Sending HITL escalation via WhatsApp...
+<span class="highlight">⏳ AWAITING OWNER DECISION</span>`,
+
+  conflict: `<span class="dim">// Intent Router — Gemini 1.5 Flash</span>
+Input received: employee message
+Language detected: <span class="highlight">{LANG}</span>
+Transcript: "{MSG}"
+Intent classification: <span class="highlight">LEAVE_REQUEST</span>
+Leave type: <span class="highlight">CASUAL</span>
+Requested date: this Thursday
+Employee ID: <span class="highlight">EMP-055</span>
+Confidence: <span class="green">0.95</span>
+
+<span class="dim">// Firestore Query</span>
+Employee: Suresh Babu · Packing Dept
+Casual leave balance: <span class="green">4 days</span> available
+Team on leave Thursday: <span class="red">2 of 8</span> ← at limit
+EMP-012: approved for Thursday
+EMP-023: approved for Thursday
+
+<span class="dim">// Policy RAG — pgvector</span>
+Query: "minimum coverage concurrent leave"
+Top clause: §4.5.2 — Minimum Coverage Rule
+Confidence: <span class="green">0.97</span>
+Clause: "No more than 2 employees from any
+single department may be on leave simultaneously"
+Condition failed: <span class="red">LIMIT ALREADY REACHED</span>
+
+<span class="dim">// Leave Agent — Decision</span>
+Balance sufficient: <span class="green">✓</span>
+Coverage policy: <span class="red">✗ — max concurrent reached</span>
+Available alternatives: Wed, Fri
+HITL threshold: <span class="green">NOT TRIGGERED</span>
+
+Decision: <span class="red">DENY</span>
+Suggesting alternative dates...
+Writing to Firestore audit log...`
+};
+
+// ── CLOCK ──────────────────────────────────────────────────────────
+function startClock() {
+  startTime = Date.now();
+  clockInterval = setInterval(() => {
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+    document.getElementById('sys-clock').textContent = elapsed + 's';
+  }, 50);
+}
+
+function stopClock() {
+  clearInterval(clockInterval);
+}
+
+// ── NODE HELPERS ───────────────────────────────────────────────────
+function nodeActive(id, sla) {
+  const n = document.getElementById(id);
+  n.classList.remove('done', 'error');
+  n.classList.add('active');
+  n.querySelector('.pipe-sla').textContent = sla;
+}
+function nodeDone(id, sla) {
+  const n = document.getElementById(id);
+  n.classList.remove('active', 'error');
+  n.classList.add('done');
+  n.querySelector('.pipe-sla').textContent = sla;
+}
+function nodeReset(id) {
+  const n = document.getElementById(id);
+  n.classList.remove('active', 'done', 'error');
+  n.querySelector('.pipe-sla').textContent = '—';
+}
+
+function resetAll() {
+  ['node-wa','node-stt','node-router','node-db','node-rag','node-agent','node-audit','node-notify'].forEach(nodeReset);
+  document.getElementById('phone-messages').innerHTML = '<div class="msg system">Today</div>';
+  document.getElementById('reasoning').innerHTML = '';
+  document.getElementById('sys-clock').textContent = '00.00s';
+  document.getElementById('owner-phone-wrap').style.display = 'none';
+  hitlPending = false;
+}
+
+// ── PHONE MESSAGE HELPERS ──────────────────────────────────────────
+function addMsg(type, text, delay) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const box = document.getElementById('phone-messages');
+      const m = document.createElement('div');
+      m.className = 'msg ' + type;
+      if (type === 'recv' && scenario !== 'happy' && false) {
+        // audio style — disabled for clarity
+      }
+      m.innerHTML = text.replace(/\n/g, '<br>');
+      if (type !== 'system') {
+        const t = document.createElement('div');
+        t.className = 'msg-time';
+        const now = new Date();
+        t.textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+        m.appendChild(t);
+      }
+      box.appendChild(m);
+      box.scrollTop = box.scrollHeight;
+      resolve();
+    }, delay);
+  });
+}
+
+// ── REASONING STREAM ───────────────────────────────────────────────
+function streamReasoning(text, delayStart) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const el = document.getElementById('reasoning');
+      el.innerHTML = '';
+      const lines = text.split('\n');
+      let lineIdx = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+
+      function nextLine() {
+        if (lineIdx >= lines.length) { cursor.remove(); resolve(); return; }
+        const line = lines[lineIdx++];
+        const p = document.createElement('div');
+        p.innerHTML = line;
+        el.appendChild(p);
+        el.appendChild(cursor);
+        el.scrollTop = el.scrollHeight;
+        setTimeout(nextLine, line.trim() === '' ? 80 : 120 + Math.random() * 60);
+      }
+      nextLine();
+    }, delayStart);
+  });
+}
+
+// ── WAVEFORM ──────────────────────────────────────────────────────
+function addAudioMsg(delay) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const box = document.getElementById('phone-messages');
+      const m = document.createElement('div');
+      m.className = 'msg recv';
+      const heights = [6,10,14,8,18,12,16,9,14,11,17,8,13,16,10,14,8,12,16,9];
+      const waveHtml = heights.map(h => `<span style="height:${h}px;background:rgba(255,255,255,0.4);"></span>`).join('');
+      m.innerHTML = `<div class="msg-audio">
+        <div class="msg-audio-icon">🎤</div>
+        <div class="msg-waveform">${waveHtml}</div>
+        <span style="font-size:10px;color:var(--wa-sub);white-space:nowrap;">0:${Math.floor(Math.random()*20+15).toString().padStart(2,'0')}</span>
+      </div>`;
+      const t = document.createElement('div');
+      t.className = 'msg-time';
+      const now = new Date();
+      t.textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+      m.appendChild(t);
+      box.appendChild(m);
+      box.scrollTop = box.scrollHeight;
+      resolve();
+    }, delay);
+  });
+}
+
+// ── DELAY HELPER ─────────────────────────────────────────────────
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// ── MAIN SIMULATION ───────────────────────────────────────────────
+async function runSimulation() {
+  if (simRunning) return;
+  simRunning = true;
+  hitlPending = false;
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('idle-overlay').classList.add('hidden');
+  resetAll();
+  startClock();
+
+  const workerMsg = WORKER_MSGS[scenario][lang];
+  const confirmMsg = CONFIRM_MSGS[scenario][lang];
+  const langName = { en: 'English', hi: 'Hindi', te: 'Telugu' }[lang];
+  let reasoningScript = REASONING_SCRIPTS[scenario]
+    .replace('{LANG}', langName)
+    .replace('{MSG}', workerMsg.substring(0, 48) + (workerMsg.length > 48 ? '...' : ''))
+    .replace('{DATE}', new Date(Date.now() + 86400000).toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'short'}));
+
+  // Step 1 — message arrives
+  nodeActive('node-wa', 'receiving...');
+  await addAudioMsg(400);
+  await addMsg('recv', workerMsg, 600);
+  await wait(800);
+  nodeDone('node-wa', '1.2s ✓');
+
+  // Step 2 — STT
+  nodeActive('node-stt', 'transcribing...');
+  await addMsg('system', '🔊 Transcribing audio...', 200);
+  streamReasoning(reasoningScript, 300);
+  await wait(2200);
+  nodeDone('node-stt', '2.1s ✓');
+
+  // Step 3 — router
+  nodeActive('node-router', 'classifying...');
+  await wait(900);
+  nodeDone('node-router', '0.8s ✓');
+
+  // Step 4 — DB
+  nodeActive('node-db', 'querying...');
+  await wait(700);
+  nodeDone('node-db', '0.6s ✓');
+
+  // Step 5 — RAG
+  nodeActive('node-rag', 'retrieving...');
+  await wait(1400);
+  nodeDone('node-rag', '1.3s ✓');
+
+  // Step 6 — agent decision
+  nodeActive('node-agent', 'deciding...');
+  await wait(800);
+
+  if (scenario === 'hitl') {
+    // Show HITL path
+    nodeDone('node-agent', 'escalated ↑');
+    nodeActive('node-audit', 'logging...');
+    await wait(600);
+    nodeDone('node-audit', '0.4s ✓');
+
+    // send pending message to worker
+    nodeActive('node-notify', 'notifying...');
+    await addMsg('sent', confirmMsg, 500);
+    await wait(800);
+    nodeDone('node-notify', '0.7s ✓');
+    stopClock();
+
+    // show owner phone
+    const hitlBody = document.getElementById('hitl-body');
+    hitlBody.innerHTML = `<strong>EMP-031 — Venkat Rao</strong><br>Dept: Assembly<br>Request: Unpaid leave, next week<br>Balance: <span style="color:#cf6679;">All leave exhausted</span><br>Policy confidence: <span style="color:var(--saffron-2);">0.61 (ambiguous)</span><br><br>AI recommendation: <strong>Requires owner decision</strong>`;
+    document.getElementById('owner-phone-wrap').style.display = 'block';
+    hitlPending = true;
+  } else {
+    nodeDone('node-agent', '0.7s ✓');
+
+    // Step 7 — audit
+    nodeActive('node-audit', 'writing...');
+    await wait(500);
+    nodeDone('node-audit', '0.4s ✓');
+
+    // Step 8 — notify
+    nodeActive('node-notify', 'sending...');
+    await addMsg('sent', confirmMsg, 600);
+    await wait(700);
+    nodeDone('node-notify', '0.5s ✓');
+    stopClock();
+  }
+
+  simRunning = false;
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('run-btn').textContent = '↺ Run again';
+}
+
+// ── HITL RESOLVE ──────────────────────────────────────────────────
+async function hitlResolve(decision) {
+  if (!hitlPending) return;
+  hitlPending = false;
+
+  // Update owner phone
+  document.getElementById('owner-phone-wrap').style.display = 'none';
+
+  // Resume clock
+  startClock();
+
+  nodeActive('node-notify', 'sending...');
+  const msg = decision === 'approve' ? CONFIRM_MSGS.hitl_approved[lang] : CONFIRM_MSGS.hitl_denied[lang];
+  await addMsg('sent', msg, 400);
+
+  // Append to reasoning
+  const el = document.getElementById('reasoning');
+  const p = document.createElement('div');
+  p.innerHTML = `\n<span class="${decision === 'approve' ? 'green' : 'red'}">Owner decision: ${decision.toUpperCase()}</span>\nSending final notification to worker...\nWriting resolution to audit log...`;
+  el.appendChild(p);
+  el.scrollTop = el.scrollHeight;
+
+  await wait(800);
+  nodeDone('node-notify', '0.6s ✓');
+  stopClock();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+updateExplainer();
+</script>
+</body>
+</html>

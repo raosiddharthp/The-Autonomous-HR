@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Problem — The Autonomous HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:           #1a1612;
+  --ink-mid:       #3d3830;
+  --ink-light:     #7a7268;
+  --paper:         #f5f0e8;
+  --paper-2:       #ede8df;
+  --paper-3:       #e4ddd2;
+  --saffron:       #c4620a;
+  --saffron-2:     #e07520;
+  --saffron-light: #fdf0e4;
+  --rule:          #c8bfb0;
+  --mono:          'DM Mono', monospace;
+  --serif:         'Fraunces', serif;
+  --display:       'Instrument Serif', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: var(--serif); font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+
+/* ── NAV ── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; background: rgba(245,240,232,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--rule); }
+.nav-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; }
+.nav-logo span { color: var(--saffron); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--saffron); }
+.nav-github { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--ink); padding: 7px 16px; transition: all 0.2s; }
+.nav-github:hover { background: var(--ink); color: var(--paper); }
+
+/* ── HERO ── */
+.hero { min-height: 60vh; display: flex; align-items: flex-end; padding: 120px 48px 80px; position: relative; border-bottom: 1px solid var(--rule); overflow: hidden; }
+.hero-bg-num { position: absolute; top: 40px; right: 40px; font-family: var(--display); font-size: 280px; font-weight: 400; font-style: italic; color: transparent; -webkit-text-stroke: 1px var(--paper-3); pointer-events: none; user-select: none; line-height: 1; }
+.hero-inner { position: relative; max-width: 820px; }
+.hero-breadcrumb { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 28px; }
+.hero-breadcrumb a { color: var(--saffron); text-decoration: none; }
+.hero-breadcrumb a:hover { text-decoration: underline; }
+.hero-breadcrumb span { color: var(--rule); }
+h1 { font-family: var(--display); font-size: clamp(44px, 6vw, 82px); font-weight: 400; line-height: 1.06; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 28px; }
+h1 em { font-style: italic; color: var(--saffron); }
+.hero-sub { font-family: var(--serif); font-size: 19px; font-weight: 300; line-height: 1.65; color: var(--ink-mid); max-width: 640px; }
+
+/* ── SECTION BASE ── */
+section { padding: 100px 48px; position: relative; }
+section + section { border-top: 1px solid var(--rule); }
+.section-label { font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 12px; }
+.section-title { font-family: var(--display); font-size: clamp(34px, 4vw, 58px); font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 16px; }
+.section-title em { font-style: italic; color: var(--saffron); }
+.section-lead { font-family: var(--serif); font-size: 18px; font-weight: 300; line-height: 1.7; color: var(--ink-mid); max-width: 660px; margin-bottom: 64px; }
+
+/* ── SOURCE LINK ── */
+a.src { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--saffron); text-decoration: none; border-bottom: 1px solid transparent; letter-spacing: 0.04em; transition: border-color 0.15s; vertical-align: super; line-height: 0; white-space: nowrap; }
+a.src:hover { border-bottom-color: var(--saffron); }
+
+/* ── STAT GRID ── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-bottom: 2px; }
+.stat-card { background: var(--paper-2); padding: 40px 32px; position: relative; transition: background 0.2s; }
+.stat-card:hover { background: var(--paper-3); }
+.stat-card.dark { background: var(--ink); }
+.stat-card.dark:hover { background: #252018; }
+.stat-num { font-family: var(--mono); font-size: 48px; font-weight: 300; letter-spacing: -0.03em; color: var(--saffron); line-height: 1; margin-bottom: 12px; }
+.stat-card.dark .stat-num { color: var(--saffron-2); }
+.stat-label { font-family: var(--serif); font-size: 15px; font-weight: 400; color: var(--ink); margin-bottom: 6px; line-height: 1.4; }
+.stat-card.dark .stat-label { color: var(--paper); }
+.stat-sub { font-family: var(--serif); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.55; }
+.stat-card.dark .stat-sub { color: rgba(245,240,232,0.5); }
+.stat-source { margin-top: 16px; }
+
+/* ── TWO COL ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+
+/* ── PAIN CARD ── */
+.pain-card { background: var(--paper-2); padding: 44px 36px; position: relative; overflow: hidden; transition: background 0.2s; }
+.pain-card:hover { background: var(--paper-3); }
+.pain-num { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--saffron); margin-bottom: 16px; }
+.pain-title { font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--ink); margin-bottom: 12px; line-height: 1.35; }
+.pain-body { font-family: var(--serif); font-size: 14px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; }
+.pain-body strong { font-weight: 400; color: var(--ink); }
+.pain-data { margin-top: 20px; padding: 16px 20px; background: var(--saffron-light); border-left: 2px solid var(--saffron); font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--saffron); line-height: 1.6; }
+
+/* ── DARK SECTION ── */
+.dark-section { background: var(--ink); }
+.dark-section .section-label { color: rgba(255,255,255,0.3); }
+.dark-section .section-title { color: var(--paper); }
+.dark-section .section-title em { color: var(--saffron-2); }
+.dark-section .section-lead { color: rgba(245,240,232,0.55); }
+
+/* ── WORKFORCE BREAKDOWN ── */
+.breakdown-row { display: grid; grid-template-columns: 220px 1fr 120px; gap: 0; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 22px 0; }
+.breakdown-row:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+.breakdown-industry { font-family: var(--serif); font-size: 15px; font-weight: 400; color: var(--paper); }
+.breakdown-bar-wrap { padding: 0 32px; }
+.breakdown-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.breakdown-bar-fill { height: 100%; background: var(--saffron); border-radius: 3px; transition: width 1.2s ease; }
+.breakdown-num { font-family: var(--mono); font-size: 14px; font-weight: 400; color: var(--saffron-2); text-align: right; }
+
+/* ── CHANNEL COMPARE ── */
+.channel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 0; }
+.channel-card { padding: 36px 28px; background: var(--paper-2); }
+.channel-card.highlight { background: var(--saffron); }
+.channel-name { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 16px; }
+.channel-card.highlight .channel-name { color: rgba(255,255,255,0.7); }
+.channel-metric { margin-bottom: 14px; }
+.channel-metric-val { font-family: var(--mono); font-size: 28px; font-weight: 300; color: var(--saffron); letter-spacing: -0.02em; line-height: 1; }
+.channel-card.highlight .channel-metric-val { color: var(--paper); }
+.channel-metric-label { font-family: var(--serif); font-size: 12px; font-weight: 300; color: var(--ink-mid); margin-top: 4px; line-height: 1.4; }
+.channel-card.highlight .channel-metric-label { color: rgba(255,255,255,0.7); }
+.channel-verdict { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rule); font-family: var(--serif); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.6; }
+.channel-card.highlight .channel-verdict { border-top-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); }
+
+/* ── PULLQUOTE ── */
+.pullquote { padding: 56px 48px; background: var(--paper-2); border-left: 4px solid var(--saffron); margin: 64px 0; }
+.pullquote blockquote { font-family: var(--display); font-size: clamp(22px, 2.5vw, 34px); font-style: italic; font-weight: 400; line-height: 1.4; color: var(--ink); margin-bottom: 20px; }
+.pullquote cite { font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); font-style: normal; }
+
+/* ── TURNOVER SECTION ── */
+.turnover-grid { display: grid; grid-template-columns: 1fr 400px; gap: 80px; align-items: start; }
+.turnover-table { width: 100%; border-collapse: collapse; }
+.turnover-table th { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper); text-align: left; padding: 12px 18px; background: var(--ink); }
+.turnover-table th:last-child { text-align: right; }
+.turnover-table td { font-family: var(--serif); font-size: 14px; font-weight: 300; color: var(--ink-mid); padding: 16px 18px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.45; }
+.turnover-table tr:nth-child(even) td { background: var(--paper-2); }
+.turnover-table td:first-child { color: var(--ink); font-weight: 400; }
+.turnover-table td:last-child { font-family: var(--mono); font-size: 13px; text-align: right; color: var(--saffron); font-weight: 400; white-space: nowrap; }
+.turnover-callout { background: var(--ink); padding: 44px 36px; color: var(--paper); }
+.turnover-callout .label { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 20px; }
+.turnover-callout .big { font-family: var(--mono); font-size: 56px; font-weight: 300; color: var(--saffron-2); letter-spacing: -0.03em; line-height: 1; margin-bottom: 8px; }
+.turnover-callout .caption { font-family: var(--serif); font-size: 15px; font-weight: 300; color: rgba(245,240,232,0.6); line-height: 1.55; margin-bottom: 28px; }
+.turnover-callout .divider { height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 28px; }
+.turnover-callout .insight { font-family: var(--serif); font-size: 14px; font-weight: 300; color: rgba(245,240,232,0.7); line-height: 1.65; }
+.turnover-callout .insight strong { color: var(--paper); font-weight: 400; }
+
+/* ── METHODOLOGY ── */
+.methodology { background: var(--paper-2); padding: 64px 48px; border-top: 1px solid var(--rule); }
+.methodology-title { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 32px; }
+.source-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.source-item { padding: 20px 24px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); }
+.source-item:nth-child(3n) { border-right: none; }
+.source-ref { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--saffron); letter-spacing: 0.06em; margin-bottom: 6px; }
+.source-desc { font-family: var(--serif); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.5; }
+.source-desc a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); transition: border-color 0.15s; }
+.source-desc a:hover { border-bottom-color: var(--saffron); color: var(--saffron); }
+
+/* ── NAV FOOTER ── */
+.page-nav { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
+.page-nav-item { padding: 48px; text-decoration: none; color: var(--ink); transition: background 0.2s; display: flex; flex-direction: column; gap: 8px; }
+.page-nav-item:hover { background: var(--paper-2); }
+.page-nav-item + .page-nav-item { border-left: 1px solid var(--rule); }
+.page-nav-dir { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); }
+.page-nav-title { font-family: var(--display); font-size: 22px; font-style: italic; color: var(--saffron); }
+
+/* ── FOOTER ── */
+footer { border-top: 1px solid var(--rule); padding: 48px; display: flex; justify-content: space-between; align-items: center; background: var(--paper); }
+.footer-brand { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--ink); }
+.footer-brand span { color: var(--saffron); }
+.footer-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-light); }
+
+/* ── REVEAL ── */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+  .channel-grid { grid-template-columns: 1fr 1fr; }
+  .turnover-grid { grid-template-columns: 1fr; }
+  .source-list { grid-template-columns: 1fr 1fr; }
+  .source-item:nth-child(3n) { border-right: 1px solid var(--rule); }
+  .source-item:nth-child(2n) { border-right: none; }
+}
+@media(max-width:768px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  section { padding: 72px 24px; }
+  .hero { padding: 100px 24px 64px; }
+  .stat-grid, .three-col, .channel-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; gap: 48px; }
+  .source-list { grid-template-columns: 1fr; }
+  .source-item { border-right: none !important; }
+  .page-nav { grid-template-columns: 1fr; }
+  .page-nav-item + .page-nav-item { border-left: none; border-top: 1px solid var(--rule); }
+  .methodology { padding: 48px 24px; }
+  footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">The <span>Autonomous</span> HR</a>
+  <ul class="nav-links">
+    <li><a href="index.html#why-now">Why Now</a></li>
+    <li><a href="index.html#philosophy">Philosophy</a></li>
+    <li><a href="index.html#architecture">Architecture</a></li>
+    <li><a href="index.html#cost">Cost</a></li>
+  </ul>
+  <a href="https://github.com/raosiddharthp/The-Autonomous-HR" class="nav-github" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg-num">02</div>
+  <div class="hero-inner">
+    <div class="hero-breadcrumb">
+      <a href="index.html">The Autonomous HR</a>
+      <span>/</span>
+      Page 02
+      <span>/</span>
+      The Problem
+    </div>
+    <h1>2.7 billion workers.<br><em>Zero HR systems built for them.</em></h1>
+    <p class="hero-sub">The deskless workforce is the largest workforce on earth. It has existed for all of human history. And it has been systematically excluded from every HR system ever built — not by accident, but by design. Every HR platform was built for the person sitting at a desk. This page documents why that gap exists, what it costs, and why it has never been closed — until now.</p>
+  </div>
+</div>
+
+<!-- SECTION 1: THE SCALE -->
+<section id="scale">
+  <div class="section-label reveal">01 — The Scale</div>
+  <h2 class="section-title reveal reveal-delay-1">The numbers are <em>not subtle.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">This is not a niche market. The deskless workforce is the global workforce. The numbers below are not projections — they are the present state of the world.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card reveal">
+      <div class="stat-num">2.7B</div>
+      <div class="stat-label">Deskless workers globally</div>
+      <div class="stat-sub">80% of the entire global workforce. Agriculture, manufacturing, retail, construction, healthcare, hospitality, transport. India alone employs over 500 million deskless workers — the largest concentration of any single country.</div>
+      <div class="stat-source"><a class="src" href="http://desklessworkforce2018.com/" target="_blank" rel="noopener">↗ Emergence / Deskless Workforce Report</a></div>
+    </div>
+    <div class="stat-card reveal reveal-delay-1">
+      <div class="stat-num">1%</div>
+      <div class="stat-label">Of enterprise software funding directed at them</div>
+      <div class="stat-sub">Of the $300 billion spent annually on business software, less than 1% is directed at tools for the 80% who work without a desk. India's 63 million SMBs — most of them deskless-majority employers — receive a fraction of that fraction.</div>
+      <div class="stat-source"><a class="src" href="http://desklessworkforce2018.com/" target="_blank" rel="noopener">↗ Emergence / Deskless Workforce Report</a></div>
+    </div>
+    <div class="stat-card dark reveal reveal-delay-2">
+      <div class="stat-num">83%</div>
+      <div class="stat-label">Have no company email address</div>
+      <div class="stat-sub">The primary channel by which employers and HR systems communicate — email — is inaccessible to the overwhelming majority of the workforce being managed. In India's manufacturing and retail sectors, this figure is structurally higher: most workers have never owned a company email address.</div>
+      <div class="stat-source"><a class="src" href="https://www.infeedo.ai/blog/why-your-deskless-workforce-needs-better-tools-in-2025-real-solutions" target="_blank" rel="noopener" style="color:var(--saffron-2)">↗ InFeedo / Deskless Workforce 2025</a></div>
+    </div>
+    <div class="stat-card reveal reveal-delay-3">
+      <div class="stat-num">62%</div>
+      <div class="stat-label">Have limited computer access during the workday</div>
+      <div class="stat-sub">The device that HR portals are built for — a computer — is unavailable to nearly two thirds of the workforce during working hours.</div>
+      <div class="stat-source"><a class="src" href="https://www.infeedo.ai/blog/why-your-deskless-workforce-needs-better-tools-in-2025-real-solutions" target="_blank" rel="noopener">↗ InFeedo / Deskless Workforce 2025</a></div>
+    </div>
+  </div>
+
+  <div class="stat-grid" style="margin-top:2px;">
+    <div class="stat-card reveal">
+      <div class="stat-num">53%</div>
+      <div class="stat-label">Report feeling burned out</div>
+      <div class="stat-sub">Over half the deskless workforce — the people physically producing the world's goods and services — feel burned out. Poor HR tools are a direct contributor.</div>
+      <div class="stat-source"><a class="src" href="https://www.infeedo.ai/blog/why-your-deskless-workforce-needs-better-tools-in-2025-real-solutions" target="_blank" rel="noopener">↗ InFeedo / Deskless Workforce 2025</a></div>
+    </div>
+    <div class="stat-card reveal reveal-delay-1">
+      <div class="stat-num">70%</div>
+      <div class="stat-label">Believe better technology would help them work better</div>
+      <div class="stat-sub">The workers themselves know the gap exists. Seven in ten believe the right tools would improve their performance — they just don't have them.</div>
+      <div class="stat-source"><a class="src" href="https://www.xenia.team/articles/deskless-workers" target="_blank" rel="noopener">↗ Xenia / Deskless Workers Going Digital</a></div>
+    </div>
+    <div class="stat-card reveal reveal-delay-2">
+      <div class="stat-num">61%</div>
+      <div class="stat-label">Use personal phones for company information</div>
+      <div class="stat-sub">In the absence of company-issued tools, workers have already found their own solution: the smartphone in their pocket. In India, Android smartphone penetration in the working-age population exceeds 75% — and the app they use most is WhatsApp.</div>
+      <div class="stat-source"><a class="src" href="https://www.infeedo.ai/blog/why-your-deskless-workforce-needs-better-tools-in-2025-real-solutions" target="_blank" rel="noopener">↗ InFeedo / Deskless Workforce 2025</a></div>
+    </div>
+    <div class="stat-card dark reveal reveal-delay-3">
+      <div class="stat-num">$300B</div>
+      <div class="stat-label">Spent annually on enterprise software</div>
+      <div class="stat-sub">Of this, under $3B reaches the tools used by the 2.7 billion people doing most of the world's physical work. The mismatch is structural, not accidental.</div>
+      <div class="stat-source"><a class="src" href="http://desklessworkforce2018.com/" target="_blank" rel="noopener" style="color:var(--saffron-2)">↗ Emergence / Deskless Workforce Report</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: WHO THEY ARE -->
+<section id="workforce" class="dark-section">
+  <div class="section-label reveal">02 — Who They Are</div>
+  <h2 class="section-title reveal reveal-delay-1">Not a single workforce.<br><em>Eight industries. One gap.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">The deskless workforce is not monolithic. It spans eight major industries. Each has a different job, a different language, a different country — and the exact same problem: no HR system designed for the way they work. India is the world's largest single employer of deskless workers, with over 500 million across manufacturing, agriculture, retail, and construction alone.</p>
+
+  <div style="max-width: 800px;">
+    <div class="breakdown-row reveal">
+      <div class="breakdown-industry">Manufacturing</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:88%"></div></div></div>
+      <div class="breakdown-num">~400M workers</div>
+    </div>
+    <div class="breakdown-row reveal reveal-delay-1">
+      <div class="breakdown-industry">Agriculture</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:100%"></div></div></div>
+      <div class="breakdown-num">~870M workers</div>
+    </div>
+    <div class="breakdown-row reveal reveal-delay-2">
+      <div class="breakdown-industry">Retail</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:55%"></div></div></div>
+      <div class="breakdown-num">~500M workers</div>
+    </div>
+    <div class="breakdown-row reveal reveal-delay-3">
+      <div class="breakdown-industry">Construction</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:30%"></div></div></div>
+      <div class="breakdown-num">~280M workers</div>
+    </div>
+    <div class="breakdown-row reveal reveal-delay-4">
+      <div class="breakdown-industry">Healthcare</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:28%"></div></div></div>
+      <div class="breakdown-num">~260M workers</div>
+    </div>
+    <div class="breakdown-row reveal">
+      <div class="breakdown-industry">Hospitality</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:18%"></div></div></div>
+      <div class="breakdown-num">~170M workers</div>
+    </div>
+    <div class="breakdown-row reveal reveal-delay-1">
+      <div class="breakdown-industry">Transport &amp; Logistics</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:15%"></div></div></div>
+      <div class="breakdown-num">~140M workers</div>
+    </div>
+    <div class="breakdown-row reveal reveal-delay-2">
+      <div class="breakdown-industry">Education</div>
+      <div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:12%"></div></div></div>
+      <div class="breakdown-num">~110M workers</div>
+    </div>
+  </div>
+
+  <p style="font-family:var(--mono);font-size:11px;color:rgba(245,240,232,0.3);margin-top:20px;letter-spacing:0.05em;">
+    Source: <a href="http://desklessworkforce2018.com/" target="_blank" rel="noopener" style="color:rgba(245,240,232,0.3);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.1);">Emergence / Deskless Workforce Report</a> · Figures are approximations across the eight identified deskless industries.
+  </p>
+</section>
+
+<!-- SECTION 3: THE PAIN POINTS -->
+<section id="pain">
+  <div class="section-label reveal">03 — The Pain Points</div>
+  <h2 class="section-title reveal reveal-delay-1">Six ways the current system <em>fails</em> every day.</h2>
+  <p class="section-lead reveal reveal-delay-2">These are not edge cases. They are the daily operational reality of managing a deskless workforce without tools designed for them. Each one has a measurable cost.</p>
+
+  <div class="three-col">
+    <div class="pain-card reveal">
+      <div class="pain-num">Pain — 01</div>
+      <div class="pain-title">Leave is managed by text message and verbal agreement</div>
+      <div class="pain-body">A worker texts their manager on WhatsApp. The manager replies when they remember. The leave may or may not be recorded. There is no policy reference, no balance check, no audit trail. <strong>When a dispute arises, there is no evidence.</strong> The worker has no confirmation. The employer has no record. Both are exposed.</div>
+      <div class="pain-data">No audit trail · No policy enforcement · No confirmation</div>
+    </div>
+
+    <div class="pain-card reveal reveal-delay-1">
+      <div class="pain-num">Pain — 02</div>
+      <div class="pain-title">Onboarding happens on paper, or not at all</div>
+      <div class="pain-body">Document collection — ID, bank details, emergency contacts — happens face-to-face, on paper, and is frequently incomplete. Workers start before compliance requirements are met. <strong>ESIC/EPF registration is delayed or missed entirely.</strong> The employer is exposed to statutory penalties the moment the worker steps on site.</div>
+      <div class="pain-data">Compliance exposure from day one</div>
+    </div>
+
+    <div class="pain-card reveal reveal-delay-2">
+      <div class="pain-num">Pain — 03</div>
+      <div class="pain-title">Payroll is a monthly scramble with a high error rate</div>
+      <div class="pain-body">Attendance is recorded manually. Deductions are calculated in a spreadsheet. The calculation is done once a month and is frequently wrong. <strong>Wage disputes are the single largest source of worker attrition</strong> in manufacturing and retail — and nearly all of them stem from a payroll error that could have been caught in real time.</div>
+      <div class="pain-data">Wage errors drive attrition · Manual, monthly, error-prone</div>
+    </div>
+
+    <div class="pain-card reveal">
+      <div class="pain-num">Pain — 04</div>
+      <div class="pain-title">Communication reaches less than half the workforce</div>
+      <div class="pain-body">The default employer communication channel is email. <a href="https://www.prnewswire.com/news-releases/communication-gaps-impact-future-ready-workforce-as-deskless-employees-feel-overlooked-disconnected-302362992.html" target="_blank" rel="noopener" class="src">↗</a> <strong>69% of organisations rely primarily on email</strong>, while 54% of deskless workers have limited or no email access. Policy updates, shift changes, safety notices — they reach the office. They do not reach the floor.</div>
+      <div class="pain-data">
+        69% of orgs use email as primary channel<br>
+        54% of deskless workers cannot access it<br>
+        <a href="https://www.prnewswire.com/news-releases/communication-gaps-impact-future-ready-workforce-as-deskless-employees-feel-overlooked-disconnected-302362992.html" target="_blank" rel="noopener" class="src" style="margin-top:4px;display:inline-block;">↗ Firstup Deskless Communication Survey, Jan 2025</a>
+      </div>
+    </div>
+
+    <div class="pain-card reveal reveal-delay-1">
+      <div class="pain-num">Pain — 05</div>
+      <div class="pain-title">Grievances go unlogged, unresolved, and undefended</div>
+      <div class="pain-body">A worker raises a grievance verbally. The manager hears it, or does not. It is almost never formally recorded. <strong>Without a grievance log, the employer cannot demonstrate fair process</strong> if a labour dispute reaches a tribunal. The worker cannot demonstrate that they raised the issue. Both lose.</div>
+      <div class="pain-data">No statutory register · No evidence trail · No resolution tracking</div>
+    </div>
+
+    <div class="pain-card reveal reveal-delay-2">
+      <div class="pain-num">Pain — 06</div>
+      <div class="pain-title">HR software designed for desks fails on the floor</div>
+      <div class="pain-body">Every mainstream HR platform — from GreytHR to Workday — requires a computer, a company email, a login, and the digital literacy to navigate a portal. <strong>This excludes the majority of the workforce the platform is supposedly managing.</strong> The employer pays for a system their workers cannot use. The workers are managed as if the system does not exist.</div>
+      <div class="pain-data">Designed for HR administrators · Not for the workers being administered</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: THE COST OF ATTRITION -->
+<section id="attrition">
+  <div class="section-label reveal">04 — The Cost of Attrition</div>
+  <h2 class="section-title reveal reveal-delay-1">Turnover is the most expensive<br><em>symptom of the gap.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">Poor HR tools do not just create inconvenience. They create attrition. And attrition, in industries with hourly deskless workforces, carries costs that dwarf any HR software subscription.</p>
+
+  <div class="turnover-grid">
+    <div>
+      <table class="turnover-table reveal">
+        <thead>
+          <tr>
+            <th>Industry</th>
+            <th>Annual turnover rate</th>
+            <th style="text-align:right">Cost to replace one worker</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Hospitality &amp; Food Service</td>
+            <td>Exceeds 70% annually</td>
+            <td>$1,500–$5,000 <a class="src" href="https://builtin.com/recruiting/cost-of-turnover" target="_blank" rel="noopener">↗</a></td>
+          </tr>
+          <tr>
+            <td>Retail</td>
+            <td>~60% voluntary quit rate</td>
+            <td>$1,500–$4,000 <a class="src" href="https://builtin.com/recruiting/cost-of-turnover" target="_blank" rel="noopener">↗</a></td>
+          </tr>
+          <tr>
+            <td>Manufacturing</td>
+            <td>26.3% total in 2024 <a class="src" href="https://www.crownstaffing.com/manufacturing-labor-in-2025-turnover-overtime-hidden-costs/" target="_blank" rel="noopener">↗</a></td>
+            <td>$10,000–$40,000 <a class="src" href="https://www.achievers.com/blog/employee-turnover-by-industry/" target="_blank" rel="noopener">↗</a></td>
+          </tr>
+          <tr>
+            <td>Construction</td>
+            <td>~21% annually</td>
+            <td>$4,000–$15,000</td>
+          </tr>
+          <tr>
+            <td>Healthcare (frontline)</td>
+            <td>20.7% hospital average <a class="src" href="https://www.achievers.com/blog/employee-turnover-by-industry/" target="_blank" rel="noopener">↗</a></td>
+            <td>$10,000–$30,000</td>
+          </tr>
+          <tr>
+            <td>General hourly / production</td>
+            <td>Variable</td>
+            <td>40–70% of annual salary <a class="src" href="https://wellhub.com/en-us/blog/talent-acquisition-and-retention/employee-turnover-rate-for-us-companies/" target="_blank" rel="noopener">↗</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pullquote reveal" style="margin-top:40px;margin-bottom:0;">
+        <blockquote>"Losing an employee can cost a company one-half to two times the employee's annual salary."</blockquote>
+        <cite>Gallup, via <a href="https://builtin.com/recruiting/cost-of-turnover" target="_blank" rel="noopener" style="color:var(--ink-light);border-bottom:1px solid var(--rule);">Built In · The True Costs of Employee Turnover</a></cite>
+      </div>
+    </div>
+
+    <div class="turnover-callout reveal reveal-delay-1">
+      <div class="label">Manufacturing · 50-person facility · 2024 · India equivalent</div>
+      <div class="big">13</div>
+      <div class="caption">Workers leaving per year at a 26.3% annual turnover rate. <a href="https://www.crownstaffing.com/manufacturing-labor-in-2025-turnover-overtime-hidden-costs/" target="_blank" rel="noopener" class="src" style="color:var(--saffron-2);">↗ Crown Staffing</a></div>
+      <div class="divider"></div>
+      <div class="big" style="font-size:40px;">$130K–</div>
+      <div class="big" style="font-size:40px;margin-top:0;">$520K</div>
+      <div class="caption">Estimated annual cost of that turnover, at $10,000–$40,000 per skilled worker replaced. <a href="https://www.achievers.com/blog/employee-turnover-by-industry/" target="_blank" rel="noopener" class="src" style="color:var(--saffron-2);">↗ Achievers / Deloitte</a></div>
+      <div class="divider"></div>
+      <div class="insight"><strong>The Autonomous HR costs $78/year</strong> for that same 50-person facility. If it improves retention by even 5% — preventing one replacement — it pays for itself <strong>1,600× over.</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: THE CHANNEL PROBLEM -->
+<section id="channel">
+  <div class="section-label reveal">05 — The Channel Problem</div>
+  <h2 class="section-title reveal reveal-delay-1">The workforce is already<br><em>on one platform.</em></h2>
+  <p class="section-lead reveal reveal-delay-2">The deskless worker does not lack technology. They lack HR technology. Their smartphone is powerful. Their data connection is reliable. And the app they open most, every single day — in Mumbai, Lagos, Jakarta, São Paulo, and Birmingham — is WhatsApp. India alone accounts for 535 million WhatsApp users — the single largest national user base on earth. <a href="https://www.quantumrun.com/consulting/whatsapp-statistics/" target="_blank" rel="noopener" class="src">↗</a></p>
+
+  <div class="channel-grid">
+    <div class="channel-card reveal">
+      <div class="channel-name">Corporate email</div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">54%</div>
+        <div class="channel-metric-label">of deskless workers have limited access</div>
+      </div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">21%</div>
+        <div class="channel-metric-label">average email open rate</div>
+      </div>
+      <div class="channel-verdict">The default HR channel. Inaccessible to the majority it is meant to reach.</div>
+      <div style="margin-top:12px;"><a class="src" href="https://www.prnewswire.com/news-releases/communication-gaps-impact-future-ready-workforce-as-deskless-employees-feel-overlooked-disconnected-302362992.html" target="_blank" rel="noopener">↗ Firstup Survey, Jan 2025</a></div>
+    </div>
+
+    <div class="channel-card reveal reveal-delay-1">
+      <div class="channel-name">HR portal / app</div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">~0%</div>
+        <div class="channel-metric-label">adoption in sub-200 employee deskless businesses</div>
+      </div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">High</div>
+        <div class="channel-metric-label">training and onboarding cost per user</div>
+      </div>
+      <div class="channel-verdict">Requires a computer, a company login, and digital literacy. Excludes most of the workforce it is built to manage.</div>
+    </div>
+
+    <div class="channel-card reveal reveal-delay-2">
+      <div class="channel-name">SMS / USSD</div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">No</div>
+        <div class="channel-metric-label">conversational state or document delivery</div>
+      </div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">Declining</div>
+        <div class="channel-metric-label">developer access to USSD in most markets</div>
+      </div>
+      <div class="channel-verdict">Technically accessible but limited to one-way broadcasts. Cannot handle the two-way dialogue that HR requires.</div>
+    </div>
+
+    <div class="channel-card highlight reveal reveal-delay-3">
+      <div class="channel-name">WhatsApp</div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">3B+</div>
+        <div class="channel-metric-label">monthly active users globally as of 2024 <a href="https://www.infobip.com/blog/whatsapp-statistics" target="_blank" rel="noopener" class="src" style="color:rgba(255,255,255,0.6);">↗</a></div>
+      </div>
+      <div class="channel-metric">
+        <div class="channel-metric-val">98%</div>
+        <div class="channel-metric-label">message open rate vs 21% for email <a href="https://www.infobip.com/blog/whatsapp-statistics" target="_blank" rel="noopener" class="src" style="color:rgba(255,255,255,0.6);">↗</a></div>
+      </div>
+      <div class="channel-verdict">Already installed. Already used daily. 69% penetration among all internet users outside China. India is WhatsApp's single largest market — 535 million monthly active users, 97% penetration among internet users. <a href="https://www.quantumrun.com/consulting/whatsapp-statistics/" target="_blank" rel="noopener" class="src" style="color:rgba(255,255,255,0.7);">↗</a> 97% in Kenya. 95% in Nigeria. 93% in Brazil. The workforce is already here.</div>
+      <div style="margin-top:12px;"><a href="https://learn.rasayel.io/en/blog/whatsapp-user-statistics/" target="_blank" rel="noopener" class="src" style="color:rgba(255,255,255,0.6);">↗ Rasayel / WhatsApp Statistics 2025</a></div>
+    </div>
+  </div>
+
+  <div class="pullquote reveal" style="margin-top:48px;">
+    <blockquote>"Voice messaging reached 7 billion daily transmissions on WhatsApp — indicating growing preference for audio communication over text."</blockquote>
+    <cite>Quantumrun Foresight · <a href="https://www.quantumrun.com/consulting/whatsapp-statistics/" target="_blank" rel="noopener" style="color:var(--ink-light);border-bottom:1px solid var(--rule);">WhatsApp Statistics and User Trends 2025</a></cite>
+  </div>
+
+  <div class="two-col" style="margin-top:48px;gap:48px;">
+    <div class="reveal">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:20px;">WhatsApp penetration by region — workforce-relevant markets</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:grid;grid-template-columns:160px 1fr 56px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);background:var(--saffron-light);">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:400;color:var(--saffron);">India ★</span>
+          <div style="height:5px;background:var(--paper-3);border-radius:3px;margin:0 20px;overflow:hidden;"><div style="width:97%;height:100%;background:var(--saffron);border-radius:3px;"></div></div>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--saffron);text-align:right;font-weight:500;">97%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:160px 1fr 56px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Kenya</span>
+          <div style="height:5px;background:var(--paper-3);border-radius:3px;margin:0 20px;overflow:hidden;"><div style="width:97%;height:100%;background:var(--saffron);border-radius:3px;"></div></div>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--saffron);text-align:right;">97%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:160px 1fr 56px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">South Africa</span>
+          <div style="height:5px;background:var(--paper-3);border-radius:3px;margin:0 20px;overflow:hidden;"><div style="width:96%;height:100%;background:var(--saffron);border-radius:3px;"></div></div>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--saffron);text-align:right;">96%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:160px 1fr 56px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Nigeria</span>
+          <div style="height:5px;background:var(--paper-3);border-radius:3px;margin:0 20px;overflow:hidden;"><div style="width:95%;height:100%;background:var(--saffron);border-radius:3px;"></div></div>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--saffron);text-align:right;">95%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:160px 1fr 56px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Brazil</span>
+          <div style="height:5px;background:var(--paper-3);border-radius:3px;margin:0 20px;overflow:hidden;"><div style="width:93%;height:100%;background:var(--saffron);border-radius:3px;"></div></div>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--saffron);text-align:right;">93%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:160px 1fr 56px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Indonesia</span>
+          <div style="height:5px;background:var(--paper-3);border-radius:3px;margin:0 20px;overflow:hidden;"><div style="width:65%;height:100%;background:var(--saffron);border-radius:3px;"></div></div>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--saffron);text-align:right;">65%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:160px 1fr 56px;align-items:center;padding:14px 0;">
+          <span style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);">Global avg (ex-China)</span>
+          <div style="height:5px;background:var(--paper-3);border-radius:3px;margin:0 20px;overflow:hidden;"><div style="width:69%;height:100%;background:var(--saffron);border-radius:3px;"></div></div>
+          <span style="font-family:var(--mono);font-size:13px;color:var(--saffron);text-align:right;">69%</span>
+        </div>
+      </div>
+      <p style="font-family:var(--mono);font-size:10px;color:var(--ink-light);margin-top:12px;letter-spacing:0.04em;">★ India: 535M monthly active users — WhatsApp's single largest market. Source: <a href="https://www.quantumrun.com/consulting/whatsapp-statistics/" target="_blank" rel="noopener" style="color:var(--ink-light);border-bottom:1px solid var(--rule);">Quantumrun</a> · <a href="https://learn.rasayel.io/en/blog/whatsapp-user-statistics/" target="_blank" rel="noopener" style="color:var(--ink-light);border-bottom:1px solid var(--rule);">Rasayel</a> · <a href="https://www.infobip.com/blog/whatsapp-statistics" target="_blank" rel="noopener" style="color:var(--ink-light);border-bottom:1px solid var(--rule);">Infobip</a></p>
+    </div>
+
+    <div class="reveal reveal-delay-1">
+      <div style="font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:20px;">Why voice matters as much as text</div>
+      <div style="background:var(--paper-2);padding:36px;">
+        <div style="font-family:var(--mono);font-size:32px;font-weight:300;color:var(--saffron);margin-bottom:8px;">7B</div>
+        <div style="font-family:var(--serif);font-size:15px;font-weight:400;color:var(--ink);margin-bottom:8px;">Voice messages sent on WhatsApp daily</div>
+        <div style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);line-height:1.65;margin-bottom:16px;">The deskless workforce already communicates by voice on WhatsApp. They send voice notes to family, to employers, to shopkeepers. It is the natural HR interface — it was already in use before The Autonomous HR existed.</div>
+        <a class="src" href="https://www.quantumrun.com/consulting/whatsapp-statistics/" target="_blank" rel="noopener">↗ Quantumrun · WhatsApp Statistics 2025</a>
+      </div>
+      <div style="background:var(--ink);padding:36px;margin-top:2px;">
+        <div style="font-family:var(--serif);font-size:15px;font-weight:400;color:var(--paper);margin-bottom:10px;line-height:1.4;">73% of WhatsApp users globally are on Android.</div>
+        <div style="font-family:var(--serif);font-size:14px;font-weight:300;color:rgba(245,240,232,0.55);line-height:1.65;margin-bottom:12px;">The deskless workforce device is an Android phone. Not an iPhone, not a laptop — an Android. WhatsApp on Android is the universal interface. No company-issued device required.</div>
+        <a class="src" href="https://meetanshi.com/blog/whatsapp-statistics/" target="_blank" rel="noopener" style="color:var(--saffron-2);">↗ Meetanshi · WhatsApp Statistics 2024</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY / SOURCES -->
+<div class="methodology">
+  <div class="methodology-title">Data sources &amp; methodology</div>
+  <p style="font-family:var(--serif);font-size:14px;font-weight:300;color:var(--ink-mid);line-height:1.7;max-width:780px;margin-bottom:36px;">All statistics on this page are drawn from publicly available primary research. Where figures differ across sources, the most conservative estimate is used. Workforce size figures for individual industries are approximations based on ILO and World Bank employment data cross-referenced with Emergence's deskless workforce industry classification. Cost-of-turnover figures reflect a composite of Gallup, Deloitte, and BLS data and represent ranges rather than single-point estimates to reflect variation by geography and skill level.</p>
+  <div class="source-list">
+    <div class="source-item">
+      <div class="source-ref">S1</div>
+      <div class="source-desc"><a href="http://desklessworkforce2018.com/" target="_blank" rel="noopener">Emergence Capital — Deskless Workforce Report</a>. Primary source for 2.7B workforce figure, $300B software spend, and 1% funding allocation.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S2</div>
+      <div class="source-desc"><a href="https://www.infeedo.ai/blog/why-your-deskless-workforce-needs-better-tools-in-2025-real-solutions" target="_blank" rel="noopener">InFeedo — Why Your Deskless Workforce Needs Better Tools, 2025</a>. Source for 83% no email, 62% limited computer access, 53% burnout, 61% personal phone usage statistics.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S3</div>
+      <div class="source-desc"><a href="https://www.prnewswire.com/news-releases/communication-gaps-impact-future-ready-workforce-as-deskless-employees-feel-overlooked-disconnected-302362992.html" target="_blank" rel="noopener">Firstup — Deskless Communication Survey, January 2025</a>. 1,000 US deskless workers surveyed. Source for 69% email reliance and 54% limited email access figures.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S4</div>
+      <div class="source-desc"><a href="https://www.crownstaffing.com/manufacturing-labor-in-2025-turnover-overtime-hidden-costs/" target="_blank" rel="noopener">Crown Staffing — Manufacturing Labor 2025</a>. Source for 26.3% manufacturing turnover figure and BLS monthly quit rate data.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S5</div>
+      <div class="source-desc"><a href="https://www.achievers.com/blog/employee-turnover-by-industry/" target="_blank" rel="noopener">Achievers — Employee Turnover by Industry, 2026</a>. Source for $10,000–$40,000 manufacturing replacement cost (citing Deloitte) and industry-specific turnover rates.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S6</div>
+      <div class="source-desc"><a href="https://builtin.com/recruiting/cost-of-turnover" target="_blank" rel="noopener">Built In — The True Costs of Employee Turnover</a>. Source for $1,500 hourly worker replacement cost and Gallup 0.5–2× salary rule of thumb.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S7</div>
+      <div class="source-desc"><a href="https://wellhub.com/en-us/blog/talent-acquisition-and-retention/employee-turnover-rate-for-us-companies/" target="_blank" rel="noopener">Wellhub — Average Cost of Employee Turnover, 2025</a>. Source for 40–70% of salary replacement cost for hourly/production workers.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S8</div>
+      <div class="source-desc"><a href="https://www.infobip.com/blog/whatsapp-statistics" target="_blank" rel="noopener">Infobip — WhatsApp Statistics 2025</a>. Source for 98% message open rate, 3B+ users, and regional penetration figures.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S9</div>
+      <div class="source-desc"><a href="https://www.quantumrun.com/consulting/whatsapp-statistics/" target="_blank" rel="noopener">Quantumrun Foresight — WhatsApp Statistics and User Trends 2025</a>. Source for 7B daily voice messages and 69% global internet penetration (ex-China).</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S10</div>
+      <div class="source-desc"><a href="https://learn.rasayel.io/en/blog/whatsapp-user-statistics/" target="_blank" rel="noopener">Rasayel — WhatsApp User Statistics 2025</a>. Source for country-level penetration: Kenya 97%, South Africa 96%, Nigeria 95%, Brazil 93%.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S11</div>
+      <div class="source-desc"><a href="https://meetanshi.com/blog/whatsapp-statistics/" target="_blank" rel="noopener">Meetanshi — WhatsApp Statistics 2024</a>. Source for 73% Android usage share among WhatsApp users globally.</div>
+    </div>
+    <div class="source-item">
+      <div class="source-ref">S12</div>
+      <div class="source-desc"><a href="https://www.xenia.team/articles/deskless-workers" target="_blank" rel="noopener">Xenia — Deskless Workers Are Going Digital, 2025</a>. Source for 70% of workers believing better tech would improve performance.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE NAV -->
+<div class="page-nav">
+  <a href="index.html" class="page-nav-item">
+    <span class="page-nav-dir">← Back</span>
+    <span class="page-nav-title">The Autonomous HR</span>
+  </a>
+  <a href="page-03.html" class="page-nav-item" style="text-align:right;">
+    <span class="page-nav-dir">Next →</span>
+    <span class="page-nav-title">The Architecture</span>
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">The <span>Autonomous</span> HR</div>
+  <div class="footer-meta">Page 02 · The Problem · © 2026 Siddharth Rao</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
