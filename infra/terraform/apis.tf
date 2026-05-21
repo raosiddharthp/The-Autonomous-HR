@@ -8,6 +8,7 @@ resource "google_project_service" "apis" {
     "billingbudgets.googleapis.com",
     "storage.googleapis.com",
     "iamcredentials.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
     "aiplatform.googleapis.com",
     "speech.googleapis.com",
   ])
