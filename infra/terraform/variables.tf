@@ -9,3 +9,7 @@ variable "region" {
 variable "project_number" {
   default = "799936148816"
 }
+
+variable "alert_email" {
+  default = "siddarth.rao@datadomine.com"
+}
