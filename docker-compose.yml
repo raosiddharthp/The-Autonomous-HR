@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  firestore-emulator:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
+    command: gcloud emulators firestore start --host-port=0.0.0.0:8080
+    ports:
+      - "8080:8080"
+    environment:
+      - CLOUDSDK_CORE_PROJECT=autonomous-hr-495502
+
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
+    ports:
+      - "8085:8085"
+    environment:
+      - CLOUDSDK_CORE_PROJECT=autonomous-hr-495502
+
+  webhook-receiver:
+    build:
+      context: ./services/webhook-receiver
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085
+      - GCP_PROJECT=autonomous-hr-495502
+    depends_on:
+      - firestore-emulator
+      - pubsub-emulator
+    volumes:
+      - ./services/webhook-receiver:/app
