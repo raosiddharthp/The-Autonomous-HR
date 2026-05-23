@@ -23,12 +23,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
-      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085
       - GCP_PROJECT=autonomous-hr-495502
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
+      - DEMO_LOCKED=false
+      - DEV_MODE=true
+      - MEDIA_BUCKET=autonomous-hr-media-staging
     depends_on:
-      - firestore-emulator
       - pubsub-emulator
-    volumes:
-      - ./services/webhook-receiver:/app
+      - firestore-emulator
