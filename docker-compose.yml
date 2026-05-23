@@ -35,3 +35,16 @@ services:
     depends_on:
       - pubsub-emulator
       - firestore-emulator
+
+  outbound-sender:
+    build:
+      context: ./services/outbound-sender
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - TWILIO_SANDBOX_NUMBER=+14155238886
+    depends_on:
+      - webhook-receiver
