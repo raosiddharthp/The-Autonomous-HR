@@ -1,32 +1,7 @@
-# Environment files - NEVER commit these
-.env
-*.env
 .env.local
-
-# Google credentials
-*service-account*.json
-*credentials*.json
-
-# Python
-__pycache__/
+.env
 *.pyc
-*.pyo
-.venv/
-venv/
-*.egg-info/
-
-# Docker
-.docker/
-
-# Terraform
-infra/terraform/.terraform/
-infra/terraform/*.tfstate
-infra/terraform/*.tfstate.backup
-infra/terraform/*.tfvars
-
-# Mac
+__pycache__/
 .DS_Store
-
-# IDE
-.vscode/
-.idea/
+*.json.key
+credentials/

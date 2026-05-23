@@ -1,0 +1,137 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.board{padding:1.5rem 0;font-family:var(--font-sans)}
+.epic{margin-bottom:1.5rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.epic-header{display:flex;align-items:center;gap:10px;padding:0.9rem 1.25rem;cursor:pointer;user-select:none;background:var(--color-background-secondary)}
+.epic-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.epic-title{font-size:14px;font-weight:500;color:var(--color-text-primary);flex:1}
+.epic-meta{font-size:12px;color:var(--color-text-secondary);white-space:nowrap}
+.epic-toggle{font-size:11px;color:var(--color-text-tertiary);transition:transform 0.2s;flex-shrink:0}
+.epic-toggle.open{transform:rotate(90deg)}
+.stories{display:none;background:var(--color-background-primary)}
+.stories.open{display:block}
+.story{display:grid;grid-template-columns:36px 1fr 36px;gap:10px;padding:0.75rem 1.25rem;border-top:0.5px solid var(--color-border-tertiary);align-items:start}
+.story-num{font-size:11px;color:var(--color-text-tertiary);font-family:var(--font-mono);padding-top:1px}
+.story-title{font-size:13px;font-weight:500;color:var(--color-text-primary);line-height:1.4;margin-bottom:3px}
+.story-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:5px}
+.story-ac{font-size:11px;color:var(--color-text-tertiary);line-height:1.6}
+.story-ac b{color:var(--color-text-secondary);font-weight:500}
+.flag{font-size:10px;font-weight:500;padding:2px 6px;border-radius:3px;display:inline-block;margin-bottom:5px}
+.flag-warn{background:#FAEEDA;color:#854F0B}
+.flag-new{background:#E1F5EE;color:#0F6E56}
+.sp{font-size:11px;font-weight:500;padding:3px 7px;border-radius:100px;background:var(--color-background-secondary);color:var(--color-text-secondary);text-align:center;align-self:start}
+.summary{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);margin-bottom:1.25rem;border:0.5px solid var(--color-border-tertiary)}
+.sum-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:2px}
+.sum-val{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;padding:0 0 1rem}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-text-secondary)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+</style>
+
+<h2 class="sr-only">Autonomous HR — revised JIRA project plan v2, 6 epics, 29 stories, 87 story points</h2>
+
+<div class="board">
+<div class="legend">
+  <div class="li"><div class="dot" style="background:#5DCAA5"></div>EP-1 Infra & DevOps</div>
+  <div class="li"><div class="dot" style="background:#85B7EB"></div>EP-2 Channel Ingestion</div>
+  <div class="li"><div class="dot" style="background:#AFA9EC"></div>EP-3 AI Orchestration</div>
+  <div class="li"><div class="dot" style="background:#EF9F27"></div>EP-4 Data & Policy</div>
+  <div class="li"><div class="dot" style="background:#F09595"></div>EP-5 HITL & Employer</div>
+  <div class="li"><div class="dot" style="background:#D4537E"></div>EP-6 Demo & Portfolio</div>
+</div>
+
+<div class="summary">
+  <div><div class="sum-label">Total</div><div class="sum-val">6 epics · 29 stories · 87 SP</div></div>
+  <div style="text-align:right"><div class="sum-label">Demo channel</div><div class="sum-val" style="font-size:14px">Real WhatsApp · Real voice · Real stack</div></div>
+</div>
+
+<div id="epics"></div>
+</div>
+
+<script>
+const E=[
+{id:"EP-1",title:"Infra & DevOps foundation",c:"#5DCAA5",bg:"#E1F5EE",stories:[
+{id:"S-01",title:"GCP project bootstrap & free-tier guardrails",desc:"Provision GCP project, enable required APIs, set billing budget to $0. Configure budget action to disable billing if threshold crossed.",ac:"Billing alert at $0.01 · Cloud Run, Firestore, Pub/Sub, Secret Manager APIs enabled · Budget kill-switch configured"},
+{id:"S-02",title:"Terraform IaC for all GCP resources",desc:"Terraform modules for Cloud Run services, Firestore, Pub/Sub topics, Secret Manager, IAM bindings. State in GCS free bucket.",ac:"terraform apply creates full stack cleanly · State stored in GCS · No orphaned resources on destroy"},
+{id:"S-03",title:"GitHub Actions CI/CD pipeline",desc:"Build, test, deploy pipeline on push to main. Deploys to Cloud Run via Workload Identity Federation — no stored service account keys.",ac:"Push to main deploys in <3 min · Tests must pass to deploy · WIF configured, zero stored keys"},
+{id:"S-04",title:"Secret Manager for all credentials",desc:"WhatsApp token, Gemini API key, Twilio SID stored in Secret Manager. Services pull via IAM-bound service accounts. Nothing in env vars or code.",ac:"Zero secrets in repository · All services fetch from Secret Manager at runtime · Audit log on every access"},
+{id:"S-05",title:"Local dev environment & Makefile",desc:"docker-compose for local stack parity. Makefile targets: make dev, make test, make deploy. Webhook tunnelling via ngrok for WhatsApp local testing.",ac:"make dev brings up full stack · ngrok tunnel exposed for WhatsApp webhook testing · Setup documented in CONTRIBUTING.md"},
+{id:"S-06",title:"Observability, alerting & demo circuit breaker",desc:"Structured logs from every service. Log-based error rate metrics. Email alert on >5% errors. Pub/Sub message counter alert at 800 conversations/month. Cloud Run DEMO_LOCKED env-var flag: when set, bot replies with capacity message instead of processing.",ac:"Error alert fires correctly · Conversation count alert at 800 · DEMO_LOCKED flag tested · All free-tier, no third-party monitoring",flag:"revised"},
+]},
+{id:"EP-2",title:"Channel ingestion layer",c:"#85B7EB",bg:"#E6F1FB",stories:[
+{id:"S-07",title:"WhatsApp Business API setup & webhook receiver",desc:"Verify Facebook Business account, register dedicated phone number (Google Voice or VoIP — free). Deploy Cloud Run webhook: validates HMAC signature, parses text/audio/image, publishes to Pub/Sub. PREREQUISITE: phone number must be registered before any other EP-2 story can be tested.",ac:"Signature verified on every request · Text and audio message types parsed · Pub/Sub publish confirmed · Phone number live",flag:"prereq"},
+{id:"S-08",title:"WhatsApp media download & GCS staging",desc:"Download voice notes (.ogg/opus) and images from WhatsApp CDN. Stage in GCS with lifecycle rule: delete after 24h. Return GCS URI in Pub/Sub message.",ac:"Voice note downloaded within 5s · Stored with worker_id prefix · Auto-deleted after 24h · .ogg format confirmed compatible with Whisper"},
+{id:"S-09",title:"WhatsApp outbound message sender",desc:"Utility service: send text messages, interactive button templates (Approve/Deny), and document messages via WhatsApp Cloud API.",ac:"Text delivered · Approve/Deny button template renders on Android · Document send confirmed · Retry on 429"},
+{id:"S-10",title:"Language detection on inbound text",desc:"langdetect (OSS) on text messages to identify script and language before routing. Audio routes via Whisper language detection instead.",ac:"Hindi, Tamil, Bengali, Marathi, Telugu, English detected · Confidence logged · Fallback to English on detection failure"},
+{id:"S-11",title:"Pub/Sub schema, retry policy & dead-letter queue",desc:"Canonical JSON schema for all inbound events. Dead-letter topic for failed processing. Retry: 3 attempts with backoff, then DLQ.",ac:"Schema validated at publish · DLQ receives malformed messages · DLQ alert fires · Schema documented in repo"},
+]},
+{id:"EP-3",title:"AI orchestration core",c:"#AFA9EC",bg:"#EEEDFE",stories:[
+{id:"S-12",title:"Whisper large-v3 STT service on Cloud Run",desc:"faster-whisper library on Cloud Run (CPU, min_instances=0). Accepts GCS URI pointing to .ogg voice note, returns transcript + detected language. Handles Rathi Textiles language set.",ac:"WER <8% on Hindi/Tamil test clips · Cold start <30s · Returns language code · Cost $0 on free tier"},
+{id:"S-13",title:"LangGraph agent graph definition & state schema",desc:"Define agent state (worker_id, message, intent, slots, confidence, hitl_flag, policy_refs) and node graph: ingest → classify → tool_call → confidence_check → respond/escalate. Graph serialisable.",ac:"Graph compiles · All 5 nodes tested · State transitions logged with correlation ID · Serialisation round-trip verified"},
+{id:"S-14",title:"Intent classification node",desc:"Gemini Flash prompt classifies message into: leave_request, balance_query, payroll_query, grievance_log, policy_question, unknown. Returns intent + extracted slots (dates, leave type, amounts).",ac:"6 intents classified correctly on test set · Slot extraction accurate for dates and leave types · Unknown triggers clarification reply"},
+{id:"S-15",title:"RAG tool: policy document retriever",desc:"text-embedding-004 (GCP free tier) embeds policy chunks stored in Firestore vector index. Retriever tool returns top-3 chunks + source page number per query.",ac:"PDF indexed in <60s · Top-3 retrieval relevant on 10-question eval · Source page number returned · Chunk IDs logged in decision"},
+{id:"S-16",title:"HR decision tool: leave approval engine",desc:"Agent-callable tool: reads leave balance from Firestore, validates against retrieved policy chunks, returns approve / deny / escalate with reasoning and policy clause citation.",ac:"Balance deducted atomically on approve · Policy clause cited in every decision · Escalate triggered when balance insufficient or policy ambiguous"},
+{id:"S-17",title:"Confidence scoring & HITL escalation packager",desc:"Post-decision confidence score (0–1). Triggers HITL if score <0.8, policy ambiguous, or legal clause detected. Packages employer brief: worker name, request summary, AI recommendation, policy reference, confidence score.",ac:"HITL rate <3% on test scenario set · Brief contains all required fields · Brief delivered to HITL queue in Firestore within 2s"},
+]},
+{id:"EP-4",title:"Data & policy layer",c:"#EF9F27",bg:"#FAEEDA",stories:[
+{id:"S-18",title:"Firestore schema design & Rathi Textiles seed data",desc:"Collections: employees, leave_balances, interactions, policy_chunks, hitl_queue. Seed script loads 52 Rathi Textiles employees with realistic balances across 4 locations.",ac:"All collections created · Seed idempotent · Security rules prevent cross-employee reads · No plaintext PII beyond necessary"},
+{id:"S-19",title:"HR Policy PDF ingestion pipeline",desc:"Cloud Run job triggered by GCS upload event: extract text (pdfminer), chunk by section headers, embed with text-embedding-004, write to Firestore vector store. Re-upload replaces old chunks atomically.",ac:"Rathi Textiles PDF indexed in <60s · Re-upload replaces chunks without duplicates · Chunking preserves section context · Version ID assigned"},
+{id:"S-20",title:"Employee self-registration via WhatsApp",desc:"First message from unknown number triggers registration flow: bot asks for name and employee ID, confirms language preference, writes to employees collection.",ac:"New employee registered in <60s · Language preference saved · Duplicate phone rejected with clear message · Demo personas pre-registered"},
+{id:"S-21",title:"Leave balance transactional read/write",desc:"Firestore transaction-wrapped CRUD for leave_balances. Supports annual, sick, casual leave. Prevents double-spend on concurrent requests.",ac:"Concurrent approve requests tested — no double deduction · Historical balance readable · Balance history appended, not overwritten"},
+{id:"S-22",title:"Immutable audit log for all HR decisions",desc:"Every interaction, decision, and HITL resolution appended to interactions collection. Fields: timestamp, worker_id, intent, decision, confidence, policy_chunk_ids, agent_version, policy_version.",ac:"Log append-only enforced by Firestore security rules · Every field present on every record · CSV export query documented"},
+{id:"S-23",title:"Policy version control",desc:"Each PDF upload creates a versioned document record. Agent always queries latest version. Old versions retained. Version ID written into every decision log entry.",ac:"Version ID present in every interaction record · Previous version retrievable · Latest-version flag works after re-upload"},
+]},
+{id:"EP-5",title:"HITL & employer portal",c:"#F09595",bg:"#FCEBEB",stories:[
+{id:"S-24",title:"HITL escalation: employer WhatsApp notification",desc:"When HITL triggered, send employer a WhatsApp interactive message: worker name, request, AI recommendation, policy reference, confidence score, Approve/Deny buttons.",ac:"Message delivered within 5s of escalation · Approve/Deny buttons render on Android · Full brief visible without scrolling"},
+{id:"S-25",title:"Employer Approve/Deny callback handler",desc:"Webhook parses interactive button reply, resolves HITL queue item in Firestore, triggers downstream action (approve leave / deny with reason / notify worker via WhatsApp).",ac:"Approve resolves queue item and notifies worker · Deny sends reason to worker · Queue item status updated to resolved"},
+{id:"S-26",title:"HITL queue dashboard (Cloud Run, basic auth)",desc:"Password-protected HTML page reading Firestore HITL queue directly. Lists open items with age, worker name, request summary. Click marks resolved. No external DB.",ac:"Open items listed · Age in minutes shown · Click-to-resolve works · Auth with single employer password · Hosted on Cloud Run free tier"},
+]},
+{id:"EP-6",title:"Demo & portfolio layer",c:"#D4537E",bg:"#FBEAF0",stories:[
+{id:"S-27",title:"Demo QR code landing page on GitHub Pages",desc:"page-04.html replaced with real demo page. Displays WhatsApp QR code (wa.me deep link with pre-fill). Five demo persona cards showing suggested messages per language. Live audit feed polling a public read-only Cloud Run endpoint to show decisions being logged in real time as the employer chats.",ac:"QR opens WhatsApp correctly on mobile · Pre-fill message triggers registration · Audit feed updates within 5s · Page renders on mobile · No API key in page source",flag:"revised"},
+{id:"S-28",title:"Demo persona seed data & DEMO.md",desc:"Five pre-registered employees in Firestore: Amit (Hindi), Kaveri (Tamil), Priya (Marathi), Rauf (Bengali), Alex (English). Realistic leave balances. HITL scenario reliably seeded. DEMO.md documents exactly what to send to trigger each scenario.",ac:"All 5 personas respond correctly · HITL scenario triggers reliably · Balance query returns correct figures · DEMO.md is accurate and tested",flag:"new"},
+{id:"S-29",title:"End-to-end smoke test via real WhatsApp",desc:"Python script sends a real WhatsApp message through the live stack using the demo employee and asserts response received within 60s. Runs in CI against staging environment after every deployment.",ac:"Script passes on CI · Runs against staging, not production · Failure blocks deployment · Response time logged"},
+]}
+];
+
+function render(){
+  const container=document.getElementById('epics');
+  E.forEach((ep,ei)=>{
+    const sp=ep.stories.length*3;
+    const div=document.createElement('div');
+    div.className='epic';
+    div.innerHTML=`
+    <div class="epic-header" onclick="tog(${ei})">
+      <div class="epic-badge" style="background:${ep.bg};color:${ep.c}">${ep.id}</div>
+      <div class="epic-title">${ep.title}</div>
+      <div class="epic-meta">${ep.stories.length} stories · ${sp} SP</div>
+      <div class="epic-toggle" id="t${ei}">▶</div>
+    </div>
+    <div class="stories" id="s${ei}">
+      ${ep.stories.map(s=>`
+      <div class="story">
+        <div class="story-num">${s.id}</div>
+        <div>
+          ${s.flag==='revised'?'<span class="flag flag-warn">revised</span> ':''}
+          ${s.flag==='new'?'<span class="flag flag-new">new</span> ':''}
+          ${s.flag==='prereq'?'<span class="flag flag-warn">prereq</span> ':''}
+          <div class="story-title">${s.title}</div>
+          <div class="story-desc">${s.desc}</div>
+          <div class="story-ac"><b>AC: </b>${s.ac}</div>
+        </div>
+        <div class="sp">3 SP</div>
+      </div>`).join('')}
+    </div>`;
+    container.appendChild(div);
+  });
+}
+
+function tog(i){
+  const s=document.getElementById('s'+i);
+  const t=document.getElementById('t'+i);
+  s.classList.toggle('open');
+  t.classList.toggle('open',s.classList.contains('open'));
+}
+
+render();
+</script>
