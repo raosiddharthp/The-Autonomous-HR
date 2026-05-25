@@ -3,6 +3,9 @@ import logging
 from datetime import datetime, timezone
 from google.cloud import firestore
 from state import AgentState
+import sys, os as _os
+sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), '../../../../services/outbound-sender'))
+from hitl_notifier import send_hitl_alert
 
 logger = logging.getLogger(__name__)
 
@@ -75,4 +78,26 @@ def package_and_queue(state: AgentState) -> str:
         f"[{state.correlation_id}] hitl_packager: brief queued "
         f"in {HITL_COLLECTION}/{state.correlation_id}"
     )
+
+    # ── Notify employer via WhatsApp interactive message (S-24) ───────────
+    employer_number = _os.environ.get("EMPLOYER_WA_NUMBER", "")
+    if employer_number:
+        try:
+            send_hitl_alert(brief, employer_number)
+            logger.info(
+                f"[{state.correlation_id}] hitl_packager: "
+                f"employer WhatsApp alert sent"
+            )
+        except Exception as exc:
+            # Non-fatal: brief is already in Firestore; log and continue
+            logger.error(
+                f"[{state.correlation_id}] hitl_packager: "
+                f"WhatsApp alert failed (non-fatal): {exc}"
+            )
+    else:
+        logger.warning(
+            f"[{state.correlation_id}] hitl_packager: "
+            f"EMPLOYER_WA_NUMBER not set — skipping WhatsApp alert"
+        )
+
     return state.correlation_id
