@@ -62,10 +62,12 @@ class AgentState(BaseModel):
 
     # Tool outputs
     leave_balance:      Optional[Dict[str, int]] = None
+    leave_record_id:    Optional[str]            = None   # S-21: set after write_leave_record commits
     policy_refs:        List[PolicyRef]          = Field(default_factory=list)
     decision:           Optional[DecisionOutcome] = None
     decision_reasoning: Optional[str]             = None
     policy_clause:      Optional[str]             = None
+    rag_confidence:     float                    = 0.0    # S-21: written by RAG tool, read by leave_engine
 
     # Confidence & HITL
     confidence_score: float          = 0.0

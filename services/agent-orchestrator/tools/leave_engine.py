@@ -101,6 +101,41 @@ def deduct_leave(db, employee_id: str, leave_type: str, num_days: int) -> dict:
         raise
 
 
+def write_leave_record(db, state: AgentState, leave_type: str, num_days: int) -> str:
+    """
+    Write approved/denied leave to Firestore /leave_requests.
+    Must be called BEFORE send_notification — S-21 / design doc page-07.
+    Returns the new document ID.
+    Raises on write failure — caller must halt and escalate to HITL.
+    """
+    from datetime import datetime, timezone
+    import uuid
+
+    record = {
+        "record_id":          str(uuid.uuid4()),
+        "employee_id":        state.worker_id,
+        "worker_wa_id":       state.worker_wa_id,
+        "leave_type":         leave_type,
+        "num_days":           num_days,
+        "decision":           state.decision.value if state.decision else "unknown",
+        "decision_reasoning": state.decision_reasoning,
+        "policy_clause":      state.policy_clause,
+        "rag_confidence":     getattr(state, "rag_confidence", None),
+        "correlation_id":     state.correlation_id,
+        "created_at":         datetime.now(timezone.utc).isoformat(),
+        "slots":              state.slots.model_dump() if state.slots else {},
+    }
+
+    ref = db.collection("leave_requests").document(record["record_id"])
+    ref.set(record)
+
+    logger.info(
+        "write_leave_record OK | emp=%s decision=%s record_id=%s",
+        state.worker_id, record["decision"], record["record_id"]
+    )
+    return record["record_id"]
+
+
 def run_leave_engine(state: AgentState) -> AgentState:
     """
     Leave approval engine:
@@ -170,6 +205,20 @@ def run_leave_engine(state: AgentState) -> AgentState:
                 f"deducted {num_days} from {leave_type}, "
                 f"remaining={state.leave_balance[leave_type]}"
             )
+            # Commit leave record BEFORE state returns to notifier (S-21)
+            try:
+                record_id = write_leave_record(db, state, leave_type, num_days)
+                state.leave_record_id = record_id
+            except Exception as write_err:
+                logger.error(
+                    f"[{state.correlation_id}] leave_engine: "
+                    f"write_leave_record FAILED — {write_err}"
+                )
+                state.decision           = DecisionOutcome.ESCALATE
+                state.decision_reasoning = "Leave record write failed — escalating before any notification"
+                state.hitl_required      = True
+                state.hitl_reason        = "Firestore write failure on leave_requests"
+                return state
         except Aborted:
             logger.warning(f"[{state.correlation_id}] leave_engine: transaction conflict on deduct")
             state.decision           = DecisionOutcome.ESCALATE
