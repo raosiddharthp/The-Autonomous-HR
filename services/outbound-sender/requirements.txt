@@ -2,3 +2,5 @@ fastapi
 uvicorn
 twilio
 httpx
+requests
+google-cloud-secret-manager
