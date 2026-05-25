@@ -5,6 +5,8 @@ google-cloud-pubsub
 google-cloud-logging
 google-cloud-secret-manager
 google-cloud-storage
+google-cloud-firestore
 langdetect
 httpx
 python-multipart
+requests
