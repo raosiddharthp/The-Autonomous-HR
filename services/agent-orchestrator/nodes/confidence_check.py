@@ -1,5 +1,6 @@
 import logging
 from state import AgentState, DecisionOutcome
+from tools.hitl_packager import package_and_queue
 
 logger = logging.getLogger(__name__)
 
@@ -8,9 +9,9 @@ CONFIDENCE_THRESHOLD = 0.8
 
 def confidence_check_node(state: AgentState) -> AgentState:
     """
-    Confidence check node: computes overall confidence score
-    and sets hitl_required flag if score is below threshold,
-    decision is ESCALATE, or a grievance was logged.
+    Confidence check node: computes overall confidence score,
+    sets hitl_required flag, and if HITL is needed packages
+    the employer brief into Firestore hitl_queue.
     """
     state.log_step("confidence_check")
 
@@ -56,5 +57,14 @@ def confidence_check_node(state: AgentState) -> AgentState:
         f"[{state.correlation_id}] confidence_check: "
         f"hitl_required={state.hitl_required} reason={state.hitl_reason!r}"
     )
+
+    # Package and queue HITL brief if required
+    if state.hitl_required:
+        try:
+            doc_id = package_and_queue(state)
+            logger.info(f"[{state.correlation_id}] confidence_check: HITL brief queued as {doc_id}")
+        except Exception as e:
+            logger.error(f"[{state.correlation_id}] confidence_check: HITL queue failed: {e}")
+            state.log_error(f"hitl_queue_failed: {e}")
 
     return state
