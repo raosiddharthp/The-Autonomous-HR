@@ -1,8 +1,10 @@
+from datetime import datetime, timezone
 import os
 import logging
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../rag-indexer'))
 from google.cloud import firestore
+from google.api_core.exceptions import Aborted
 from state import AgentState, DecisionOutcome, Slots
 
 logger = logging.getLogger(__name__)
@@ -44,9 +46,59 @@ def get_leave_balance(db, employee_id: str) -> dict:
     return {"casual": 0, "sick": 0, "earned": 0, "unpaid": 0}
 
 
-def deduct_leave(db, employee_id: str, leave_type: str, num_days: int):
-    ref = db.collection("leave_balances").document(employee_id)
-    ref.update({leave_type: firestore.Increment(-num_days)})
+def deduct_leave(db, employee_id: str, leave_type: str, num_days: int) -> dict:
+    """
+    Atomically deduct num_days from leave_type balance using a Firestore
+    transaction. Raises ValueError on insufficient balance. Raises Aborted
+    on transaction conflict — caller should retry.
+    S-21: Prevents double-deduction on concurrent requests.
+    """
+    balance_ref = db.collection("leave_balances").document(employee_id)
+
+    @firestore.transactional
+    def _txn(transaction, ref):
+        snapshot = ref.get(transaction=transaction)
+        if not snapshot.exists:
+            raise ValueError(f"No leave_balances record for {employee_id}")
+
+        data     = snapshot.to_dict()
+        current  = data.get(leave_type, 0)
+
+        if current < num_days:
+            raise ValueError(
+                f"Insufficient {leave_type} balance: "
+                f"requested {num_days}, available {current}"
+            )
+
+        new_balance = current - num_days
+
+        history_entry = {
+            "timestamp":     datetime.now(timezone.utc).isoformat(),
+            "leave_type":    leave_type,
+            "days_deducted": num_days,
+            "balance_after": new_balance,
+        }
+
+        transaction.update(ref, {
+            leave_type: new_balance,
+            "history":  firestore.ArrayUnion([history_entry]),
+        })
+
+        return {**data, leave_type: new_balance}
+
+    transaction = db.transaction()
+    try:
+        updated = _txn(transaction, balance_ref)
+        logger.info(
+            "deduct_leave OK | emp=%s type=%s days=%d",
+            employee_id, leave_type, num_days
+        )
+        return updated
+    except ValueError:
+        raise
+    except Aborted as e:
+        logger.warning("deduct_leave CONFLICT | emp=%s — %s", employee_id, e)
+        raise
 
 
 def run_leave_engine(state: AgentState) -> AgentState:
@@ -109,9 +161,22 @@ def run_leave_engine(state: AgentState) -> AgentState:
             f"Remaining balance after approval: {available - num_days} days."
         )
         state.policy_clause = f"§4.2: {leave_type.capitalize()} leave entitlement: {POLICY_LIMITS.get(leave_type, '?')} days/year"
-        # Deduct atomically
-        deduct_leave(db, employee_id, leave_type, num_days)
-        logger.info(f"[{state.correlation_id}] leave_engine: APPROVED — deducted {num_days} from {leave_type}")
+        # Deduct atomically — transaction-wrapped (S-21)
+        try:
+            updated_balance = deduct_leave(db, employee_id, leave_type, num_days)
+            state.leave_balance[leave_type] = updated_balance.get(leave_type, 0)
+            logger.info(
+                f"[{state.correlation_id}] leave_engine: APPROVED — "
+                f"deducted {num_days} from {leave_type}, "
+                f"remaining={state.leave_balance[leave_type]}"
+            )
+        except Aborted:
+            logger.warning(f"[{state.correlation_id}] leave_engine: transaction conflict on deduct")
+            state.decision           = DecisionOutcome.ESCALATE
+            state.decision_reasoning = "Transaction conflict during balance deduction — escalating for manual review"
+            state.hitl_required      = True
+            state.hitl_reason        = "Concurrent leave request conflict"
+            return state
     else:
         state.decision = DecisionOutcome.DENY
         state.decision_reasoning = (
