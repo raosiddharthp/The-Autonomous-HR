@@ -6,9 +6,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from google.cloud import pubsub_v1
 
-from utils.signature import verify_twilio_signature
+from utils.signature import verify_twilio_signature, verify_meta_signature
 from handlers.text_handler import handle_text
 from handlers.media_handler import handle_media
+from handlers.interactive_handler import handle_interactive_reply
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI()
@@ -61,5 +62,72 @@ async def webhook(request: Request):
         worker_id=from_number,
         content_type=event["content_type"],
     )
+
+    return JSONResponse(status_code=200, content={"status": "ok"})
+
+
+# ── Meta Cloud API webhook (S-25) ────────────────────────────────────────
+
+@app.get("/webhook/meta")
+async def meta_verify(request: Request):
+    """Meta hub verification challenge — required to register the webhook URL."""
+    params     = dict(request.query_params)
+    mode       = params.get("hub.mode", "")
+    token      = params.get("hub.verify_token", "")
+    challenge  = params.get("hub.challenge", "")
+    expected   = os.environ.get("META_VERIFY_TOKEN", "")
+    if mode == "subscribe" and token == expected:
+        logging.info("meta_webhook_verified")
+        return JSONResponse(status_code=200, content=int(challenge))
+    logging.warning(f"meta_verify_failed mode={mode} token={token!r}")
+    return JSONResponse(status_code=403, content={"error": "forbidden"})
+
+
+@app.post("/webhook/meta")
+async def meta_webhook(request: Request):
+    """Receives all Meta Cloud API events: worker messages + employer button replies."""
+    if DEMO_LOCKED:
+        return JSONResponse(status_code=200, content={"status": "capacity"})
+
+    raw_body = await request.body()
+    sig      = request.headers.get("X-Hub-Signature-256", "")
+    if not verify_meta_signature(raw_body, sig):
+        logging.warning("invalid_meta_signature")
+        return JSONResponse(status_code=403, content={"error": "invalid signature"})
+
+    try:
+        body = json.loads(raw_body)
+    except json.JSONDecodeError:
+        return JSONResponse(status_code=400, content={"error": "bad json"})
+
+    # Walk the Meta event envelope
+    for entry in body.get("entry", []):
+        for change in entry.get("changes", []):
+            value    = change.get("value", {})
+            messages = value.get("messages", [])
+            for msg in messages:
+                sender     = msg.get("from", "")
+                msg_type   = msg.get("type", "")
+
+                if msg_type == "interactive":
+                    interactive = msg.get("interactive", {})
+                    if interactive.get("type") == "button_reply":
+                        button_id = interactive["button_reply"]["id"]
+                        logging.info(f"meta_interactive button_id={button_id} from={sender[-4:].rjust(12,'*')}")
+                        result = handle_interactive_reply(button_id, sender)
+                        logging.info(f"hitl_resolved result={result}")
+
+                elif msg_type in ("text", "audio"):
+                    # Worker messages via Meta — route same as Twilio path
+                    text_body = msg.get("text", {}).get("body", "")
+                    msg_id    = msg.get("id", "")
+                    event     = handle_text(sender, msg_id, text_body)
+                    publisher.publish(
+                        PUBSUB_TOPIC,
+                        json.dumps(event).encode("utf-8"),
+                        worker_id=sender,
+                        content_type=event["content_type"],
+                    )
+                    logging.info(f"meta_text_routed event_id={event['event_id']}")
 
     return JSONResponse(status_code=200, content={"status": "ok"})

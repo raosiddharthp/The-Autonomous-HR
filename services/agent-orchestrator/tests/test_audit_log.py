@@ -101,7 +101,9 @@ def test_update_denied_by_emulator():
     assert data_before["decision"]  == data_after["decision"]
 
     # Confirm rules file denies update/delete
-    rules = open("../../firestore.rules").read()
+    rules = open(
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "firestore.rules")
+    ).read()
     assert "allow update: if false" in rules, \
         "firestore.rules must deny update on interactions"
     assert "allow delete: if false" in rules, \

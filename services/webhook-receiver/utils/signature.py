@@ -1,4 +1,6 @@
 import os
+import hmac
+import hashlib
 from twilio.request_validator import RequestValidator
 
 def get_validator() -> RequestValidator:
@@ -15,3 +17,20 @@ def verify_twilio_signature(url: str, params: dict, signature: str) -> bool:
         if dev_mode:
             return True
     return result
+
+
+def verify_meta_signature(raw_body: bytes, signature_header: str) -> bool:
+    """
+    Verify Meta Cloud API X-Hub-Signature-256 header.
+    Falls back to True in DEV_MODE so local testing is not blocked.
+    """
+    app_secret = os.environ.get("META_APP_SECRET", "")
+    dev_mode   = os.environ.get("DEV_MODE", "false").lower() == "true"
+    if not app_secret:
+        if dev_mode:
+            return True
+        return False
+    expected = "sha256=" + hmac.new(
+        app_secret.encode(), raw_body, hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature_header)
