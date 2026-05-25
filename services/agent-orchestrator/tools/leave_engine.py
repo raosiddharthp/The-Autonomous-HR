@@ -6,6 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../rag-indexer'))
 from google.cloud import firestore
 from google.api_core.exceptions import Aborted
 from state import AgentState, DecisionOutcome, Slots
+from audit_log import write_audit_log, PATH_AI
 
 logger = logging.getLogger(__name__)
 
@@ -236,5 +237,16 @@ def run_leave_engine(state: AgentState) -> AgentState:
         )
         state.policy_clause = f"§4.2: {leave_type.capitalize()} leave entitlement: {POLICY_LIMITS.get(leave_type, '?')} days/year"
         logger.info(f"[{state.correlation_id}] leave_engine: DENIED — insufficient balance")
+
+    # Write immutable audit log BEFORE returning to notifier (S-22)
+    try:
+        db_audit = get_db()
+        log_id = write_audit_log(db_audit, state, decision_path=PATH_AI)
+        state.log_step(f"audit_log_written:{log_id}")
+    except Exception as audit_err:
+        logger.error(
+            f"[{state.correlation_id}] audit_log write FAILED — {audit_err}"
+        )
+        state.log_error(f"audit_log_failed:{audit_err}")
 
     return state

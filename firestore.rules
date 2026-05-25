@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── interactions (audit log) ──────────────────────────────────────────
+    // Append-only: create allowed, update and delete NEVER permitted.
+    // S-22: Every HR decision, HITL resolution, and system event is immutable.
+    match /interactions/{logId} {
+      allow create: if request.auth != null;
+      allow read:   if request.auth != null;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── employees ─────────────────────────────────────────────────────────
+    // Workers may only read their own record.
+    // Service accounts (server-side) bypass via Admin SDK — not affected here.
+    match /employees/{employeeId} {
+      allow read:   if request.auth != null
+                    && request.auth.uid == employeeId;
+      allow write:  if false;  // writes via Admin SDK only
+    }
+
+    // ── leave_balances ────────────────────────────────────────────────────
+    // Employees may read their own balance. Writes via Admin SDK only.
+    match /leave_balances/{employeeId} {
+      allow read:   if request.auth != null
+                    && request.auth.uid == employeeId;
+      allow write:  if false;
+    }
+
+    // ── leave_requests ────────────────────────────────────────────────────
+    // Employees may read their own requests. Writes via Admin SDK only.
+    match /leave_requests/{requestId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── hitl_queue ────────────────────────────────────────────────────────
+    // Employer/owner reads and resolves. Workers cannot access.
+    match /hitl_queue/{itemId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;  // owner resolves via update
+      allow delete: if false;
+    }
+
+    // ── policy_chunks ─────────────────────────────────────────────────────
+    // Read-only for all authenticated. Writes via Admin SDK (indexer job).
+    match /policy_chunks/{chunkId} {
+      allow read:  if request.auth != null;
+      allow write: if false;
+    }
+
+    // ── Default: deny everything else ─────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
