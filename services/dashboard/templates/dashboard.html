@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoHR · HITL Queue</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ink:       #0d0d0d;
+    --ink-mid:   #444;
+    --ink-light: #888;
+    --paper:     #f5f3ee;
+    --paper-2:   #ede9e1;
+    --rule:      #d8d3ca;
+    --saffron:   #e8820c;
+    --saffron-l: #fdf0e0;
+    --green:     #1a7a4a;
+    --green-l:   #e6f4ed;
+    --red:       #c0392b;
+    --red-l:     #fdecea;
+    --blue:      #1a4fa0;
+    --blue-l:    #e8eef8;
+    --mono:      'IBM Plex Mono', monospace;
+    --sans:      'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--ink);
+    color: #fff;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .header-brand span { color: var(--saffron); }
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 24px;
+    display: flex;
+    gap: 32px;
+  }
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .stat-val.urgent { color: var(--saffron); }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Main layout ── */
+  main { padding: 24px; max-width: 900px; margin: 0 auto; }
+
+  .section-header {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+    margin-top: 28px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-header:first-child { margin-top: 0; }
+
+  /* ── Queue cards ── */
+  .queue-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .queue-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--saffron);
+    padding: 16px;
+    transition: box-shadow 0.15s;
+  }
+  .queue-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .queue-card.resolved { border-left-color: var(--green); opacity: 0.7; }
+  .queue-card.denied   { border-left-color: var(--red);   opacity: 0.7; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .card-worker {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .card-age {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-light);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .card-age.old { color: var(--saffron); font-weight: 600; }
+
+  .card-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px 16px;
+    margin-bottom: 12px;
+  }
+  .field { display: flex; flex-direction: column; gap: 2px; }
+  .field-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+  .field-val {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .badge-approve { background: var(--green-l); color: var(--green); }
+  .badge-deny    { background: var(--red-l);   color: var(--red);   }
+  .badge-escalate{ background: var(--saffron-l); color: var(--saffron); }
+  .badge-pending { background: var(--blue-l);  color: var(--blue);  }
+  .badge-resolved{ background: var(--green-l); color: var(--green); }
+
+  .card-reason {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-mid);
+    background: var(--paper);
+    padding: 6px 10px;
+    border-left: 2px solid var(--rule);
+    margin-bottom: 12px;
+  }
+
+  .card-actions { display: flex; gap: 8px; align-items: center; }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 7px 14px;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-resolve { background: var(--ink); color: #fff; }
+  .btn-dismiss { background: var(--paper-2); color: var(--ink-mid); }
+
+  .resolved-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-light);
+  }
+
+  /* ── Empty state ── */
+  .empty {
+    padding: 40px 24px;
+    text-align: center;
+    background: #fff;
+    border: 1px dashed var(--rule);
+  }
+  .empty-icon { font-size: 28px; margin-bottom: 10px; }
+  .empty-text {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-light);
+  }
+
+  /* ── Refresh indicator ── */
+  .refresh-strip {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-light);
+    text-align: right;
+    padding: 8px 0 0;
+  }
+  .refresh-strip span { color: var(--saffron); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 12px 18px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    main   { padding: 16px; }
+    .stats-bar { gap: 20px; padding: 10px 16px; }
+    .card-fields { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">Auto<span>HR</span> · HITL Queue</div>
+  <div class="header-meta" id="last-updated">—</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-val urgent" id="stat-pending">—</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="stat-resolved">—</div>
+    <div class="stat-label">Resolved</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="stat-total">—</div>
+    <div class="stat-label">Total (last 50)</div>
+  </div>
+</div>
+
+<main>
+  <div class="section-header">
+    <span>Pending — requires action</span>
+    <span id="pending-count"></span>
+  </div>
+  <div class="queue-list" id="pending-list">
+    <div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Loading...</div></div>
+  </div>
+
+  <div class="section-header" style="margin-top:36px;">
+    <span>Recently resolved</span>
+  </div>
+  <div class="queue-list" id="resolved-list">
+    <div class="empty"><div class="empty-icon">✓</div><div class="empty-text">Loading...</div></div>
+  </div>
+
+  <div class="refresh-strip">Auto-refresh every <span>30s</span> · <span id="next-refresh">30</span>s</div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+function badge(decision) {
+  const map = {
+    APPROVE: 'approve', DENY: 'deny',
+    ESCALATE: 'escalate', PENDING: 'pending',
+    approved: 'resolved', denied: 'deny',
+    resolved: 'resolved', pending: 'pending'
+  };
+  const cls = map[decision] || 'pending';
+  return `<span class="badge badge-${cls}">${decision}</span>`;
+}
+
+function ageClass(mins) {
+  return mins >= 60 ? 'old' : '';
+}
+
+function ageStr(mins) {
+  if (mins < 0)  return '?';
+  if (mins < 60) return `${mins}m ago`;
+  return `${Math.floor(mins/60)}h ${mins%60}m ago`;
+}
+
+function renderCard(item, isPending) {
+  const age = `<span class="card-age ${ageClass(item.age_minutes)}">${ageStr(item.age_minutes)}</span>`;
+  const reason = item.hitl_reason
+    ? `<div class="card-reason">⚠ ${item.hitl_reason}</div>` : '';
+  const policy = item.policy_clause
+    ? `<div class="field"><div class="field-label">Policy</div><div class="field-val" style="font-size:12px;color:var(--ink-mid)">${item.policy_clause}</div></div>` : '';
+  const actions = isPending
+    ? `<div class="card-actions">
+        <button class="btn btn-resolve" onclick="resolve('${item.corr_id}', this)">✓ Mark Resolved</button>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--ink-light)">${item.corr_id.slice(0,8)}…</span>
+       </div>`
+    : `<div class="resolved-label">${badge(item.status)} · resolved via WhatsApp or dashboard</div>`;
+
+  return `
+  <div class="queue-card ${isPending ? '' : item.status}" id="card-${item.corr_id}">
+    <div class="card-top">
+      <div class="card-worker">👤 ${item.worker_id}</div>
+      ${age}
+    </div>
+    <div class="card-fields">
+      <div class="field"><div class="field-label">Intent</div><div class="field-val">${item.intent}</div></div>
+      <div class="field"><div class="field-label">Leave type</div><div class="field-val">${item.leave_type}</div></div>
+      <div class="field"><div class="field-label">Dates</div><div class="field-val">${item.start_date} → ${item.end_date}</div></div>
+      <div class="field"><div class="field-label">AI rec</div><div class="field-val">${badge(item.ai_decision)}</div></div>
+      <div class="field"><div class="field-label">Confidence</div><div class="field-val">${item.confidence_pct}</div></div>
+      ${policy}
+    </div>
+    ${reason}
+    ${actions}
+  </div>`;
+}
+
+function renderList(items, containerId, isPending) {
+  const el = document.getElementById(containerId);
+  if (!items.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">${isPending ? '✅' : '—'}</div>
+      <div class="empty-text">${isPending ? 'No pending items' : 'None yet'}</div></div>`;
+    return;
+  }
+  el.innerHTML = items.map(i => renderCard(i, isPending)).join('');
+}
+
+async function loadQueue() {
+  try {
+    const resp = await fetch('/api/queue', {
+      headers: { 'Authorization': 'Basic ' + btoa('employer:' + getPassword()) }
+    });
+    if (resp.status === 401) { window.location.reload(); return; }
+    const data = await resp.json();
+
+    document.getElementById('stat-pending').textContent  = data.pending.length;
+    document.getElementById('stat-resolved').textContent = data.resolved.length;
+    document.getElementById('stat-total').textContent    = data.total;
+    document.getElementById('pending-count').textContent = data.pending.length ? `${data.pending.length} item${data.pending.length>1?'s':''}` : '';
+    document.getElementById('last-updated').textContent  = 'Updated ' + new Date().toLocaleTimeString();
+
+    renderList(data.pending,  'pending-list',  true);
+    renderList(data.resolved, 'resolved-list', false);
+  } catch(e) {
+    console.error('Queue load failed:', e);
+  }
+}
+
+async function resolve(corrId, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Resolving…';
+  try {
+    const resp = await fetch('/api/resolve/' + corrId, {
+      method: 'POST',
+      headers: { 'Authorization': 'Basic ' + btoa('employer:' + getPassword()) }
+    });
+    const data = await resp.json();
+    if (data.status === 'resolved') {
+      showToast('✓ Marked resolved');
+      loadQueue();
+    } else {
+      showToast('Already ' + data.status);
+      btn.disabled = false;
+      btn.textContent = '✓ Mark Resolved';
+    }
+  } catch(e) {
+    showToast('Error — try again');
+    btn.disabled = false;
+    btn.textContent = '✓ Mark Resolved';
+  }
+}
+
+function getPassword() {
+  // Password stored in sessionStorage after first prompt — never in URL
+  let pw = sessionStorage.getItem('dashboard_pw');
+  if (!pw) {
+    pw = prompt('Dashboard password:');
+    if (pw) sessionStorage.setItem('dashboard_pw', pw);
+  }
+  return pw || '';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Auto-refresh countdown
+let countdown = 30;
+setInterval(() => {
+  countdown--;
+  document.getElementById('next-refresh').textContent = countdown;
+  if (countdown <= 0) { countdown = 30; loadQueue(); }
+}, 1000);
+
+loadQueue();
+</script>
+</body>
+</html>
