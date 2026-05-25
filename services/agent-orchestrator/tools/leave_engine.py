@@ -183,9 +183,11 @@ def run_leave_engine(state: AgentState) -> AgentState:
     # Step 3: check for zero balance across all types
     total_balance = sum(balance.get(t, 0) for t in ["casual", "sick", "earned"])
     if total_balance == 0:
-        state.decision = DecisionOutcome.ESCALATE
+        state.decision           = DecisionOutcome.ESCALATE
         state.decision_reasoning = "Zero leave balance across all types — escalating to MD"
-        state.policy_clause = "§4.5: Employee with zero balance triggers HITL escalation to Managing Director"
+        state.policy_clause      = "§4.5: Employee with zero balance triggers HITL escalation to Managing Director"
+        state.hitl_required      = True
+        state.hitl_reason        = "All leave balances exhausted — requires MD approval"
         return state
 
     # Step 4: validate and decide
