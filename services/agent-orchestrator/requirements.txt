@@ -5,5 +5,8 @@ langchain-google-vertexai==1.0.6
 langchain-core==0.2.22
 google-cloud-firestore==2.16.0
 google-cloud-secret-manager
+google-auth
+google-auth-httplib2
+requests
 pydantic==2.7.1
 python-dateutil==2.9.0
