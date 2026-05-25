@@ -1,0 +1,6 @@
+google-cloud-firestore==2.16.0
+google-cloud-aiplatform==1.51.0
+pypdf==4.2.0
+python-dotenv==1.0.1
+requests==2.31.0
+google-auth==2.29.0
